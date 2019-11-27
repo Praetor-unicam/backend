@@ -1,5 +1,5 @@
 import express from 'express';
-import { getData, parseXLSCyprus, parseCSVLuxembourg } from './loader'; // getData will return luxembourg's data so far
+import { getData } from './loader'; // getData will return luxembourg's data so far
 const app = express();
 
 app.get('/', (request, response) => {

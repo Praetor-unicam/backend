@@ -35,7 +35,6 @@ interface Country {
  * Returns JSON from luxembourg's CSV file
  */
 export function parseCSVLuxembourg(filename: string[]): Country {
-    console.log(filename[0])
     let text = fs.readFileSync(filename[0], 'utf-8');
     const output: Country = { country: 'Luxembourg', year: [] };
 
@@ -88,8 +87,7 @@ export function parseCSVLuxembourg(filename: string[]): Country {
 }
 
 export function parseXLSCyprus(filename: string[]): Country {
-    console.log(filename[0])
-    const output: Country = {country: 'Cyprus', year: [{year: 2019, region: []}]}
+    const output: Country = { country: 'Cyprus', year: [{ year: 2019, region: [] }] };
     const seriousCrimes = excelToJson({
         sourceFile: filename[0],
         header: {
@@ -124,21 +122,23 @@ export function parseXLSCyprus(filename: string[]): Country {
         },
         range: 'A4:T12',
     });
-    const records = seriousCrimes["Serious crime"].concat(minorCrimes["Minor per off"]);
+    const records = seriousCrimes['Serious crime'].concat(minorCrimes['Minor per off']);
     let firstPass = true;
-    for(const row of records){
+    for (const row of records) {
         let i = 0;
-        let crime: string = "";
-        Object.keys(row).forEach(function(key) {           
-            if(key == 'Offences'){
+        let crime = '';
+        Object.keys(row).forEach(function(key) {
+            if (key == 'Offences') {
                 crime = row[key];
                 //console.log(crime);
-            }else if(key=='TOTAL'){
-                
-            }else if(firstPass){
-                output.year[0].region.push({region: key, province: [{province: key, data: [{crime: crime, value: row[key]}]}]});
-            }else{
-                output.year[0].region[i-1].province[0].data.push({crime: crime, value: row[key]});
+            } else if (key == 'TOTAL') {
+            } else if (firstPass) {
+                output.year[0].region.push({
+                    region: key,
+                    province: [{ province: key, data: [{ crime: crime, value: row[key] }] }],
+                });
+            } else {
+                output.year[0].region[i - 1].province[0].data.push({ crime: crime, value: row[key] });
             }
             i = i + 1;
         });
@@ -160,7 +160,7 @@ const countryFunctions: Record<string, Function> = {
 const countrySources: Record<string, Array<string>> = {
     luxembourg: ['data/source_files/luxembourg/luxembourg.csv'],
     cyprus: ['data/source_files/cyprus/cyprus_1.xls', 'data/source_files/cyprus/cyprus_2.xls'],
-}
+};
 ////////////////////////////////////////////
 
 //////// GENERAL USE FUNCTIONS /////////////
