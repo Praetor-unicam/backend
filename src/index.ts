@@ -8,11 +8,11 @@ app.get('/', (request, response) => {
 
 ///////////////////DEBUG ROUTES//////////////////////////
 app.get('/readCSV-luxembourg', (request, response) => {
-    response.send(getData('luxembourg', '.csv'));
+    response.send(getData('luxembourg'));
     //response.send(parseCSVLuxembourg('data/source_files/luxembourg/luxembourg.csv'));
 });
 app.get('/readXLS-cyprus', (request, response) => {
-    response.send(parseXLSCyprus('data/source_files/cyprus/cyprus_1.xls'));
+    response.send(getData('cyprus'));
 });
 ///////////////////////////////////////////////////////
 

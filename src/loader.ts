@@ -34,7 +34,8 @@ interface Country {
 /**
  * Returns JSON from luxembourg's CSV file
  */
-export function parseCSVLuxembourg(...filename: string[]): Country {
+export function parseCSVLuxembourg(filename: string[]): Country {
+    console.log(filename[0])
     let text = fs.readFileSync(filename[0], 'utf-8');
     const output: Country = { country: 'Luxembourg', year: [] };
 
@@ -86,9 +87,11 @@ export function parseCSVLuxembourg(...filename: string[]): Country {
     return output;
 }
 
-export function parseXLSCyprus(...filename: string[]): Array<any> {
-    const result = excelToJson({
-        sourceFile: 'data/source_files/cyprus/cyprus_1.xls',
+export function parseXLSCyprus(filename: string[]): Country {
+    console.log(filename[0])
+    const output: Country = {country: 'Cyprus', year: [{year: 2019, region: []}]}
+    const seriousCrimes = excelToJson({
+        sourceFile: filename[0],
         header: {
             rows: 3,
         },
@@ -104,7 +107,44 @@ export function parseXLSCyprus(...filename: string[]): Array<any> {
         },
         range: 'A4:T15',
     });
-    return result;
+    const minorCrimes = excelToJson({
+        sourceFile: filename[1],
+        header: {
+            rows: 3,
+        },
+        columnToKey: {
+            A: '{{A2}}',
+            B: '{{B2}}',
+            E: '{{E2}}',
+            H: '{{H2}}',
+            K: '{{K2}}',
+            N: '{{N2}}',
+            Q: '{{Q2}}',
+            T: '{{T2}}',
+        },
+        range: 'A4:T12',
+    });
+    const records = seriousCrimes["Serious crime"].concat(minorCrimes["Minor per off"]);
+    let firstPass = true;
+    for(const row of records){
+        let i = 0;
+        let crime: string = "";
+        Object.keys(row).forEach(function(key) {           
+            if(key == 'Offences'){
+                crime = row[key];
+                //console.log(crime);
+            }else if(key=='TOTAL'){
+                
+            }else if(firstPass){
+                output.year[0].region.push({region: key, province: [{province: key, data: [{crime: crime, value: row[key]}]}]});
+            }else{
+                output.year[0].region[i-1].province[0].data.push({crime: crime, value: row[key]});
+            }
+            i = i + 1;
+        });
+        firstPass = false;
+    }
+    return output;
 }
 ///////////////////////////////////////////////////////
 
@@ -116,6 +156,11 @@ const countryFunctions: Record<string, Function> = {
     luxembourg: parseCSVLuxembourg,
     cyprus: parseXLSCyprus,
 };
+
+const countrySources: Record<string, Array<string>> = {
+    luxembourg: ['data/source_files/luxembourg/luxembourg.csv'],
+    cyprus: ['data/source_files/cyprus/cyprus_1.xls', 'data/source_files/cyprus/cyprus_2.xls'],
+}
 ////////////////////////////////////////////
 
 //////// GENERAL USE FUNCTIONS /////////////
@@ -151,8 +196,8 @@ export function mapCategories(source: Country, country: string): Country {
 /**
  * Returns the JSON with ICCS categories of the specified country with source of the specified extension (eg. .csv, .xls, .xlsx)
  */
-export function getData(country: string, extension: string): Country {
-    const data = countryFunctions[country]('data/source_files/' + country + '/' + country + extension);
+export function getData(country: string): Country {
+    const data = countryFunctions[country](countrySources[country]);
     const JSONData = mapCategories(data, country);
     return JSONData;
 }
