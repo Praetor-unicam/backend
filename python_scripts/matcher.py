@@ -172,7 +172,7 @@ def match_list(data):
     '''
     Matches labels in [data] to ICCS categories using avg_feature_vector
     '''
-    model = gensim.models.KeyedVectors.load_word2vec_format('./GoogleNews-vectors-negative300.bin', binary=True)
+    model = gensim.models.KeyedVectors.load_word2vec_format('../data/model/GoogleNews-vectors-negative300.bin', binary=True)
     index2word_set = set(model.index2word)
     best_matching = dict.fromkeys(data)
     print("done loading model...")
@@ -186,6 +186,8 @@ def match_list(data):
         for code in ICCS:
             name = ICCS[code]
             potential_vec = avg_feature_vector(name, model=model, num_features=300, index2word_set=index2word_set)
+            if potential_vec.size == 0:
+                continue
             similarity = 1 - spatial.distance.cosine(crime_vec, potential_vec)
             matching = MatchedCategory(code, name, similarity)
             similarity_ranking.add(matching)
@@ -200,9 +202,7 @@ def save_matching(filename, data):
         data[key] = (data[key][0].get_code(), data[key][0].get_name())
     write_to_file(filename, data)
 
-
+# TODO: coalesce categories
 if __name__ == '__main__':
-    '''
-    result = match_list(read_file('luxembourg/luxembourg-translated.txt'))
-    save_matching('luxembourg/luxembourg-matching.txt', result)
-    '''
+    result = match_list(read_file('../data/matching/cyprus/cyprus-translated.txt'))
+    save_matching('../data/matching/cyprus/cyprus-matching.txt', result)

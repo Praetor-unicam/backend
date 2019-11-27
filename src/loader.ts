@@ -21,6 +21,10 @@ function parseCSVLuxembourg(filename: string): Array<any> {
 
     return records;
 }
+
+function parseXLSCyprus(filename: string): Array<any> {
+    return []
+}
 ///////////////////////////////////////////////////////
 
 //////// DICTIONARY OF FUNCTIONS ////////////
@@ -29,6 +33,7 @@ function parseCSVLuxembourg(filename: string): Array<any> {
  */
 const countryFunctions: Record<string, Function> = {
     luxembourg: parseCSVLuxembourg,
+    cyprus: parseXLSCyprus
 };
 ////////////////////////////////////////////
 
