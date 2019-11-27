@@ -34,7 +34,7 @@ interface Country {
 /**
  * Returns JSON from luxembourg's CSV file
  */
-export function parseCSVLuxembourg(filename: string[]): Country {
+function parseCSVLuxembourg(filename: string[]): Country {
     let text = fs.readFileSync(filename[0], 'utf-8');
     const output: Country = { country: 'Luxembourg', year: [] };
 
@@ -86,7 +86,7 @@ export function parseCSVLuxembourg(filename: string[]): Country {
     return output;
 }
 
-export function parseXLSCyprus(filename: string[]): Country {
+function parseXLSCyprus(filename: string[]): Country {
     const output: Country = { country: 'Cyprus', year: [{ year: 2019, region: [] }] };
     const seriousCrimes = excelToJson({
         sourceFile: filename[0],
@@ -164,10 +164,49 @@ const countrySources: Record<string, Array<string>> = {
 ////////////////////////////////////////////
 
 //////// GENERAL USE FUNCTIONS /////////////
+function coalesce(source: Country): Country {
+    for (const year of source.year) {
+        for (const region of year.region) {
+            for (const province of region.province) {
+                let index1 = province.data.length - 1;
+                while (index1 >= 1) {
+                    let index2 = index1 - 1;
+                    while (index2 >= 0) {
+                        if (province.data[index2].code == province.data[index1].code) {
+                            //console.log(province.province + province.data[index2].code);
+                            province.data[index1].value += province.data[index2].value;
+                            province.data[index2].value = NaN;
+                            //console.log(province.data[index1].value);
+                            //province.data.splice(index2, 1);
+                        }
+                        index2 -= 1;
+                    }
+                    index1 -= 1;
+                }
+            }
+        }
+    }
+
+    for (const year of source.year) {
+        for (const region of year.region) {
+            for (const province of region.province) {
+                let index1 = province.data.length - 1;
+                while (index1 >= 0) {
+                    if (isNaN(province.data[index1].value)) {
+                        province.data.splice(index1, 1);
+                    }
+                    index1 -= 1;
+                }
+            }
+        }
+    }
+
+    return source;
+}
 /**
  * Returns the input JSON with the corresponding ICCS entries
  */
-export function mapCategories(source: Country, country: string): Country {
+function mapCategories(source: Country, country: string): Country {
     const matching = fs.readFileSync('data/matching/' + country + '/' + country + '-matching.txt', 'utf-8');
     const matchingJSON = JSON.parse(matching);
 
@@ -190,7 +229,7 @@ export function mapCategories(source: Country, country: string): Country {
         }
     }
 
-    return source;
+    return coalesce(source);
 }
 
 /**
