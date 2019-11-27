@@ -1,12 +1,42 @@
 import fs = require('fs');
 import parse = require('csv-parse/lib/sync');
+const excelToJson = require('convert-excel-to-json');
+
+////////// INTERFACES ///////////
+
+interface Crime {
+    code?: string;
+    crime: string;
+    value: number;
+}
+
+interface Province {
+    province: string;
+    data: Array<Crime>;
+}
+
+interface Region {
+    region: string;
+    province: Array<Province>;
+}
+
+interface Year {
+    year: number;
+    region: Array<Region>;
+}
+
+interface Country {
+    country: string;
+    year: Array<Year>;
+}
 
 ///////// COUNTRY LOADING FUNCTIONS /////////////////
 /**
  * Returns JSON from luxembourg's CSV file
  */
-function parseCSVLuxembourg(filename: string): Array<any> {
-    let text = fs.readFileSync(filename, 'utf-8');
+export function parseCSVLuxembourg(...filename: string[]): Country {
+    let text = fs.readFileSync(filename[0], 'utf-8');
+    const output: Country = { country: 'Luxembourg', year: [] };
 
     text = text.replace('Year', 'Qualification');
 
@@ -19,11 +49,62 @@ function parseCSVLuxembourg(filename: string): Array<any> {
         },
     });
 
-    return records;
+    let firstPass = true;
+    for (const row of records) {
+        //console.log(row);
+        let i = 0;
+        Object.keys(row).forEach(function(key) {
+            if (!isNaN(Number(key)) && firstPass) {
+                const yearTemp: Year = {
+                    year: Number(key),
+                    region: [
+                        {
+                            region: 'Luxembourg',
+                            province: [
+                                { province: 'Luxembourg', data: [{ crime: row.Qualification, value: row[key] }] },
+                            ],
+                        },
+                    ],
+                };
+                output.year.push(yearTemp);
+            } else {
+                if (!isNaN(Number(key))) {
+                    //console.log(Number(key));
+                    output.year[i].region[0].province[0].data.push({
+                        crime: row.Qualification,
+                        value: row[key],
+                    });
+                }
+            }
+
+            //console.table('Key : ' + key + ', Value : ' + row[key]);
+            i = i + 1;
+        });
+        firstPass = false;
+    }
+
+    return output;
 }
 
-function parseXLSCyprus(filename: string): Array<any> {
-    return []
+export function parseXLSCyprus(...filename: string[]): Array<any> {
+    const result = excelToJson({
+        sourceFile: 'data/source_files/cyprus/cyprus_1.xls',
+        header: {
+            rows: 3,
+        },
+        columnToKey: {
+            A: '{{A2}}',
+            B: '{{B2}}',
+            E: '{{E2}}',
+            H: '{{H2}}',
+            K: '{{K2}}',
+            N: '{{N2}}',
+            Q: '{{Q2}}',
+            T: '{{T2}}',
+        },
+        range: 'A4:T15',
+    });
+    return result;
 }
 ///////////////////////////////////////////////////////
 
@@ -33,7 +114,7 @@ function parseXLSCyprus(filename: string): Array<any> {
  */
 const countryFunctions: Record<string, Function> = {
     luxembourg: parseCSVLuxembourg,
-    cyprus: parseXLSCyprus
+    cyprus: parseXLSCyprus,
 };
 ////////////////////////////////////////////
 
@@ -41,20 +122,27 @@ const countryFunctions: Record<string, Function> = {
 /**
  * Returns the input JSON with the corresponding ICCS entries
  */
-function mapCategories(source: Array<any>, country: string): Array<any> {
+export function mapCategories(source: Country, country: string): Country {
     const matching = fs.readFileSync('data/matching/' + country + '/' + country + '-matching.txt', 'utf-8');
     const matchingJSON = JSON.parse(matching);
-    let index = source.length - 1;
-    while (index >= 0) {
-        const category = source[index].Qualification;
 
-        if (category in matchingJSON) {
-            source[index].Qualification = matchingJSON[category];
-        } else {
-            source.splice(index, 1);
+    for (const year of source.year) {
+        for (const region of year.region) {
+            for (const province of region.province) {
+                let index = province.data.length - 1;
+                while (index >= 0) {
+                    const crime = province.data[index].crime;
+                    if (crime in matchingJSON) {
+                        province.data[index].code = matchingJSON[crime][0];
+                        province.data[index].crime = matchingJSON[crime][1];
+                    } else {
+                        province.data.splice(index, 1);
+                    }
+
+                    index -= 1;
+                }
+            }
         }
-
-        index -= 1;
     }
 
     return source;
@@ -63,7 +151,7 @@ function mapCategories(source: Array<any>, country: string): Array<any> {
 /**
  * Returns the JSON with ICCS categories of the specified country with source of the specified extension (eg. .csv, .xls, .xlsx)
  */
-export function getData(country: string, extension: string): Array<any> {
+export function getData(country: string, extension: string): Country {
     const data = countryFunctions[country]('data/source_files/' + country + '/' + country + extension);
     const JSONData = mapCategories(data, country);
     return JSONData;
