@@ -171,6 +171,10 @@ function coalesce(source: Country): Country {
                 let index1 = province.data.length - 1;
                 while (index1 >= 1) {
                     let index2 = index1 - 1;
+                    if (isNaN(province.data[index1].value)) {
+                        //convert invalid values to 0
+                        province.data[index1].value = 0;
+                    }
                     while (index2 >= 0) {
                         if (province.data[index2].code == province.data[index1].code) {
                             //console.log(province.province + province.data[index2].code);
