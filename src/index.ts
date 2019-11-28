@@ -12,7 +12,11 @@ app.get('/', (request, response) => {
 app.use('/scraper/luxembourg', luxembourg);
 ///////////////////DEBUG ROUTES//////////////////////////
 app.get('/readCSV-luxembourg', (request, response) => {
-    response.send(getData('luxembourg', '.csv'));
+    response.send(getData('luxembourg'));
+    //response.send(parseCSVLuxembourg('data/source_files/luxembourg/luxembourg.csv'));
+});
+app.get('/readXLS-cyprus', (request, response) => {
+    response.send(getData('cyprus'));
 });
 ///////////////////////////////////////////////////////
 
