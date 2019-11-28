@@ -62,8 +62,13 @@ router.get('/data/:country/:year', async (req, res) => {
         .exec()
         .then(doc => {
             console.log(doc);
+            crimes = [];
             //return doc;
-            res.status(200).json(doc);
+            doc.forEach(crime => {
+                let new_crime = { name: crime.crime, n_crimes: parseInt(crime.value)};
+                crimes.push(new_crime);
+            });
+            res.status(200).json(crimes);
         })
         .catch(err => {
             console.log(err);
