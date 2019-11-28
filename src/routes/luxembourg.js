@@ -1,12 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
-
+const loader = require('../loader');
 const State = require('../model/State');
 
 // create instance of a luxembourg state
-router.post('/create', async (req, res) => {
-    const state = new State(req.body);
+router.post('/create/:country', async (req, res) => {
+    const coutry = req.params.country;
+    const state = new State(loader.getData(coutry));
     await state
         .save()
         .then(result => {
@@ -20,9 +21,9 @@ router.post('/create', async (req, res) => {
 });
 
 // read all documents that state name is specified in request param
-router.get('/state', async (req, res) => {
-    const state = req.query.state;
-    const year = parseInt(req.query.year);
+router.get('/data/:country/:year', async (req, res) => {
+    const state = req.params.coutry;
+    const year = parseInt(req.params.year);
     console.log();
     const query = [
         {
