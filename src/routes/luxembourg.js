@@ -22,7 +22,7 @@ router.post('/create/:country', async (req, res) => {
 
 // read all documents that state name is specified in request param
 router.get('/data/:country/:year', async (req, res) => {
-    const state = req.params.coutry;
+    const state = req.params.country;
     const year = parseInt(req.params.year);
     console.log();
     const query = [
