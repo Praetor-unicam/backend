@@ -6,7 +6,7 @@ const State = require('../model/State');
 
 // create instance of a luxembourg state
 router.post('/create/:country', async (req, res) => {
-    const coutry = req.params.country;
+    const country = req.params.country;
     const state = new State(loader.getData(country));
     await state
         .save()
