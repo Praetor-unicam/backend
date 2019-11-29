@@ -1,7 +1,7 @@
 import express, { response } from 'express';
 const mongoose = require('mongoose');
 const body_parser = require('body-parser');
-var state = require('./routes/luxembourg');
+let state = require('./routes/luxembourg');
 
 mongoose
     .connect('mongodb://localhost:27017/misap_DB')
@@ -13,16 +13,21 @@ mongoose
     });
 import luxembourg from './routes/scraper/luxembourg';
 
+import * as swaggerUi from 'swagger-ui-express';
+
+import { swaggerSpec } from './swaggerDef';
+
 import { getData } from './loader'; // getData will return luxembourg's data so far
 import { request } from 'http';
-
 
 const app = express();
 app.use(body_parser.json());
 app.use('/api', state);
 
-var path = require('path')
-app.use(express.static(path.join(__dirname, '../frontend')))
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+let path = require('path');
+app.use(express.static(path.join(__dirname, '../frontend')));
 
 app.use('/scraper/luxembourg', luxembourg);
 ///////////////////DEBUG ROUTES//////////////////////////
@@ -37,6 +42,6 @@ app.get('/readXLS-cyprus', (request, response) => {
 
 app.get('/', (request, response) => {
     response.sendFile(path.join(__dirname, '../frontend/index.html'));
-})
+});
 
 app.listen(5000);
