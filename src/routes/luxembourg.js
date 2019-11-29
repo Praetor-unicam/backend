@@ -7,7 +7,7 @@ const State = require('../model/State');
 // create instance of a luxembourg state
 router.post('/create/:country', async (req, res) => {
     const coutry = req.params.country;
-    const state = new State(loader.getData(coutry));
+    const state = new State(loader.getData(country));
     await state
         .save()
         .then(result => {
@@ -65,7 +65,7 @@ router.get('/data/:country/:year', async (req, res) => {
             crimes = [];
             //return doc;
             doc.forEach(crime => {
-                let new_crime = { name: crime.crime, n_crimes: parseInt(crime.value)};
+                const new_crime = { name: crime.crime, n_crimes: parseInt(crime.value) };
                 crimes.push(new_crime);
             });
             res.status(200).json(crimes);
