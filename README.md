@@ -8,7 +8,7 @@ Luxembourg | Y | Y | Rimuovere sottoregioni?
 Cyprus | Solo 2019 | Solo 2019 | Y
 Austria | ? | ? | ?
 Finland | ? | ? | ?
-Poland | ? | ? | ?
+Poland | ? | Attendere API | ?
 Belgium | ? | ? | ?
 Spain | ? | ? | ?
 England | ? | ? | ?
@@ -20,5 +20,5 @@ Netherlands | ? | ? | ?
 Denmark | ? | ? | ?
 Portugal | ? | ? | ?
 Bulgaria | ? | ? | ?
-Czech Republic | ? | ? | ?
+Czech Republic | ? | Attendere API | ?
 Hungary | ? | ? | ?
