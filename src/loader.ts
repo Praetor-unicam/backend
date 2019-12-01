@@ -1,5 +1,6 @@
 import fs = require('fs');
 import parse = require('csv-parse/lib/sync');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const excelToJson = require('convert-excel-to-json');
 
 ////////// INTERFACES ///////////
@@ -42,8 +43,11 @@ function parseCSVLuxembourg(filename: string[]): Country {
 
     const records = parse(text, {
         columns: true,
+        // eslint-disable-next-line @typescript-eslint/camelcase
         skip_empty_lines: true,
+        // eslint-disable-next-line @typescript-eslint/camelcase
         skip_lines_with_error: true,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         cast: function(value, context) {
             return value.trim();
         },
@@ -164,6 +168,10 @@ const countrySources: Record<string, Array<string>> = {
 ////////////////////////////////////////////
 
 //////// GENERAL USE FUNCTIONS /////////////
+/**
+ * merges same fields and removes NaNs
+ *
+ */
 function coalesce(source: Country): Country {
     for (const year of source.year) {
         for (const region of year.region) {

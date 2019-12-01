@@ -192,17 +192,21 @@ def match_list(data):
             matching = MatchedCategory(code, name, similarity)
             similarity_ranking.add(matching)
         best_matching[crime] = list(reversed(similarity_ranking[-5:]))
-    return best_matching
+
+    for key in best_matching:
+        best_matching[key] = (best_matching[key][0].get_code(), best_matching[key][0].get_name())
+
+    return json.dumps(best_matching)
 
 def save_matching(filename, data):
     '''
     Saves the matching contained in [data] to [filename]
     '''
-    for key in data:
-        data[key] = (data[key][0].get_code(), data[key][0].get_name())
+    data = json.loads(data)
     write_to_file(filename, data)
 
 # TODO: coalesce categories
 if __name__ == '__main__':
     result = match_list(read_file('../data/matching/cyprus/cyprus-translated.txt'))
-    save_matching('../data/matching/cyprus/cyprus-matching.txt', result)
+    print(result)
+    save_matching('../data/matching/cyprus/cyprus-matching_test.txt', result)
