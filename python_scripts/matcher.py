@@ -202,11 +202,11 @@ def save_matching(filename, data):
     '''
     Saves the matching contained in [data] to [filename]
     '''
-    data = json.loads(data)
-    write_to_file(filename, data)
+    #data = json.loads(data)
+    #write_to_file(filename, data)
+    with open(filename, 'w', encoding='utf8') as json_file:
+        json_file.write(data)
 
-# TODO: coalesce categories
 if __name__ == '__main__':
     result = match_list(read_file('../data/matching/cyprus/cyprus-translated.txt'))
-    print(result)
     save_matching('../data/matching/cyprus/cyprus-matching_test.txt', result)
