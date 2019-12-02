@@ -30,6 +30,101 @@ interface Country {
     country: string;
     year: Array<Year>;
 }
+//////// GENERAL USE FUNCTIONS /////////////
+/**
+ * merges same fields and removes NaNs
+ *
+ */
+function coalesce(source: Country): Country {
+    for (const year of source.year) {
+        for (const region of year.region) {
+            for (const province of region.province) {
+                let index1 = province.data.length - 1;
+                while (index1 >= 1) {
+                    let index2 = index1 - 1;
+                    if (isNaN(province.data[index1].value)) {
+                        //convert invalid values to 0
+                        province.data[index1].value = 0;
+                    }
+                    while (index2 >= 0) {
+                        if (province.data[index2].code == province.data[index1].code) {
+                            //console.log(province.province + province.data[index2].code);
+                            province.data[index1].value += province.data[index2].value;
+                            province.data[index2].value = NaN;
+                            //console.log(province.data[index1].value);
+                            //province.data.splice(index2, 1);
+                        }
+                        index2 -= 1;
+                    }
+                    index1 -= 1;
+                }
+            }
+        }
+    }
+
+    for (const year of source.year) {
+        for (const region of year.region) {
+            for (const province of region.province) {
+                let index1 = province.data.length - 1;
+                while (index1 >= 0) {
+                    if (isNaN(province.data[index1].value)) {
+                        province.data.splice(index1, 1);
+                    }
+                    index1 -= 1;
+                }
+            }
+        }
+    }
+
+    return source;
+}
+
+//apply before mapping
+function manageSubcategories(source: Country, topCategory: string, subCategory: string): Country {
+    for (const year of source.year) {
+        for (const region of year.region) {
+            for (const province of region.province) {
+                const topcat = province.data.find(element => element.crime === topCategory);
+                const subcat = province.data.find(element => element.crime === subCategory);
+                if (topcat != undefined && subcat != undefined) {
+                    topcat.value -= subcat.value;
+                }
+            }
+        }
+    }
+    return source;
+}
+
+/**
+ * Returns the input JSON with the corresponding ICCS entries
+ */
+function mapCategories(source: Country, country: string): Country {
+    const matching = fs.readFileSync('data/matching/' + country + '/' + country + '-matching.txt', 'utf-8');
+    const matchingJSON = JSON.parse(matching);
+
+    for (const year of source.year) {
+        for (const region of year.region) {
+            for (const province of region.province) {
+                let index = province.data.length - 1;
+                while (index >= 0) {
+                    const crime = province.data[index].crime;
+                    if (crime in matchingJSON) {
+                        province.data[index].code = matchingJSON[crime][0];
+                        province.data[index].crime = matchingJSON[crime][1];
+                    } else {
+                        province.data.splice(index, 1);
+                    }
+
+                    index -= 1;
+                }
+            }
+        }
+    }
+
+    return coalesce(source);
+}
+
+///////////////////////////////////////////////////////////
 
 ///////// COUNTRY LOADING FUNCTIONS /////////////////
 /**
@@ -87,7 +182,11 @@ function parseCSVLuxembourg(filename: string[]): Country {
         firstPass = false;
     }
 
-    return output;
+    return manageSubcategories(
+        output,
+        'Thefts including acts of violence',
+        'thereof: thefts of vehicules including acts of violence',
+    );
 }
 
 function parseXLSCyprus(filename: string[]): Country {
@@ -166,84 +265,7 @@ const countrySources: Record<string, Array<string>> = {
     cyprus: ['data/source_files/cyprus/cyprus_1.xls', 'data/source_files/cyprus/cyprus_2.xls'],
 };
 ////////////////////////////////////////////
-
-//////// GENERAL USE FUNCTIONS /////////////
-/**
- * merges same fields and removes NaNs
- *
- */
-function coalesce(source: Country): Country {
-    for (const year of source.year) {
-        for (const region of year.region) {
-            for (const province of region.province) {
-                let index1 = province.data.length - 1;
-                while (index1 >= 1) {
-                    let index2 = index1 - 1;
-                    if (isNaN(province.data[index1].value)) {
-                        //convert invalid values to 0
-                        province.data[index1].value = 0;
-                    }
-                    while (index2 >= 0) {
-                        if (province.data[index2].code == province.data[index1].code) {
-                            //console.log(province.province + province.data[index2].code);
-                            province.data[index1].value += province.data[index2].value;
-                            province.data[index2].value = NaN;
-                            //console.log(province.data[index1].value);
-                            //province.data.splice(index2, 1);
-                        }
-                        index2 -= 1;
-                    }
-                    index1 -= 1;
-                }
-            }
-        }
-    }
-
-    for (const year of source.year) {
-        for (const region of year.region) {
-            for (const province of region.province) {
-                let index1 = province.data.length - 1;
-                while (index1 >= 0) {
-                    if (isNaN(province.data[index1].value)) {
-                        province.data.splice(index1, 1);
-                    }
-                    index1 -= 1;
-                }
-            }
-        }
-    }
-
-    return source;
-}
-/**
- * Returns the input JSON with the corresponding ICCS entries
- */
-function mapCategories(source: Country, country: string): Country {
-    const matching = fs.readFileSync('data/matching/' + country + '/' + country + '-matching.txt', 'utf-8');
-    const matchingJSON = JSON.parse(matching);
-
-    for (const year of source.year) {
-        for (const region of year.region) {
-            for (const province of region.province) {
-                let index = province.data.length - 1;
-                while (index >= 0) {
-                    const crime = province.data[index].crime;
-                    if (crime in matchingJSON) {
-                        province.data[index].code = matchingJSON[crime][0];
-                        province.data[index].crime = matchingJSON[crime][1];
-                    } else {
-                        province.data.splice(index, 1);
-                    }
-
-                    index -= 1;
-                }
-            }
-        }
-    }
-
-    return coalesce(source);
-}
-
+///////////PUBLIC FUNCTIONS////////////////
 /**
  * Returns the JSON with ICCS categories of the specified country with source of the specified extension (eg. .csv, .xls, .xlsx)
  */
@@ -252,4 +274,3 @@ export function getData(country: string): Country {
     const JSONData = mapCategories(data, country);
     return JSONData;
 }
-///////////////////////////////////////////////////////////
