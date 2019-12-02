@@ -17,7 +17,7 @@ import * as swaggerUi from 'swagger-ui-express';
 
 import { swaggerSpec } from './swaggerDef';
 
-import { getData, parseXLSHungary } from './loader'; // getData will return luxembourg's data so far
+import { getData, parseXLSHungary, parseXLSBulgaria } from './loader'; // getData will return luxembourg's data so far
 import { request } from 'http';
 
 const app = express();
@@ -37,7 +37,7 @@ app.get('/readCSV-luxembourg', (request, response) => {
 });
 app.get('/readXLS-cyprus', (request, response) => {
     //response.send(getData('hungary'));
-    response.send(parseXLSHungary(['data/source_files/hungary/hungary.xls']));
+    response.send(parseXLSBulgaria(['data/source_files/bulgaria/bulgaria.xls']));
 });
 ///////////////////////////////////////////////////////
 

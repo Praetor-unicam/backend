@@ -29,6 +29,7 @@ interface Year {
 interface Country {
     country: string;
     year: Array<Year>;
+    data?: Array<Crime>;
 }
 //////// GENERAL USE FUNCTIONS /////////////
 /**
@@ -366,7 +367,7 @@ export function parseXLSHungary(filename: string[]): Country {
                                     },
                                 ],
                             });
-                        } else if(!isNaN(Number(key))) {
+                        } else if (!isNaN(Number(key))) {
                             //console.log(j);
                             //console.log(row.Crime_or_location);
                             //console.log(output.year[0].region)
@@ -376,12 +377,46 @@ export function parseXLSHungary(filename: string[]): Country {
                     i = i + 1;
                 });
                 firstPassYears = false;
-            }else{
+            } else {
                 j--;
             }
             //console.log(j);
             //console.log(row.Crime_or_location);
             j = j + 1;
+        }
+    }
+
+    return output;
+}
+
+export function parseXLSBulgaria(filename: string[]): Country {
+    const output: Country = { country: 'Bulgaria', year: [{ year: 2018, region: [] }], data: [] };
+    let records = excelToJson({
+        sourceFile: filename[0],
+        columnToKey: {
+            A: 'Crime_or_location',
+            B: 'Value',
+        },
+        range: 'A7:B516',
+    });
+    records = records['2018'];
+    for (let i = 0; i < records.length; i += 17) {
+        const location = records[i].Crime_or_location;
+        if(i != 0 && i != 17){
+            output.year[0].region.push({ region: location, province: [{ province: location, data: [] }] });
+        }
+
+        for (let j = i + 1; j < i + 17; j++) {
+            if (i === 0 && output.data) {
+                output.data.push({ crime: records[j].Crime_or_location, value: records[j].Value });
+            } else if (i === 17) {
+                continue;
+            } else {
+                output.year[0].region[output.year[0].region.length - 1].province[0].data.push({
+                    crime: records[j].Crime_or_location,
+                    value: records[j].Value,
+                });
+            }
         }
     }
 
@@ -397,12 +432,14 @@ const countryFunctions: Record<string, Function> = {
     luxembourg: parseCSVLuxembourg,
     cyprus: parseXLSCyprus,
     hungary: parseXLSHungary,
+    bulgaria: parseXLSBulgaria,
 };
 
 const countrySources: Record<string, Array<string>> = {
     luxembourg: ['data/source_files/luxembourg/luxembourg.csv'],
     cyprus: ['data/source_files/cyprus/cyprus_1.xls', 'data/source_files/cyprus/cyprus_2.xls'],
     hungary: ['data/source_files/hungary/hungary.xls'],
+    bulgaria: ['data/source_files/bulgaria/bulgaria.xls'],
 };
 ////////////////////////////////////////////
 ///////////PUBLIC FUNCTIONS////////////////
