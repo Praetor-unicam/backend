@@ -80,7 +80,7 @@ function coalesce(source: Country): Country {
 }
 
 //apply before mapping
-function manageSubcategories(source: Country, topCategory: string, subCategory: string): Country {
+function _manageSubcategory(source: Country, topCategory: string, subCategory: string): Country {
     for (const year of source.year) {
         for (const region of year.region) {
             for (const province of region.province) {
@@ -92,6 +92,13 @@ function manageSubcategories(source: Country, topCategory: string, subCategory: 
             }
         }
     }
+    return source;
+}
+
+function manageSubcategories(source: Country, subcategories: Record<string, string>): Country {
+    Object.entries(subcategories).forEach(([key, value]) => {
+        source = _manageSubcategory(source, key, value);
+    });
     return source;
 }
 
@@ -215,11 +222,9 @@ function parseCSVLuxembourg(filename: string[]): Country {
         firstPass = false;
     }
 
-    return manageSubcategories(
-        output,
-        'Thefts including acts of violence',
-        'thereof: thefts of vehicules including acts of violence',
-    );
+    return manageSubcategories(output, {
+        'Thefts including acts of violence': 'thereof: thefts of vehicules including acts of violence',
+    });
 }
 
 function parseXLSCyprus(filename: string[]): Country {
