@@ -168,10 +168,11 @@ def belgium_processor(data):
 
 ####### PUBLIC USE FUNCTIONS ##########
 
-def match_list(data):
+def match_list(path):
     '''
     Matches labels in [data] to ICCS categories using avg_feature_vector
     '''
+    data = read_file(path)
     model = gensim.models.KeyedVectors.load_word2vec_format('../data/model/GoogleNews-vectors-negative300.bin', binary=True)
     index2word_set = set(model.index2word)
     best_matching = dict.fromkeys(data)
@@ -198,15 +199,15 @@ def match_list(data):
 
     return json.dumps(best_matching)
 
-def save_matching(filename, data):
+def save_matching(country, data):
     '''
     Saves the matching contained in [data] to [filename]
     '''
     #data = json.loads(data)
     #write_to_file(filename, data)
-    with open(filename, 'w', encoding='utf8') as json_file:
+    with open('../data/matching/'+country+'/'+country+'-matching_test.txt', 'w', encoding='utf8') as json_file:
         json_file.write(data)
 
 if __name__ == '__main__':
-    result = match_list(read_file('../data/matching/cyprus/cyprus-translated.txt'))
-    save_matching('../data/matching/cyprus/cyprus-matching_test.txt', result)
+    result = match_list('../data/matching/cyprus/cyprus-translated.txt')
+    save_matching('cyprus', result)
