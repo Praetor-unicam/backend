@@ -287,6 +287,106 @@ function parseXLSCyprus(filename: string[]): Country {
     }
     return rename(output, 'all', { Limasol: 'Limassol', Ammochostos: 'Famagusta', Morfou: 'Kyrenia' });
 }
+
+export function parseXLSHungary(filename: string[]): Country {
+    const output: Country = { country: 'Hungary', year: [] };
+    let records = excelToJson({
+        sourceFile: filename[0],
+        header: {
+            rows: 3,
+        },
+        columnToKey: {
+            A: 'Crime_or_location',
+            B: 'Level',
+            C: '{{C2}}',
+            D: '{{D2}}',
+            E: '{{E2}}',
+            F: '{{F2}}',
+            G: '{{G2}}',
+            H: '{{H2}}',
+            I: '{{I2}}',
+            J: '{{J2}}',
+            K: '{{K2}}',
+            L: '{{L2}}',
+            M: '{{M2}}',
+            N: '{{N2}}',
+            O: '{{O2}}',
+            P: '{{P2}}',
+            Q: '{{Q2}}',
+            R: '{{R2}}',
+            S: '{{S2}}',
+            T: '{{T2}}',
+            U: '{{U2}}',
+        },
+    });
+    let firstPassYears = true;
+    let firstPassRegions = true;
+    let crimePasses = 0;
+    let j = 0;
+    let crime = '';
+    records = records['6.2.7.2.'];
+    for (const row of records) {
+        let i = 0;
+        if (Object.keys(row).length == 1) {
+            crime = row.Crime_or_location;
+            crimePasses++;
+            if (crimePasses === 2) {
+                firstPassRegions = false;
+            }
+            j = 0;
+        } else {
+            if (row.Level.includes('capital') || row.Level.includes('county')) {
+                Object.keys(row).forEach(function(key) {
+                    if (!isNaN(Number(key)) && firstPassYears) {
+                        const yearTemp: Year = {
+                            year: Number(key),
+                            region: [
+                                {
+                                    region: row.Crime_or_location,
+                                    province: [
+                                        {
+                                            province: row.Crime_or_location,
+                                            data: [{ crime: crime, value: row[key] }],
+                                        },
+                                    ],
+                                },
+                            ],
+                        };
+                        output.year.push(yearTemp);
+                        //console.log(output);
+                    } else {
+                        if (!isNaN(Number(key)) && firstPassRegions) {
+                            //console.log(output.year[0].region);
+                            output.year[i].region.push({
+                                region: row.Crime_or_location,
+                                province: [
+                                    {
+                                        province: row.Crime_or_location,
+                                        data: [{ crime: crime, value: row[key] }],
+                                    },
+                                ],
+                            });
+                        } else if(!isNaN(Number(key))) {
+                            //console.log(j);
+                            //console.log(row.Crime_or_location);
+                            //console.log(output.year[0].region)
+                            output.year[i].region[j].province[0].data.push({ crime: crime, value: row[key] });
+                        }
+                    }
+                    i = i + 1;
+                });
+                firstPassYears = false;
+            }else{
+                j--;
+            }
+            //console.log(j);
+            //console.log(row.Crime_or_location);
+            j = j + 1;
+        }
+    }
+
+    return output;
+}
 ///////////////////////////////////////////////////////
 
 //////// DICTIONARY OF FUNCTIONS ////////////
@@ -296,11 +396,13 @@ function parseXLSCyprus(filename: string[]): Country {
 const countryFunctions: Record<string, Function> = {
     luxembourg: parseCSVLuxembourg,
     cyprus: parseXLSCyprus,
+    hungary: parseXLSHungary,
 };
 
 const countrySources: Record<string, Array<string>> = {
     luxembourg: ['data/source_files/luxembourg/luxembourg.csv'],
     cyprus: ['data/source_files/cyprus/cyprus_1.xls', 'data/source_files/cyprus/cyprus_2.xls'],
+    hungary: ['data/source_files/hungary/hungary.xls'],
 };
 ////////////////////////////////////////////
 ///////////PUBLIC FUNCTIONS////////////////
