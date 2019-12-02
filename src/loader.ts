@@ -95,6 +95,39 @@ function manageSubcategories(source: Country, topCategory: string, subCategory: 
     return source;
 }
 
+//levels: region, province, all
+function rename(source: Country, level: string, substitutions: Record<string, string>): Country {
+    switch (level) {
+        case 'region': {
+            for (const year of source.year) {
+                year.region
+                    .filter(element => element.region in substitutions)
+                    .map(element => (element.region = substitutions[element.region]));
+            }
+            break;
+        }
+        case 'province': {
+            for (const year of source.year) {
+                for (const region of year.region) {
+                    region.province
+                        .filter(element => element.province in substitutions)
+                        .map(element => (element.province = substitutions[element.province]));
+                }
+            }
+            break;
+        }
+        case 'all': {
+            rename(source, 'region', substitutions);
+            rename(source, 'province', substitutions);
+            break;
+        }
+        case 'default': {
+            break;
+        }
+    }
+    return source;
+}
+
 /**
  * Returns the input JSON with the corresponding ICCS entries
  */
@@ -247,7 +280,7 @@ function parseXLSCyprus(filename: string[]): Country {
         });
         firstPass = false;
     }
-    return output;
+    return rename(output, 'all', { Limasol: 'Limassol', Ammochostos: 'Famagusta', Morfou: 'Kyrenia' });
 }
 ///////////////////////////////////////////////////////
 
