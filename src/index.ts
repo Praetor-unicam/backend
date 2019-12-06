@@ -36,7 +36,7 @@ app.get('/readCSV-luxembourg', (request, response) => {
     //response.send(parseCSVLuxembourg('data/source_files/luxembourg/luxembourg.csv'));
 });
 app.get('/readXLS-cyprus', (request, response) => {
-    //response.send(getData('hungary'));
+    //response.send(getData('cyprus'));
     response.send(parseXLSBulgaria(['data/source_files/bulgaria/bulgaria.xls']));
 });
 ///////////////////////////////////////////////////////

@@ -24,12 +24,12 @@ interface Region {
 interface Year {
     year: number;
     region: Array<Region>;
+    data?: Array<Crime>;
 }
 
 interface Country {
     country: string;
     year: Array<Year>;
-    data?: Array<Crime>;
 }
 //////// GENERAL USE FUNCTIONS /////////////
 /**
@@ -200,9 +200,7 @@ function parseCSVLuxembourg(filename: string[]): Country {
                     region: [
                         {
                             region: 'Luxembourg',
-                            province: [
-                                { province: 'Luxembourg', data: [{ crime: row.Qualification, value: row[key] }] },
-                            ],
+                            province: [{ province: 'Luxembourg', data: [] }],
                         },
                     ],
                 };
@@ -229,7 +227,7 @@ function parseCSVLuxembourg(filename: string[]): Country {
 }
 
 function parseXLSCyprus(filename: string[]): Country {
-    const output: Country = { country: 'Cyprus', year: [{ year: 2019, region: [] }] };
+    const output: Country = { country: 'Cyprus', year: [{ year: 2019, region: [], data: [] }] };
     const seriousCrimes = excelToJson({
         sourceFile: filename[0],
         header: {
@@ -273,7 +271,8 @@ function parseXLSCyprus(filename: string[]): Country {
             if (key == 'Offences') {
                 crime = row[key];
                 //console.log(crime);
-            } else if (key == 'TOTAL') {
+            } else if (key == 'TOTAL' && output.year[0].data) {
+                output.year[0].data.push({ crime: crime, value: row[key] });
             } else if (firstPass) {
                 output.year[0].region.push({
                     region: key,
@@ -329,7 +328,7 @@ export function parseXLSHungary(filename: string[]): Country {
     for (const row of records) {
         let i = 0;
         if (Object.keys(row).length == 1) {
-            crime = row.Crime_or_location;
+            crime = row.Crime_or_location.replace('$', '');
             crimePasses++;
             if (crimePasses === 2) {
                 firstPassRegions = false;
@@ -352,12 +351,11 @@ export function parseXLSHungary(filename: string[]): Country {
                                     ],
                                 },
                             ],
+                            data: [],
                         };
                         output.year.push(yearTemp);
-                        //console.log(output);
                     } else {
                         if (!isNaN(Number(key)) && firstPassRegions) {
-                            //console.log(output.year[0].region);
                             output.year[i].region.push({
                                 region: row.Crime_or_location,
                                 province: [
@@ -368,9 +366,6 @@ export function parseXLSHungary(filename: string[]): Country {
                                 ],
                             });
                         } else if (!isNaN(Number(key))) {
-                            //console.log(j);
-                            //console.log(row.Crime_or_location);
-                            //console.log(output.year[0].region)
                             output.year[i].region[j].province[0].data.push({ crime: crime, value: row[key] });
                         }
                     }
@@ -378,10 +373,17 @@ export function parseXLSHungary(filename: string[]): Country {
                 });
                 firstPassYears = false;
             } else {
+                if (row.Level === 'country') {
+                    Object.keys(row).forEach(function(key) {
+                        if (!isNaN(Number(key)) && output.year[i].data) {
+                            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                            output.year[i].data!.push({ crime: crime, value: row[key] });
+                            i = i + 1;
+                        }
+                    });
+                }
                 j--;
             }
-            //console.log(j);
-            //console.log(row.Crime_or_location);
             j = j + 1;
         }
     }
@@ -390,8 +392,11 @@ export function parseXLSHungary(filename: string[]): Country {
 }
 
 export function parseXLSBulgaria(filename: string[]): Country {
-    const output: Country = { country: 'Bulgaria', year: [{ year: 2018, region: [] }], data: [] };
-    let records = excelToJson({
+    const output: Country = {
+        country: 'Bulgaria',
+        year: [],
+    };
+    const records = excelToJson({
         sourceFile: filename[0],
         columnToKey: {
             A: 'Crime_or_location',
@@ -399,16 +404,40 @@ export function parseXLSBulgaria(filename: string[]): Country {
         },
         range: 'A7:B516',
     });
-    records = records['2018'];
+    for (let y = 2018; y >= 2016; y--) {
+        const current = records[y.toString()];
+        output.year.push({ year: y, region: [], data: [] });
+        for (let i = 0; i < current.length; i += 17) {
+            const location = current[i].Crime_or_location;
+            if (i != 0 && i != 17) {
+                output.year[2018 - y].region.push({ region: location, province: [{ province: location, data: [] }] });
+            }
+
+            for (let j = i + 1; j < i + 17; j++) {
+                if (i === 0) {
+                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                    output.year[2018 - y].data!.push({ crime: current[j].Crime_or_location, value: current[j].Value });
+                } else if (i === 17) {
+                    continue;
+                } else {
+                    output.year[2018 - y].region[output.year[2018 - y].region.length - 1].province[0].data.push({
+                        crime: current[j].Crime_or_location,
+                        value: current[j].Value,
+                    });
+                }
+            }
+        }
+    }
+    /*records = records['2018'];
     for (let i = 0; i < records.length; i += 17) {
         const location = records[i].Crime_or_location;
-        if(i != 0 && i != 17){
+        if (i != 0 && i != 17) {
             output.year[0].region.push({ region: location, province: [{ province: location, data: [] }] });
         }
 
         for (let j = i + 1; j < i + 17; j++) {
-            if (i === 0 && output.data) {
-                output.data.push({ crime: records[j].Crime_or_location, value: records[j].Value });
+            if (i === 0 && output.year[0].data) {
+                output.year[0].data.push({ crime: records[j].Crime_or_location, value: records[j].Value });
             } else if (i === 17) {
                 continue;
             } else {
@@ -418,7 +447,7 @@ export function parseXLSBulgaria(filename: string[]): Country {
                 });
             }
         }
-    }
+    }*/
 
     return output;
 }
