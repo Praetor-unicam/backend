@@ -31,13 +31,11 @@ app.use(express.static(path.join(__dirname, '../frontend')));
 
 app.use('/scraper/luxembourg', luxembourg);
 ///////////////////DEBUG ROUTES//////////////////////////
-app.get('/readCSV-luxembourg', (request, response) => {
-    response.send(getData('luxembourg'));
-    //response.send(parseCSVLuxembourg('data/source_files/luxembourg/luxembourg.csv'));
-});
-app.get('/readXLS-cyprus', (request, response) => {
-    //response.send(getData('cyprus'));
+app.get('/loader', (request, response) => {
     response.send(parseXLSBulgaria(['data/source_files/bulgaria/bulgaria.xls']));
+});
+app.get('/getdata', (request, response) => {
+    response.send(getData('hungary'));
 });
 ///////////////////////////////////////////////////////
 

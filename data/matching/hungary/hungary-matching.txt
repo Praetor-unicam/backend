@@ -1,0 +1,1 @@
+{"Intentional assault": ["02011", "Assault"], "Assault against officials or supporters of officials": ["02011", "Assault"], "People smuggling": ["08051", "Smuggling of migrants offences"], "Drug-related crimes": ["06", "Acts involving controlled drugs or other psychoactive substances"], "Burglary": ["0501", "Burglary"]}

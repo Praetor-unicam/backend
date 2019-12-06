@@ -205,9 +205,9 @@ def save_matching(country, data):
     '''
     #data = json.loads(data)
     #write_to_file(filename, data)
-    with open('../data/matching/'+country+'/'+country+'-matching_test.txt', 'w', encoding='utf8') as json_file:
+    with open('../data/matching/'+country+'/'+country+'-matching.txt', 'w', encoding='utf8') as json_file:
         json_file.write(data)
 
 if __name__ == '__main__':
-    result = match_list('../data/matching/cyprus/cyprus-translated.txt')
-    save_matching('cyprus', result)
+    result = match_list('../data/matching/bulgaria/bulgaria-translated.txt')
+    save_matching('bulgaria', result)

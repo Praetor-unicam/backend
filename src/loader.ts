@@ -61,6 +61,27 @@ function coalesce(source: Country): Country {
                 }
             }
         }
+        if (year.data) {
+            let index1 = year.data.length - 1;
+            while (index1 >= 1) {
+                let index2 = index1 - 1;
+                if (isNaN(year.data[index1].value)) {
+                    //convert invalid values to 0
+                    year.data[index1].value = 0;
+                }
+                while (index2 >= 0) {
+                    if (year.data[index2].code == year.data[index1].code) {
+                        //console.log(province.province + province.data[index2].code);
+                        year.data[index1].value += year.data[index2].value;
+                        year.data[index2].value = NaN;
+                        //console.log(province.data[index1].value);
+                        //province.data.splice(index2, 1);
+                    }
+                    index2 -= 1;
+                }
+                index1 -= 1;
+            }
+        }
     }
 
     for (const year of source.year) {
@@ -73,6 +94,15 @@ function coalesce(source: Country): Country {
                     }
                     index1 -= 1;
                 }
+            }
+        }
+        if (year.data) {
+            let index1 = year.data.length - 1;
+            while (index1 >= 0) {
+                if (isNaN(year.data[index1].value)) {
+                    year.data.splice(index1, 1);
+                }
+                index1 -= 1;
             }
         }
     }
@@ -160,6 +190,20 @@ function mapCategories(source: Country, country: string): Country {
                 }
             }
         }
+        if (year.data) {
+            let index = year.data.length - 1;
+            while (index >= 0) {
+                const crime = year.data[index].crime;
+                if (crime in matchingJSON) {
+                    year.data[index].code = matchingJSON[crime][0];
+                    year.data[index].crime = matchingJSON[crime][1];
+                } else {
+                    year.data.splice(index, 1);
+                }
+
+                index -= 1;
+            }
+        }
     }
 
     return coalesce(source);
@@ -225,7 +269,7 @@ function parseCSVLuxembourg(filename: string[]): Country {
         'Thefts including acts of violence': 'thereof: thefts of vehicules including acts of violence',
     });
 }
-
+//double category
 function parseXLSCyprus(filename: string[]): Country {
     const output: Country = { country: 'Cyprus', year: [{ year: 2019, region: [], data: [] }] };
     const seriousCrimes = excelToJson({
@@ -391,6 +435,7 @@ export function parseXLSHungary(filename: string[]): Country {
     return output;
 }
 
+//homicide too, crime against youth too and many others, more categories available for total, generally dangerous crimes
 export function parseXLSBulgaria(filename: string[]): Country {
     const output: Country = {
         country: 'Bulgaria',
@@ -428,27 +473,6 @@ export function parseXLSBulgaria(filename: string[]): Country {
             }
         }
     }
-    /*records = records['2018'];
-    for (let i = 0; i < records.length; i += 17) {
-        const location = records[i].Crime_or_location;
-        if (i != 0 && i != 17) {
-            output.year[0].region.push({ region: location, province: [{ province: location, data: [] }] });
-        }
-
-        for (let j = i + 1; j < i + 17; j++) {
-            if (i === 0 && output.year[0].data) {
-                output.year[0].data.push({ crime: records[j].Crime_or_location, value: records[j].Value });
-            } else if (i === 17) {
-                continue;
-            } else {
-                output.year[0].region[output.year[0].region.length - 1].province[0].data.push({
-                    crime: records[j].Crime_or_location,
-                    value: records[j].Value,
-                });
-            }
-        }
-    }*/
-
     return output;
 }
 ///////////////////////////////////////////////////////
