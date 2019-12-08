@@ -21,7 +21,7 @@ const downloadDir = String(process.env.DATA_DOWNLOAD_DIR + '/' + country);
 
 const options = new firefox.Options();
 
-//options.headless();
+options.headless();
 options.setPreference('browser.download.dir', downloadDir);
 options.setPreference('browser.download.folderList', 2);
 options.setPreference('browser.helperApps.neverAsk.saveToDisk', 'application/x-csv');
