@@ -4,7 +4,7 @@
   "description": "sample desc",
   "main": "src/index.ts",
   "scripts": {
-    "dev": "ts-node-dev src/index.ts",
+    "dev": "npm install && ts-node-dev src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint 'src/**/*.{js,ts,tsx}' --quiet --fix"
   },
