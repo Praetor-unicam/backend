@@ -11,14 +11,21 @@ interface Crime {
     value: number;
 }
 
+interface County {
+    county: string;
+    data: Array<Crime>;
+}
+
 interface Province {
     province: string;
     data: Array<Crime>;
+    county?: Array<County>;
 }
 
 interface Region {
     region: string;
     province: Array<Province>;
+    data?: Array<Crime>;
 }
 
 interface Year {
@@ -470,6 +477,91 @@ export function parseXLSBulgaria(filename: string[]): Country {
                         value: current[j].Value,
                     });
                 }
+            }
+        }
+    }
+    return output;
+}
+
+export function parseCSVPortugal(filename: string[]): Country {
+    const text = fs.readFileSync(filename[0], 'utf-8');
+    const output: Country = { country: 'Portugal', year: [{ year: 2018, region: [], data: [] }] };
+    let records = excelToJson({
+        sourceFile: filename[0],
+        header: {
+            rows: 11,
+        },
+        columnToKey: {
+            A: 'Place',
+            B: 'Level',
+            C: '{{C10}}',
+            E: '{{E10}}',
+            G: '{{G10}}',
+            I: '{{I10}}',
+            K: '{{K10}}',
+            M: '{{M10}}',
+            O: '{{O10}}',
+            Q: '{{Q10}}',
+            S: '{{S10}}',
+        },
+        range: 'A12:S355',
+    });
+    records = records['Table'];
+    let regions = -1;
+    let provinces = -1;
+    let counties = -1;
+    for (const row of records) {
+        if (row.Level === 'PT' && output.year[0].data) {
+            Object.keys(row).forEach(function(key) {
+                if (key !== 'Place' && key !== 'Level' && key !== 'Total' && output.year[0].data) {
+                    output.year[0].data.push({ crime: key, value: row[key] });
+                }
+            });
+        } else {
+            switch (row.Level.length) {
+                case 1:
+                    break; //continent
+                case 2:
+                    output.year[0].region.push({ region: row.Place, province: [], data: [] });
+                    regions++;
+                    provinces = -1;
+                    Object.keys(row).forEach(function(key) {
+                        if (key !== 'Place' && key !== 'Level' && key !== 'Total') {
+                            output.year[0].region[regions].data!.push({ crime: key, value: row[key] });
+                        }
+                    });
+                    //regions++;
+                    break; //region
+                case 3:
+                    output.year[0].region[regions].province.push({ province: row.Place, county: [], data: [] });
+                    provinces++;
+                    counties = -1;
+                    //console.log(output.year[0].region[regions].province);
+                    //console.log(provinces);
+                    Object.keys(row).forEach(function(key) {
+                        if (key !== 'Place' && key !== 'Level' && key !== 'Total') {
+                            output.year[0].region[regions].province[provinces].data.push({
+                                crime: key,
+                                value: row[key],
+                            });
+                        }
+                    });
+                    //provinces++;
+                    break; //province
+                default:
+                    output.year[0].region[regions].province[provinces].county!.push({ county: row.Place, data: [] });
+                    counties++;
+                    Object.keys(row).forEach(function(key) {
+                        if (key !== 'Place' && key !== 'Level' && key !== 'Total') {
+                            //console.log(output.year[0].region[regions].province[provinces].county);
+                            output.year[0].region[regions].province[provinces].county![counties].data.push({
+                                crime: key,
+                                value: row[key],
+                            });
+                        }
+                    });
+                    //counties++;
+                    break; //county
             }
         }
     }
