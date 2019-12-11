@@ -35,7 +35,7 @@ app.get('/loader', (request, response) => {
     response.send(parseCSVLuxembourg(['data/source_files/luxembourg/luxembourg.csv']));
 });
 app.get('/getdata', (request, response) => {
-    response.send(getData('hungary'));
+    response.send(getData('denmark'));
 });
 ///////////////////////////////////////////////////////
 
