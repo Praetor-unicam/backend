@@ -20,7 +20,7 @@ const downloadBothFiles = async (customDestination?: string, removeFiles=false) 
 
     const destination = customDestination || destinationFolder;
 
-    await mkdir(destinationFolder, { recursive: true});
+    await mkdir(destination, { recursive: true});
     await download(seriousDataFile, destination, { filename: seriousFileName});
     await download(minorDataFile, destination, { filename: minorFileName});
 
