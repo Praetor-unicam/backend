@@ -29,7 +29,15 @@ router.get('/status', async (req, res) => {
 router.get('/download', async (req, res) => res.sendStatus(501));
 
 router.get('/api/variables', async (req, res) => {
-    res.json( { 'variables' : await scraper.getVariables()});
+
+    let variables;
+    try {
+        variables = await scraper.getVariables();
+    } catch (error) {
+        return res.sendStatus(502);
+    }
+
+    res.json( { variables });
 });
 
 
