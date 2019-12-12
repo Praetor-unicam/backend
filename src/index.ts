@@ -12,6 +12,7 @@ mongoose
         console.error('Database connection error');
     });
 import luxembourg from './routes/scraper/luxembourg';
+import cyprus from './routes/scraper/cyprus';
 
 import * as swaggerUi from 'swagger-ui-express';
 
@@ -30,6 +31,7 @@ let path = require('path');
 app.use(express.static(path.join(__dirname, '../frontend')));
 
 app.use('/scraper/luxembourg', luxembourg);
+app.use('/scraper/cyprus', cyprus);
 ///////////////////DEBUG ROUTES//////////////////////////
 app.get('/readCSV-luxembourg', (request, response) => {
     response.send(getData('luxembourg'));
