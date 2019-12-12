@@ -3,7 +3,6 @@ import * as fs from 'fs';
 import { promisify } from 'util';
 
 const writeFile = promisify(fs.writeFile);
-const removeFile = promisify(fs.unlink);
 
 const country = 'Bulgary';
 const filename = country + '.xlsx';
@@ -25,9 +24,7 @@ export const isServiceAvailable = async (): Promise<boolean> => {
 
 export const downloadData = async (): Promise<boolean> => {
     try {
-        await download(startUrl, downloadDir);
         await writeFile(downloadDir + '/' + filename, await download(startUrl));
-        await removeFile(downloadDir + '/' + expectedFilename);
     } catch (err) {
         return false;
     }
