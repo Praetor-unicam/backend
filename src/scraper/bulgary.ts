@@ -26,10 +26,11 @@ const downloadFile = async (customDestination?: string, removeFiles=false) => {
     }
 }
 
+const dummyDownload = async () => await downloadFile('.', true);
 
 export const isServiceAvailable = async (): Promise<boolean> => {
     try {
-        await downloadFile('.', true);
+        await dummyDownload();
     } catch (err) {
         return false;
     }
