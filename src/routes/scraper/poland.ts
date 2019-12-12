@@ -16,7 +16,15 @@ const router = Router();
  *       502:
  *          description: service not available anymore
  */
-router.get('/status', async (req, res) => res.sendStatus(501));
+router.get('/status', async (req, res) => {
+    try {
+        await scraper.getVariables();
+    } catch (error) {
+        return res.sendStatus(502);
+    }
+
+    return res.sendStatus(200);
+});
 
 router.get('/download', async (req, res) => res.sendStatus(501));
 
