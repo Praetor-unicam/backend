@@ -1,0 +1,28 @@
+import { Router } from 'express';
+
+import * as scraper from './../../scraper/poland';
+
+const router = Router();
+
+/**
+ * @swagger
+ *
+ * /scraper/luxembourg/status:
+ *   get:
+ *     description: Get the status of the scraper service
+ *     responses:
+ *       200:
+ *         description: service is available
+ *       502:
+ *          description: service not available anymore
+ */
+router.get('/status', async (req, res) => res.sendStatus(501));
+
+router.get('/download', async (req, res) => res.sendStatus(501));
+
+router.get('/api/variables', async (req, res) => {
+    res.json( { 'variables' : await scraper.getVariables()});
+});
+
+
+export default router;
