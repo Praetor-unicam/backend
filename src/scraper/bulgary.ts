@@ -3,18 +3,33 @@ import * as fs from 'fs';
 import { promisify } from 'util';
 
 const writeFile = promisify(fs.writeFile);
+const mkdir = promisify(fs.mkdir);
+const removeFile = promisify(fs.unlink);
 
 const country = 'Bulgary';
 const filename = country + '.xlsx';
-
-const expectedFilename = 'JST_1.2_en.xls';
-
-const startUrl = 'https://www.nsi.bg/sites/default/files/files/data/timeseries/' + expectedFilename;
 const downloadDir = String(process.env.DATA_DOWNLOAD_DIR);
+
+const destinationFolder = downloadDir + '/' + country;
+
+const downloadUrl = 'https://www.nsi.bg/sites/default/files/files/data/timeseries/JST_1.2_en.xls';
+
+const downloadFile = async (customDestination?: string, removeFiles=false) => {
+
+    const destination = customDestination || destinationFolder;
+
+    await mkdir(destination, { recursive: true});
+    await download(downloadUrl, destination, { filename });
+
+    if(removeFiles) {
+        await removeFile(destination + '/' + filename);
+    }
+}
+
 
 export const isServiceAvailable = async (): Promise<boolean> => {
     try {
-        await download(startUrl);
+        await downloadFile('.', true);
     } catch (err) {
         return false;
     }
@@ -24,7 +39,7 @@ export const isServiceAvailable = async (): Promise<boolean> => {
 
 export const downloadData = async (): Promise<boolean> => {
     try {
-        await writeFile(downloadDir + '/' + filename, await download(startUrl));
+        await downloadFile();
     } catch (err) {
         return false;
     }
