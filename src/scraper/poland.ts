@@ -81,7 +81,6 @@ export const getData = async (year: number, level: number) => {
     for(const variableData of variablesRequest['results']) {
         varId = variableData['id'];
         varName = variableData['n1'];
-        console.log(varId + ' ' + varName);
         let dataRequest = await requestData(varId, year, level);
 
         for(const resultData of dataRequest['results']) {
@@ -114,7 +113,6 @@ export const getData = async (year: number, level: number) => {
         for(const variableData of variablesRequest['results']) {
             varId = variableData['id'];
             varName = variableData['n1'];
-            console.log(varId + ' ' + varName);
             let dataRequest = await requestData(varId, year, level);
     
             for(const resultData of dataRequest['results']) {

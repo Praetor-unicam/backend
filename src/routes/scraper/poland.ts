@@ -28,6 +28,10 @@ router.get('/status', async (req, res) => {
 
 router.get('/download', async (req, res) => res.sendStatus(501));
 
+router.get('/api/data/:year/:level', async (req, res) => {
+    res.json(await scraper.getData(+req.params.year, +req.params.level));
+});
+
 router.get('/api/variables', async (req, res) => {
 
     let variables;
@@ -39,6 +43,7 @@ router.get('/api/variables', async (req, res) => {
 
     res.json( { variables });
 });
+
 
 
 export default router;
