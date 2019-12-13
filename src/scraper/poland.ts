@@ -5,6 +5,10 @@ const crime_subject_id = 'P2290';
 
 const headers = {'X-ClientId': process.env.POLAND_KEY}
 
+interface LooseData {
+    [key: string]: any
+}
+
 interface VariableRequestData {
     id: number,
     subjectId: string,
@@ -48,7 +52,7 @@ export const getVariables = async () => {
     return variables;
 }
 
-const requestData = async (varId: string, year: number, level: number) => {
+const requestData = async (varId: number, year: number, level: number) => {
     const params = {
         'year': year,
         'unit-level': level,
@@ -64,3 +68,77 @@ const requestData = async (varId: string, year: number, level: number) => {
     return request.data;
 }
 
+
+
+export const getData = async (year: number, level: number) => {
+
+    let data: LooseData = {};
+
+    let variablesRequest = await requestVariables();
+    let varId;
+    let varName;
+
+    for(const variableData of variablesRequest['results']) {
+        varId = variableData['id'];
+        varName = variableData['n1'];
+        console.log(varId + ' ' + varName);
+        let dataRequest = await requestData(varId, year, level);
+
+        for(const resultData of dataRequest['results']) {
+            const locationName = resultData['name'];
+            const value = resultData['values'][0]['val'];
+            data[locationName] = data[locationName] || {}; // Create locationKey if it doesn't exist
+            data[locationName][varName] = value;
+        }
+
+        if(dataRequest.hasOwnProperty('links')) {
+            while(dataRequest['links'].hasOwnProperty('next')) {
+                const request = await axios.get(dataRequest['links']['next']);
+                dataRequest = request.data;
+                for(const resultData of dataRequest['results']) {
+                    const locationName = resultData['name'];
+                    const value = resultData['values'][0]['val'];
+                    data[locationName] = data[locationName] || {}; // Create locationKey if it doesn't exist
+                    data[locationName][varName] = value;
+                }
+            }
+        }
+
+
+    }
+    
+    while (variablesRequest['links'].hasOwnProperty('next')) {
+        const request = await axios.get(variablesRequest['links']['next'], {headers});
+        variablesRequest = request.data;
+        
+        for(const variableData of variablesRequest['results']) {
+            varId = variableData['id'];
+            varName = variableData['n1'];
+            console.log(varId + ' ' + varName);
+            let dataRequest = await requestData(varId, year, level);
+    
+            for(const resultData of dataRequest['results']) {
+                const locationName = resultData['name'];
+                const value = resultData['values'][0]['val'];
+                data[locationName] = data[locationName] || {}; // Create locationKey if it doesn't exist
+                data[locationName][varName] = value;
+            }
+    
+            if(dataRequest.hasOwnProperty('links')) {
+                while(dataRequest['links'].hasOwnProperty('next')) {
+                    const request = await axios.get(dataRequest['links']['next']);
+                    dataRequest = request.data;
+                    for(const resultData of dataRequest['results']) {
+                        const locationName = resultData['name'];
+                        const value = resultData['values'][0]['val'];
+                        data[locationName] = data[locationName] || {}; // Create locationKey if it doesn't exist
+                        data[locationName][varName] = value;
+                    }
+                }
+            }
+        }
+        
+    }
+
+    return data;
+}
