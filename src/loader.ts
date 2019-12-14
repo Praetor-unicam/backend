@@ -3,6 +3,8 @@ import fs = require('fs');
 import parse = require('csv-parse/lib/sync');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const excelToJson = require('convert-excel-to-json');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const axios = require('axios');
 
 ////////// INTERFACES ///////////
 
@@ -695,6 +697,289 @@ export function parseCSVDenmark(filename: string[]): Country {
     }
     return output;
 }
+
+function parseXLSXAustria(filename: string[]): Country {
+    const output: Country = { country: 'Austria', year: [{ year: '2018', region: [] }] };
+    let records = excelToJson({
+        sourceFile: filename[0],
+        header: {
+            rows: 13,
+        },
+        columnToKey: {
+            C: 'Place',
+            '*': '{{columnHeader}}',
+        },
+        range: 'C15:NH31',
+    });
+    records = records['Data Sheet 0'];
+    let i = -1;
+    for (const row of records) {
+        output.year[0].region.push({
+            region: row.Place,
+            province: [{ province: row.Place, county: [{ county: row.Place, data: [] }] }],
+        });
+        i++;
+        Object.keys(row).forEach(function(key) {
+            if (key !== 'Place') {
+                output.year[0].region[i].province[0].county[0].data.push({ crime: key, value: Number(row[key]) });
+            }
+        });
+    }
+    return output;
+}
+
+async function getCzechData(filename: string[]): Promise<Country> {
+    const timefrom = '1-2019';
+    const groupby = 'crimetype';
+    const crimetypes = await axios.get('https://mapakriminality.cz/api/crimetypes');
+
+    const areas = await axios.get('https://mapakriminality.cz/api/areas');
+
+    const crimeCodes = [];
+    const crimeData: {
+        [key: string]: string;
+    } = {};
+
+    for (const crime of crimetypes.data.crimes) {
+        //console.log(crime);
+        crimeCodes.push(crime.Code);
+        crimeData[crime.Code] = crime.Name_en;
+    }
+
+    const areaCodes = [];
+    const areaData = [];
+    for (const area of areas.data.areas) {
+        areaCodes.push(area.Code);
+        areaData.push({ code: area.Code, name: area.Name, level: Number(area.AreaLevel) });
+    }
+
+    const output: Country = { country: 'Czech Republic', year: [{ year: '2019', region: [], data: [] }] };
+    const regions: {
+        [key: string]: number;
+    } = {};
+    let regIndex = 0;
+    for (const area of areaData) {
+        if (area.level > 1) {
+            continue;
+        }
+        const data = await axios.get(
+            'https://mapakriminality.cz/api/crimes?areacode=' +
+                area.code +
+                '&crimetypes=' +
+                crimeCodes +
+                '&timefrom=1-2019&groupby=crimetype',
+        );
+        switch (area.level) {
+            case 0:
+                for (const crime of data.data.crimes) {
+                    output.year[0].data?.push({ crime: crimeData[crime.CrimeType], value: Number(crime.Found) });
+                }
+                break;
+            case 1:
+                regions[area.code] = regIndex;
+                output.year[0].region.push({ region: area.name, province: [], data: [] });
+                for (const crime of data.data.crimes) {
+                    output.year[0].region[regIndex].data?.push({
+                        crime: crimeData[crime.CrimeType],
+                        value: Number(crime.Found),
+                    });
+                }
+                regIndex++;
+                break;
+            default:
+                break;
+        }
+        console.log(area.name);
+    }
+
+    console.log('regions done');
+
+    const provinces: {
+        [key: string]: number;
+    } = {};
+    let provIndex = 0;
+    for (const area of areaData) {
+        if (area.level != 2) {
+            continue;
+        }
+        const data = await axios.get(
+            'https://mapakriminality.cz/api/crimes?areacode=' +
+                area.code +
+                '&crimetypes=' +
+                crimeCodes +
+                '&timefrom=1-2019&groupby=crimetype',
+        );
+
+        const region = area.code.substring(0, area.code.length - 2) + '00';
+        regIndex = regions[region];
+
+        output.year[0].region[regIndex].province.push({ province: area.name, county: [], data: [] });
+        provIndex = output.year[0].region[regIndex].province.length - 1;
+        provinces[area.code] = provIndex;
+        for (const crime of data.data.crimes) {
+            output.year[0].region[regIndex].province[provIndex].data?.push({
+                crime: crimeData[crime.CrimeType],
+                value: Number(crime.Found),
+            });
+        }
+
+        console.log(area.name);
+    }
+
+    console.log('provinces done');
+
+    let countIndex = 0;
+    for (const area of areaData) {
+        if (area.level != 3) {
+            continue;
+        }
+        const data = await axios.get(
+            'https://mapakriminality.cz/api/crimes?areacode=' +
+                area.code +
+                '&crimetypes=' +
+                crimeCodes +
+                '&timefrom=1-2019&groupby=crimetype',
+        );
+
+        const region = area.code.substring(0, area.code.length - 4) + '00';
+        regIndex = regions[region];
+
+        const province = area.code.substring(0, area.code.length - 2);
+        provIndex = provinces[province];
+
+        output.year[0].region[regIndex].province[provIndex].county.push({ county: area.name, data: [] });
+        countIndex = output.year[0].region[regIndex].province[provIndex].county.length - 1;
+        for (const crime of data.data.crimes) {
+            output.year[0].region[regIndex].province[provIndex].county[countIndex].data.push({
+                crime: crimeData[crime.CrimeType],
+                value: Number(crime.Found),
+            });
+        }
+        console.log(area.name);
+    }
+
+    console.log('counties done');
+
+    /*fs.writeFile("data/source_files/test.txt", JSON.stringify(output), function(err) {
+        if (err) {
+            console.log(err);
+        }
+    });*/
+
+    //console.log(output.data);
+    //console.log(typeof output.data);
+
+    return output;
+}
+
+function parseCSVSpain(filename: string[]): Country {
+    let text = fs.readFileSync(filename[0], 'utf-8');
+    const output: Country = { country: 'Spain', year: [{ year: '2018', region: [], data: [] }] };
+
+    let records = parse(text, {
+        from_line: 8,
+        relax_column_count: true,
+    });
+
+    for (let i = 0; i < records.length - 45; i += 45) {
+        //console.log(records[i][0]);
+        if (i !== 0) {
+            output.year[0].region.push({ region: records[i][0], province: [], data: [] });
+        }
+        for (let j = i + 1; j < i + 45; j++) {
+            const lastRegion = output.year[0].region.length - 1;
+            if (i === 0) {
+                output.year[0].data?.push({ crime: records[j][0], value: Number(records[j][1]) });
+            } else {
+                output.year[0].region[lastRegion].data?.push({ crime: records[j][0], value: Number(records[j][1]) });
+            }
+        }
+    }
+
+    const provMap: {
+        [key: string]: string;
+    } = {
+        'Araba/Álava': 'PAÍS VASCO',
+        Albacete: 'CASTILLA - LA MANCHA',
+        'Alicante/Alacant': 'COMUNITAT VALENCIANA',
+        Almería: 'ANDALUCÍA',
+        Ávila: 'CASTILLA Y LEÓN',
+        Badajoz: 'EXTREMADURA',
+        'Balears (Illes)': 'BALEARS (ILLES)',
+        Barcelona: 'CATALUÑA',
+        Burgos: 'CASTILLA Y LEÓN',
+        Cáceres: 'EXTREMADURA',
+        Cádiz: 'ANDALUCÍA',
+        'Castellón/Castelló': 'COMUNITAT VALENCIANA',
+        'Ciudad Real': 'CASTILLA - LA MANCHA',
+        Córdoba: 'ANDALUCÍA',
+        'Coruña (A)': 'GALICIA',
+        Cuenca: 'CASTILLA - LA MANCHA',
+        Girona: 'CATALUÑA',
+        Granada: 'ANDALUCÍA',
+        Guadalajara: 'CASTILLA - LA MANCHA',
+        Gipuzkoa: 'PAÍS VASCO',
+        Huelva: 'ANDALUCÍA',
+        Huesca: 'ARAGÓN',
+        Jaén: 'ANDALUCÍA',
+        León: 'CASTILLA Y LEÓN',
+        Lleida: 'CATALUÑA',
+        'Rioja (La)': 'RIOJA (LA)',
+        Lugo: 'GALICIA',
+        Madrid: 'MADRID (COMUNIDAD DE)',
+        Málaga: 'ANDALUCÍA',
+        Murcia: 'MURCIA (REGIÓN DE)',
+        Navarra: 'NAVARRA (COMUNIDAD FORAL DE)',
+        Ourense: 'GALICIA',
+        Asturias: 'ASTURIAS (PRINCIPADO DE)',
+        Palencia: 'CASTILLA Y LEÓN',
+        'Palmas (Las)': 'CANARIAS',
+        Pontevedra: 'GALICIA',
+        Salamanca: 'CASTILLA Y LEÓN',
+        'Santa Cruz de Tenerife': 'CANARIAS',
+        Cantabria: 'CANTABRIA',
+        Segovia: 'CASTILLA Y LEÓN',
+        Sevilla: 'ANDALUCÍA',
+        Soria: 'CASTILLA Y LEÓN',
+        Tarragona: 'CATALUÑA',
+        Teruel: 'ARAGÓN',
+        Toledo: 'CASTILLA - LA MANCHA',
+        'Valencia/València': 'COMUNITAT VALENCIANA',
+        Valladolid: 'CASTILLA Y LEÓN',
+        Bizkaia: 'PAÍS VASCO',
+        Zamora: 'CASTILLA Y LEÓN',
+        Zaragoza: 'ARAGÓN',
+        Ceuta: 'CIUDAD AUTÓNOMA DE CEUTA',
+        Melilla: 'CIUDAD AUTÓNOMA DE MELILLA',
+        'En el extranjero': 'EN EL EXTRANJERO',
+        Desconocida: 'DESCONOCIDA',
+    };
+
+    text = fs.readFileSync(filename[1], 'utf-8');
+    records = parse(text, {
+        from_line: 8,
+        relax_column_count: true,
+    });
+
+    for (let i = 0; i < records.length - 45; i += 45) {
+        //console.log(records[i][0]);
+        const regIndex = output.year[0].region.findIndex(item => item.region === provMap[records[i][0]]);
+        output.year[0].region[regIndex].province.push({
+            province: records[i][0],
+            county: [{ county: records[i][0], data: [] }],
+        });
+        for (let j = i + 1; j < i + 45; j++) {
+            const lastProvince = output.year[0].region[regIndex].province.length - 1;
+            output.year[0].region[regIndex].province[lastProvince].county[0].data.push({
+                crime: records[j][0],
+                value: Number(records[j][1]),
+            });
+        }
+    }
+
+    return output;
+}
+
 ///////////////////////////////////////////////////////
 
 //////// DICTIONARY OF FUNCTIONS ////////////
@@ -708,6 +993,9 @@ const countryFunctions: Record<string, Function> = {
     bulgaria: parseXLSBulgaria,
     portugal: parseXLSPortugal,
     denmark: parseCSVDenmark,
+    austria: parseXLSXAustria,
+    czech_republic: getCzechData,
+    spain: parseCSVSpain,
 };
 
 const countrySources: Record<string, Array<string>> = {
@@ -717,15 +1005,19 @@ const countrySources: Record<string, Array<string>> = {
     bulgaria: ['data/source_files/bulgaria/bulgaria.xls'],
     denmark: ['data/source_files/denmark/denmark.csv'],
     portugal: ['data/source_files/portugal/portugal.xls'],
+    austria: ['data/source_files/austria/austria.xlsx'],
+    czech_republic: [''],
+    spain: ['data/source_files/spain/spain_1.csv', 'data/source_files/spain/spain_2.csv'],
 };
 ////////////////////////////////////////////
 ///////////PUBLIC FUNCTIONS////////////////
 /**
  * Returns the JSON with ICCS categories of the specified country with source of the specified extension (eg. .csv, .xls, .xlsx)
  */
-export function getData(country: string): Country {
+export async function getData(country: string): Promise<Country> {
     const data = countryFunctions[country](countrySources[country]);
-    NaNtoZero(data);
+    //NaNtoZero(data);
     //const JSONData = mapCategories(data, country, false, false);
+    //console.log(data);
     return data;
 }
