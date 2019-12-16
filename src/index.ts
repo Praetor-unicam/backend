@@ -2,16 +2,20 @@ import express, { response } from 'express';
 const mongoose = require('mongoose');
 const body_parser = require('body-parser');
 const state = require('./routes/luxembourg');
-
+import * as dotenv from 'dotenv';
 import helmet from 'helmet';
 
+dotenv.config();
+
+
+
 mongoose
-    .connect('mongodb://localhost:27017/misap_DB')
+    .connect(`mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.env.MONGO_DB_NAME}`)
     .then(() => {
         console.log('Database connection successful');
     })
-    .catch(() => {
-        console.error('Database connection error');
+    .catch((err: any) => {
+        console.error(err);
     });
 import luxembourg from './routes/scraper/luxembourg';
 import bulgary from './routes/scraper/bulgary';

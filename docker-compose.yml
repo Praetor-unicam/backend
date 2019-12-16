@@ -1,0 +1,28 @@
+version: "3"
+services:
+  app:
+    build: .
+    volumes:
+      - ./:/app
+      - notused:/app/node_modules
+    working_dir: /app
+    depends_on:
+      - mongo
+    environment:
+      NODE_ENV: development
+      DATA_DOWNLOAD_DIR: /tmp
+      MONGO_HOST: mongo
+      MONGO_PORT: 27017
+      MONGO_DB_NAME: misap_DB
+    ports:
+      - 5000:5000
+    command: npm run dev
+  mongo:
+    image: mongo
+    environment: 
+      MONGO_INITDB_DATABASE: misap_DB
+    expose:
+      - 27017
+
+volumes:
+  notused:
