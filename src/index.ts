@@ -1,7 +1,7 @@
 import express, { response } from 'express';
 const mongoose = require('mongoose');
 const body_parser = require('body-parser');
-let state = require('./routes/luxembourg');
+const state = require('./routes/luxembourg');
 
 mongoose
     .connect('mongodb://localhost:27017/misap_DB')
@@ -12,6 +12,7 @@ mongoose
         console.error('Database connection error');
     });
 import luxembourg from './routes/scraper/luxembourg';
+import bulgary from './routes/scraper/bulgary';
 import cyprus from './routes/scraper/cyprus';
 import poland from './routes/scraper/poland';
 
@@ -28,10 +29,11 @@ app.use('/api', state);
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-let path = require('path');
+const path = require('path');
 app.use(express.static(path.join(__dirname, '../frontend')));
 
 app.use('/scraper/luxembourg', luxembourg);
+app.use('/scraper/bulgary', bulgary);
 app.use('/scraper/cyprus', cyprus);
 app.use('/scraper/poland', poland);
 ///////////////////DEBUG ROUTES//////////////////////////
