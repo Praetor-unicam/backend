@@ -13,6 +13,7 @@ mongoose
     });
 import luxembourg from './routes/scraper/luxembourg';
 import cyprus from './routes/scraper/cyprus';
+import poland from './routes/scraper/poland';
 
 import * as swaggerUi from 'swagger-ui-express';
 
@@ -32,6 +33,7 @@ app.use(express.static(path.join(__dirname, '../frontend')));
 
 app.use('/scraper/luxembourg', luxembourg);
 app.use('/scraper/cyprus', cyprus);
+app.use('/scraper/poland', poland);
 ///////////////////DEBUG ROUTES//////////////////////////
 app.get('/readCSV-luxembourg', (request, response) => {
     response.send(getData('luxembourg'));
