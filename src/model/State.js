@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-var CountrydataSchema = new mongoose.Schema({
+const CountrydataSchema = new mongoose.Schema({
     country: String,
     year: [
         {

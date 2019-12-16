@@ -10,25 +10,26 @@ const downloadDir = String(process.env.DATA_DOWNLOAD_DIR);
 const country = 'Cyprus';
 const destinationFolder = downloadDir + '/' + country;
 
-const seriousDataFile = 'http://www.police.gov.cy/police/police.nsf/All/8AB8D4666DFF37CAC22584730032377E/$file/Serious%20first%20half%202019.xls';
-const minorDataFile = 'http://www.police.gov.cy/police/police.nsf/All/D8A3F948C28378AAC225847300326129/$file/minor%20first%20half%202019.xls';
+const seriousDataFile =
+    'http://www.police.gov.cy/police/police.nsf/All/8AB8D4666DFF37CAC22584730032377E/$file/Serious%20first%20half%202019.xls';
+const minorDataFile =
+    'http://www.police.gov.cy/police/police.nsf/All/D8A3F948C28378AAC225847300326129/$file/minor%20first%20half%202019.xls';
 
 const seriousFileName = 'SeriousCrimes.xlsx';
 const minorFileName = 'MinorCrimes.xlsx';
 
-const downloadBothFiles = async (customDestination?: string, removeFiles=false) => {
-
+const downloadBothFiles = async (customDestination?: string, removeFiles = false) => {
     const destination = customDestination || destinationFolder;
 
-    await mkdir(destination, { recursive: true});
-    await download(seriousDataFile, destination, { filename: seriousFileName});
-    await download(minorDataFile, destination, { filename: minorFileName});
+    await mkdir(destination, { recursive: true });
+    await download(seriousDataFile, destination, { filename: seriousFileName });
+    await download(minorDataFile, destination, { filename: minorFileName });
 
-    if(removeFiles) {
+    if (removeFiles) {
         await removeFile(destination + '/' + seriousFileName);
         await removeFile(destination + '/' + minorFileName);
     }
-}
+};
 
 const dummyDownload = async () => await downloadBothFiles('.', true);
 

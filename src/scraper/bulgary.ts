@@ -14,17 +14,16 @@ const destinationFolder = downloadDir + '/' + country;
 
 const downloadUrl = 'https://www.nsi.bg/sites/default/files/files/data/timeseries/JST_1.2_en.xls';
 
-const downloadFile = async (customDestination?: string, removeFiles=false) => {
-
+const downloadFile = async (customDestination?: string, removeFiles = false) => {
     const destination = customDestination || destinationFolder;
 
-    await mkdir(destination, { recursive: true});
+    await mkdir(destination, { recursive: true });
     await download(downloadUrl, destination, { filename });
 
-    if(removeFiles) {
+    if (removeFiles) {
         await removeFile(destination + '/' + filename);
     }
-}
+};
 
 const dummyDownload = async () => await downloadFile('.', true);
 

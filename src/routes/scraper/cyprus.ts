@@ -20,6 +20,8 @@ router.get('/status', async (req, res) =>
     (await scraper.isServiceAvailable()) ? res.sendStatus(200) : res.sendStatus(502),
 );
 
-router.get('/download', async (req, res) => ((await scraper.downloadData()) ? res.sendStatus(200) : res.sendStatus(502)));
+router.get('/download', async (req, res) =>
+    (await scraper.downloadData()) ? res.sendStatus(200) : res.sendStatus(502),
+);
 
 export default router;
