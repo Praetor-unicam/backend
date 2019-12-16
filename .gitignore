@@ -62,3 +62,9 @@ typings/
 
 # Ts output files
 build
+
+# GoogleNews model
+GoogleNews-vectors-negative300.bin
+
+.vscode
+.vscode/settings.json
