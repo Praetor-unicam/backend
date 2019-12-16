@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const body_parser = require('body-parser');
 const state = require('./routes/luxembourg');
 
+import helmet from 'helmet';
+
 mongoose
     .connect('mongodb://localhost:27017/misap_DB')
     .then(() => {
@@ -21,9 +23,11 @@ import * as swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './swaggerDef';
 
 import { getData } from './loader'; // getData will return luxembourg's data so far
+
 import { request } from 'http';
 
 const app = express();
+app.use(helmet()); // Add security headers
 app.use(body_parser.json());
 app.use('/api', state);
 
