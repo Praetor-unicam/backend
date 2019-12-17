@@ -21,4 +21,4 @@ Denmark | ? | ? | ?
 Portugal | ? | ? | ?
 Bulgaria | Solo 2018 | ? | ?
 Czech Republic | ? | Attendere API | ?
-Hungary | ? | ? | ?
+Hungary | Y | ? | ?
