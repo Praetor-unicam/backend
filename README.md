@@ -11,7 +11,7 @@ Finland | ? | ? | ?
 Poland | API abstraction | Attendere API | ?
 Belgium | ? | ? | ?
 Spain | ? | ? | ?
-England | ? | ? | ?
+England | Solo 2019 | ? | ?
 Northern Ireland | ? | ? | ?
 Germany | ? | ? | ?
 Italy | ? | ? | ?
