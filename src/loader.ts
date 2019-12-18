@@ -5,6 +5,7 @@ import parse = require('csv-parse/lib/sync');
 const excelToJson = require('convert-excel-to-json');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const axios = require('axios');
+const glob = require('glob');
 
 ////////// INTERFACES ///////////
 
@@ -435,6 +436,7 @@ export function parseXLSHungary(filename: string[]): Country {
     let j = 0;
     let crime = '';
     records = records['6.2.7.2.'];
+
     for (const row of records) {
         let i = 0;
         if (Object.keys(row).length == 1) {
@@ -444,69 +446,91 @@ export function parseXLSHungary(filename: string[]): Country {
                 firstPassRegions = false;
             }
             j = 0;
+        } else if (row.Level.includes('region') && !row.Level.includes('large')) {
+            Object.keys(row).forEach(function(key) {
+                if (!isNaN(Number(key)) && firstPassYears) {
+                    const yearTemp: Year = {
+                        year: key,
+                        region: [
+                            {
+                                region: row.Crime_or_location,
+                                province: [],
+                                data: [{ crime: crime, value: Number(row[key]) }],
+                            },
+                        ],
+                        data: [],
+                    };
+                    output.year.push(yearTemp);
+                } else if (!isNaN(Number(key)) && firstPassRegions) {
+                    output.year[i].region.push({
+                        region: row.Crime_or_location,
+                        province: [],
+                        data: [{ crime: crime, value: Number(row[key]) }],
+                    });
+                } else if (!isNaN(Number(key))) {
+                    output.year[i].region[j].data?.push({
+                        crime: crime,
+                        value: Number(row[key]),
+                    });
+                }
+                i = i + 1;
+            });
+            firstPassYears = false;
+            j = j + 1;
+        } else if (row.Level === 'country') {
+            Object.keys(row).forEach(function(key) {
+                if (!isNaN(Number(key)) && output.year[i].data) {
+                    output.year[i].data?.push({ crime: crime, value: Number(row[key]) });
+                    i = i + 1;
+                }
+            });
+        }
+    }
+
+    j = 0;
+    crimePasses = 0;
+    let firstPassProvinces = true;
+    let k = 0;
+    for (const row of records) {
+        let i = 0;
+        if (Object.keys(row).length == 1) {
+            crime = row.Crime_or_location.replace('$', '');
+            crimePasses++;
+            if (crimePasses === 2) {
+                firstPassProvinces = false;
+            }
+            j = 0;
         } else {
-            if (row.Level.includes('capital') || row.Level.includes('county')) {
+            if (row.Level.includes('county') && !row.Level.includes('region')) {
                 Object.keys(row).forEach(function(key) {
-                    if (!isNaN(Number(key)) && firstPassYears) {
-                        const yearTemp: Year = {
-                            year: key,
-                            region: [
+                    if (!isNaN(Number(key)) && firstPassProvinces) {
+                        output.year[i].region[j].province.push({
+                            province: row.Crime_or_location,
+                            county: [
                                 {
-                                    region: row.Crime_or_location,
-                                    province: [
+                                    county: row.Crime_or_location,
+                                    data: [
                                         {
-                                            province: row.Crime_or_location,
-                                            county: [
-                                                {
-                                                    county: row.Crime_or_location,
-                                                    data: [{ crime: crime, value: Number(row[key]) }],
-                                                },
-                                            ],
+                                            crime: crime,
+                                            value: Number(row[key]),
                                         },
                                     ],
                                 },
                             ],
-                            data: [],
-                        };
-                        output.year.push(yearTemp);
-                    } else {
-                        if (!isNaN(Number(key)) && firstPassRegions) {
-                            output.year[i].region.push({
-                                region: row.Crime_or_location,
-                                province: [
-                                    {
-                                        province: row.Crime_or_location,
-                                        county: [
-                                            {
-                                                county: row.Crime_or_location,
-                                                data: [{ crime: crime, value: Number(row[key]) }],
-                                            },
-                                        ],
-                                    },
-                                ],
-                            });
-                        } else if (!isNaN(Number(key))) {
-                            output.year[i].region[j].province[0].county[0].data.push({
-                                crime: crime,
-                                value: Number(row[key]),
-                            });
-                        }
+                        });
+                    } else if (!isNaN(Number(key))) {
+                        output.year[i].region[j].province[k].county[0].data.push({
+                            crime: crime,
+                            value: Number(row[key]),
+                        });
                     }
                     i = i + 1;
                 });
-                firstPassYears = false;
-            } else {
-                if (row.Level === 'country') {
-                    Object.keys(row).forEach(function(key) {
-                        if (!isNaN(Number(key)) && output.year[i].data) {
-                            output.year[i].data?.push({ crime: crime, value: Number(row[key]) });
-                            i = i + 1;
-                        }
-                    });
-                }
-                j--;
+                k++;
+            } else if (row.Level.includes('region') && !row.Level.includes('large')) {
+                j++;
+                k = 0;
             }
-            j = j + 1;
         }
     }
 
@@ -980,6 +1004,657 @@ function parseCSVSpain(filename: string[]): Country {
     return output;
 }
 
+function parseXLSItaly(filename: string[]): Country {
+    const output: Country = { country: 'Italy', year: [{ year: '2018', region: [], data: [] }] };
+    let records = excelToJson({
+        sourceFile: filename[0],
+        header: {
+            rows: 7,
+        },
+        columnToKey: {
+            A: 'Place',
+            C: '{{C6}}',
+            D: '{{D6}}',
+            E: '{{E6}}',
+            F: '{{F6}}',
+            G: '{{G6}}',
+            H: '{{H6}}',
+            I: '{{I6}}',
+            J: '{{J6}}',
+            K: '{{K6}}',
+            L: '{{L6}}',
+            M: '{{M6}}',
+            N: '{{N6}}',
+            O: '{{O6}}',
+            P: '{{P6}}',
+            Q: '{{Q6}}',
+            R: '{{R6}}',
+            S: '{{S6}}',
+            T: '{{T6}}',
+            U: '{{U6}}',
+            V: '{{V6}}',
+            W: '{{W6}}',
+            X: '{{X6}}',
+            Y: '{{Y6}}',
+            Z: '{{Z6}}',
+            AA: '{{AA6}}',
+            AB: '{{AB6}}',
+            AC: '{{AC6}}',
+            AD: '{{AD6}}',
+            AE: '{{AE6}}',
+            AF: '{{AF6}}',
+            AG: '{{AG6}}',
+            AH: '{{AH6}}',
+            AI: '{{AI6}}',
+            AJ: '{{AJ6}}',
+            AK: '{{AK6}}',
+            AL: '{{AL6}}',
+            AM: '{{AM6}}',
+            AN: '{{AN6}}',
+            AO: '{{AO6}}',
+            AP: '{{AP6}}',
+            AQ: '{{AQ6}}',
+            AR: '{{AR6}}',
+            AS: '{{AS6}}',
+            AT: '{{AT6}}',
+            AU: '{{AU6}}',
+            AV: '{{AV6}}',
+            AW: '{{AW6}}',
+            AX: '{{AX6}}',
+            AY: '{{AY6}}',
+            AZ: '{{AZ6}}',
+            BA: '{{BA6}}',
+            BB: '{{BB6}}',
+            BC: '{{BC6}}',
+            BD: '{{BD6}}',
+            BE: '{{BE6}}',
+        },
+    });
+    records = records['I.Stat export'];
+    const macroRegions = ['Nord-ovest', 'Nord-est', 'Centro (I)', 'Sud', 'Isole'];
+    const regions = [
+        'Piemonte',
+        "Valle d'Aosta / Vallée d'Aoste",
+        'Lombardia',
+        'Trentino Alto Adige / Südtirol',
+        'Veneto',
+        'Friuli-Venezia Giulia',
+        'Liguria',
+        'Emilia-Romagna',
+        'Toscana',
+        'Umbria',
+        'Marche',
+        'Lazio',
+        'Abruzzo',
+        'Molise',
+        'Campania',
+        'Puglia',
+        'Basilicata',
+        'Calabria',
+        'Sicilia',
+        'Sardegna',
+    ];
+
+    let regIndex = -1;
+    let provIndex = -1;
+    let isProvince = true;
+    for (const row of records) {
+        console.log(row.Place);
+        if (row.Place === 'Data extracted on 16 Dec 2019 10:37 UTC (GMT) fromI.Stat') {
+            continue;
+        } else if (row.Place === 'Italy') {
+            Object.keys(row).forEach(function(key) {
+                if (key != 'Place') {
+                    output.year[0].data?.push({ crime: key, value: Number(row[key]) });
+                }
+            });
+        } else if (macroRegions.includes(row.Place)) {
+            continue;
+        } else if (regions.includes(row.Place)) {
+            if (
+                row.Place === "Valle d'Aosta / Vallée d'Aoste" &&
+                output.year[0].region[regIndex].region === "Valle d'Aosta / Vallée d'Aoste"
+            ) {
+                continue;
+            }
+            output.year[0].region.push({ region: row.Place, province: [], data: [] });
+            regIndex = output.year[0].region.length - 1;
+            Object.keys(row).forEach(function(key) {
+                if (key != 'Place') {
+                    output.year[0].region[regIndex].data?.push({ crime: key, value: Number(row[key]) });
+                }
+            });
+            provIndex = -1;
+        } else if (isProvince) {
+            output.year[0].region[regIndex].province.push({ province: row.Place, county: [], data: [] });
+            provIndex = output.year[0].region[regIndex].province.length - 1;
+            Object.keys(row).forEach(function(key) {
+                if (key != 'Place') {
+                    output.year[0].region[regIndex].province[provIndex].data?.push({
+                        crime: key,
+                        value: Number(row[key]),
+                    });
+                }
+            });
+            if (row.Place == 'Aosta') {
+                isProvince = true;
+            } else {
+                isProvince = false;
+            }
+        } else {
+            output.year[0].region[regIndex].province[provIndex].county.push({ county: row.Place, data: [] });
+            Object.keys(row).forEach(function(key) {
+                if (key != 'Place') {
+                    output.year[0].region[regIndex].province[provIndex].county[0].data.push({
+                        crime: key,
+                        value: Number(row[key]),
+                    });
+                }
+            });
+            isProvince = true;
+        }
+    }
+
+    return output;
+}
+
+function parseCSVNetherlands(filename: string[]): Country {
+    const folder = 'data/source_files/netherlands/';
+    const regionsAndTotal = folder + filename[0];
+    const provinces = folder + filename[1];
+    const output: Country = { country: 'Netherlands', year: [] };
+    let text = fs.readFileSync(regionsAndTotal, 'utf-8');
+
+    let crimes = parse(text, {
+        from: 3,
+        to: 3,
+        delimiter: ';',
+        skip_lines_with_error: true,
+        relax_column_count: true,
+    })[0];
+    crimes.shift();
+    crimes = Array.from(new Set(crimes));
+
+    let years = parse(text, {
+        from: 4,
+        to: 4,
+        delimiter: ';',
+        skip_lines_with_error: true,
+        relax_column_count: true,
+    })[0];
+    years.shift();
+    years = Array.from(new Set(years));
+
+    for (const year of years) {
+        output.year.push({ year: year, region: [], data: [] });
+    }
+
+    let records = parse(text, {
+        from: 6,
+        delimiter: ';',
+        skip_lines_with_error: true,
+        relax_column_count: true,
+    });
+
+    //total (regions ignored)
+    //i = 0 -> place, each group of k years is the j-th crime
+    for (let i = 0; i < records.length; i++) {
+        if (i === 0) {
+            for (let j = 0; j < crimes.length; j++) {
+                for (let k = 0; k < years.length; k++) {
+                    output.year[k].data?.push({
+                        crime: crimes[j],
+                        value: Number(records[i][j * years.length + k + 1]),
+                    });
+                }
+            }
+        }
+    }
+
+    text = fs.readFileSync(provinces, 'utf-8');
+    records = parse(text, {
+        from: 6,
+        delimiter: ';',
+        skip_lines_with_error: true,
+        relax_column_count: true,
+    });
+
+    //provinces
+    //i = 0 -> place, each group of k years is the j-th crime
+    for (let i = 0; i < records.length - 1; i++) {
+        for (let k = 0; k < years.length; k++) {
+            output.year[k].region.push({ region: records[i][0], province: [], data: [] });
+        }
+        const regIndex = output.year[0].region.length - 1;
+        for (let j = 0; j < crimes.length; j++) {
+            for (let k = 0; k < years.length; k++) {
+                output.year[k].region[regIndex].data?.push({
+                    crime: crimes[j],
+                    value: Number(records[i][j * years.length + k + 1]),
+                });
+            }
+        }
+    }
+
+    const provMap: {
+        [key: string]: Array<string>;
+    } = {
+        'Groningen (PV)': [folder + filename[2]],
+        'Friesland (PV)': [folder + filename[3]],
+        'Drenthe (PV)': [folder + filename[4]],
+        'Overijssel (PV)': [folder + filename[5]],
+        'Flevoland (PV)': [folder + filename[6]],
+        'Gelderland (PV)': [folder + filename[7], folder + filename[8]],
+        'Utrecht (PV)': [folder + filename[9]],
+        'Noord-Holland (PV)': [folder + filename[10], folder + filename[11]],
+        'Zuid-Holland (PV)': [folder + filename[12], folder + filename[13]],
+        'Zeeland (PV)': [folder + filename[14]],
+        'Noord-Brabant (PV)': [folder + filename[15], folder + filename[16]],
+        'Limburg (PV)': [folder + filename[17]],
+        'Niet in te delen (PV)': [folder + filename[18]],
+    };
+
+    Object.keys(provMap).forEach(function(key) {
+        for (const file of provMap[key]) {
+            text = fs.readFileSync(file, 'utf-8');
+            records = parse(text, {
+                from: 6,
+                delimiter: ';',
+                skip_lines_with_error: true,
+                relax_column_count: true,
+            });
+
+            const regIndex = output.year[0].region.map(x => x.region).indexOf(key);
+
+            for (let i = 0; i < records.length - 1; i++) {
+                console.log(records[i][0]);
+
+                for (let k = 0; k < years.length; k++) {
+                    output.year[k].region[regIndex].province.push({
+                        province: records[i][0],
+                        county: [
+                            {
+                                county: records[i][0],
+                                data: [],
+                            },
+                        ],
+                    });
+                }
+                const provIndex = output.year[0].region[regIndex].province.length - 1;
+                for (let j = 0; j < crimes.length; j++) {
+                    for (let k = 0; k < years.length; k++) {
+                        output.year[k].region[regIndex].province[provIndex].county[0].data.push({
+                            crime: crimes[j],
+                            value: Number(records[i][j * years.length + k + 1]),
+                        });
+                    }
+                }
+            }
+        }
+    });
+
+    return output;
+}
+
+function parseXLSNorthernIreland(filename: string[]): Country {
+    const output: Country = { country: 'Northern Ireland', year: [] };
+    let records = excelToJson({
+        sourceFile: filename[0],
+        header: {
+            rows: 3,
+        },
+        columnToKey: {
+            '*': '{{columnHeader}}',
+        },
+        range: 'A5:V192',
+    });
+
+    records = records['Table 2.2'];
+    let firstPass = true;
+    for (const row of records) {
+        const crime = row.Offence;
+        if (firstPass) {
+            Object.keys(row).forEach(function(key) {
+                if (key !== 'Offence') {
+                    const index = key.indexOf('/');
+                    key = key.substring(0, index + 3);
+                    output.year.push({ year: key, region: [], data: [{ crime: crime, value: Number(row[key]) }] });
+                }
+            });
+            firstPass = false;
+        } else {
+            let i = 0;
+            Object.keys(row).forEach(function(key) {
+                if (key !== 'Offence') {
+                    output.year[i].data?.push({ crime: crime, value: Number(row[key]) });
+                    i++;
+                }
+            });
+        }
+    }
+
+    records = excelToJson({
+        sourceFile: filename[1],
+        header: {
+            rows: 5,
+        },
+        columnToKey: {
+            A: 'Place',
+            B: '2017/18',
+            C: '2018/19',
+        },
+        range: 'A6:C20',
+    });
+
+    records = records['Table 2 & Figure 6'];
+    const subregions = ['North1', 'South1', 'West1', 'East1'];
+    for (const row of records) {
+        Object.keys(row).forEach(function(key) {
+            if (key !== 'Place') {
+                const index = output.year.map(x => x.year).indexOf(key);
+                if (row.Place === 'Belfast City') {
+                    output.year[index].region.push({
+                        region: row.Place,
+                        province: [],
+                        data: [{ crime: 'Total', value: Number(row[key]) }],
+                    });
+                } else if (subregions.includes(row.Place)) {
+                    const index = output.year.map(x => x.year).indexOf(key);
+                    const regIndex = output.year[index].region.map(x => x.region).indexOf('Belfast City');
+                    output.year[index].region[regIndex].province.push({
+                        province: row.Place.slice(0, -1),
+                        county: [
+                            { county: row.Place.slice(0, -1), data: [{ crime: 'Total', value: Number(row[key]) }] },
+                        ],
+                    });
+                } else {
+                    const index = output.year.map(x => x.year).indexOf(key);
+                    output.year[index].region.push({
+                        region: row.Place,
+                        province: [
+                            {
+                                province: row.Place,
+                                county: [{ county: row.Place, data: [{ crime: 'Total', value: Number(row[key]) }] }],
+                            },
+                        ],
+                    });
+                }
+            }
+        });
+    }
+
+    return output;
+}
+
+function parseCSVBelgium(filename: string[]): Country {
+    const crimes = [
+        'Autodiefstal',
+        'Motodiefstal',
+        'Carjacking',
+        'Garagiediefstal',
+        'Bromfietsdiefstal',
+        'Fietsdiefstal',
+        'Diefstal uit of aan voertuig',
+        'Woninginbraak',
+        'Inbraak in bedrijf of handelszaak',
+        'Inbraak in openb. of overheidsinst.',
+        'Diefstal gewapenderhand',
+        'Diefstal met geweld zonder wapen',
+        'Sacjacking uit Autodiefstal',
+        'Handtasroof',
+        'Grijpdiefstal',
+        'Zakkenrollerij',
+        'Winkeldiefstal',
+        'Graffiti',
+        'Beschadiging van Autodiefstal',
+        'IFG: fysiek (totaal)',
+        'IFG: psychisch (totaal)',
+        'IFG: seksueel (totaal)',
+    ];
+    const folder = 'data/source_files/belgium/';
+    const output: Country = { country: 'Belgium', year: [] };
+    const extPoliceZones = [
+        'Geen PZ toegekend - Noordzee',
+        'Geen PZ toegekend - Brussels Airport',
+        'Geen PZ toegekend - Eurostar',
+    ];
+    const regions = ['Vlaams Gewest', 'Brussels Hoofdstedelijk Gewest', 'Waals Gewest'];
+    const provinces = [
+        'Brussel-Hoofdstad',
+        'Antwerpen',
+        'Limburg',
+        'Oost-Vlaanderen',
+        'Vlaams Brabant',
+        'West-Vlaanderen',
+        'Brabant wallon',
+        'Hainaut',
+        'Liège',
+        'Luxembourg',
+        'Namur',
+    ];
+    const special = ['Leuven', 'Hainaut (Mons)'];
+
+    let text = fs.readFileSync(folder + filename[0], 'utf-8');
+
+    const columns = parse(text)[0];
+    columns[0] = 'Place';
+
+    for (let i = 1; i < columns.length; i++) {
+        output.year.push({ year: columns[i], region: [], data: [] });
+    }
+
+    /*let records = parse(text, {
+        from_line: 2,
+        columns: columns,
+    });*/
+
+    let firstPass = true;
+    let crimIndex = -1;
+    for (const file of filename) {
+        text = fs.readFileSync(folder + file, 'utf-8');
+        const records = parse(text, {
+            from_line: 2,
+            columns: columns,
+        });
+        const i = 0;
+        crimIndex++;
+        let skipNext = false;
+        let firstLiege = true;
+        const usedNames: Array<string> = [];
+        let regIndex = 0, provIndex = 0;
+        for (const row of records) {
+            if (row.Place === 'Nationaal') {
+                Object.keys(row).forEach(function(key) {
+                    if (key != 'Place') {
+                        const yearIndex = output.year.map(x => x.year).indexOf(key);
+                        output.year[yearIndex].data?.push({ crime: crimes[crimIndex], value: Number(row[key]) });
+                    }
+                });
+            } else if (row.Place === 'Onbekend') {
+                if (firstPass) {
+                    Object.keys(row).forEach(function(key) {
+                        if (key != 'Place') {
+                            const yearIndex = output.year.map(x => x.year).indexOf(key);
+                            output.year[yearIndex].region.push({
+                                region: row.Place,
+                                province: [
+                                    {
+                                        province: row.Place,
+                                        county: [
+                                            {
+                                                county: row.Place,
+                                                data: [{ crime: crimes[crimIndex], value: Number(row[key]) }],
+                                            },
+                                        ],
+                                    },
+                                ],
+                            });
+                        }
+                    });
+                    break;
+                } else {
+                    Object.keys(row).forEach(function(key) {
+                        if (key != 'Place') {
+                            const yearIndex = output.year.map(x => x.year).indexOf(key);
+                            const regIndex = output.year[0].region.map(x => x.region).indexOf(row.Place);
+                            //console.log(regIndex);
+                            output.year[yearIndex].region[regIndex].province[0].county[0].data.push({
+                                crime: crimes[crimIndex],
+                                value: Number(row[key]),
+                            });
+                        }
+                    });
+                    break;
+                }
+            } else {
+                //let regIndex = 0, provIndex = 0;
+                if (
+                    (row.Place === row.Place.toUpperCase() && row.Place !== row.Place.toLowerCase()) ||
+                    extPoliceZones.includes(row.Place)
+                ) {
+                    if (row.Place === 'Geen PZ toegekend - Eurostar') {
+                        if (firstPass) {
+                            regIndex = output.year[0].region.length - 1;
+                            provIndex = output.year[0].region[regIndex].province.length - 1;
+                            Object.keys(row).forEach(function(key) {
+                                if (key != 'Place') {
+                                    const yearIndex = output.year.map(x => x.year).indexOf(key);
+                                    output.year[yearIndex].region[regIndex].province[provIndex].county.push({
+                                        county: row.Place,
+                                        data: [{ crime: crimes[crimIndex], value: Number(row[key]) }],
+                                    });
+                                }
+                            });
+                        } else {
+                            const countIndex = output.year[0].region[regIndex].province[provIndex].county
+                                .map(x => x.county)
+                                .indexOf(row.Place);
+                            Object.keys(row).forEach(function(key) {
+                                if (key != 'Place') {
+                                    const yearIndex = output.year.map(x => x.year).indexOf(key);
+                                    output.year[yearIndex].region[regIndex].province[provIndex].county[
+                                        countIndex
+                                    ].data.push({
+                                        crime: crimes[crimIndex],
+                                        value: Number(row[key]),
+                                    });
+                                }
+                            });
+                        }
+                    }
+                    //i = 4;
+                } else {
+                    if (special.includes(row.Place) || (row.Place === 'Liège' && !firstLiege)) {
+                        if (row.Place === 'Liège') {
+                            firstLiege = true;
+                            //console.log('subregional liege');
+                        }
+                    } else if (regions.includes(row.Place)) {
+                        if (firstPass) {
+                            Object.keys(row).forEach(function(key) {
+                                if (key != 'Place') {
+                                    const yearIndex = output.year.map(x => x.year).indexOf(key);
+                                    output.year[yearIndex].region.push({
+                                        region: row.Place,
+                                        province: [],
+                                        data: [{ crime: crimes[crimIndex], value: Number(row[key]) }],
+                                    });
+                                }
+                            });
+                        } else {
+                            regIndex = output.year[0].region.map(x => x.region).indexOf(row.Place);
+                            Object.keys(row).forEach(function(key) {
+                                if (key != 'Place') {
+                                    const yearIndex = output.year.map(x => x.year).indexOf(key);
+                                    output.year[yearIndex].region[regIndex].data?.push({
+                                        crime: crimes[crimIndex],
+                                        value: Number(row[key]),
+                                    });
+                                }
+                            });
+                        }
+                    } else if (
+                        provinces.includes(row.Place) &&
+                        !usedNames.includes(row.Place) /*|| (row.Place === 'Liège' && firstLiege)*/
+                    ) {
+                        //console.log(row.Place);
+                        //console.log(firstLiege);
+                        if (firstPass) {
+                            regIndex = output.year[0].region.length - 1;
+                            Object.keys(row).forEach(function(key) {
+                                if (key != 'Place') {
+                                    const yearIndex = output.year.map(x => x.year).indexOf(key);
+                                    output.year[yearIndex].region[regIndex].province.push({
+                                        province: row.Place,
+                                        county: [],
+                                        data: [{ crime: crimes[crimIndex], value: Number(row[key]) }],
+                                    });
+                                }
+                            });
+                        } else {
+                            //regIndex = output.year[0].region.map(x => x.region).indexOf;
+                            provIndex = output.year[0].region[regIndex].province
+                                .map(x => x.province)
+                                .indexOf(row.Place);
+                            Object.keys(row).forEach(function(key) {
+                                if (key != 'Place') {
+                                    const yearIndex = output.year.map(x => x.year).indexOf(key);
+                                    output.year[yearIndex].region[regIndex].province[provIndex].data?.push({
+                                        crime: crimes[crimIndex], value: Number(row[key])
+                                    });
+                                }
+                            });
+                        }
+                        skipNext = true;
+                        if (row.Place === 'Liège') {
+                            //console.log('province liege');
+                            firstLiege = false;
+                        }
+                        usedNames.push(row.Place);
+                    } else if (!skipNext) {
+                        if (firstPass) {
+                            regIndex = output.year[0].region.length - 1;
+                            provIndex = output.year[0].region[regIndex].province.length - 1;
+                            Object.keys(row).forEach(function(key) {
+                                if (key != 'Place') {
+                                    const yearIndex = output.year.map(x => x.year).indexOf(key);
+                                    output.year[yearIndex].region[regIndex].province[provIndex].county.push({
+                                        county: row.Place,
+                                        data: [{ crime: crimes[crimIndex], value: Number(row[key]) }],
+                                    });
+                                }
+                            });
+                        } else {
+                             //regIndex = output.year[0].region.map(x => x.region).indexOf;
+                             //provIndex = output.year[0].region[regIndex].province.map(x => x.province).indexOf;
+                            const countIndex = output.year[0].region[regIndex].province[provIndex].county
+                                .map(x => x.county)
+                                .indexOf(row.Place);
+                            Object.keys(row).forEach(function(key) {
+                                if (key != 'Place') {
+                                    const yearIndex = output.year.map(x => x.year).indexOf(key);
+                                    output.year[yearIndex].region[regIndex].province[provIndex].county[
+                                        countIndex
+                                    ].data.push({
+                                        crime: crimes[crimIndex],
+                                        value: Number(row[key]),
+                                    });
+                                }
+                            });
+                        }
+                    } else {
+                        skipNext = false;
+                    }
+                }
+            }
+        }
+        //console.log('iteration ended');
+        firstPass = false;
+    }
+
+    return output;
+}
+
 ///////////////////////////////////////////////////////
 
 //////// DICTIONARY OF FUNCTIONS ////////////
@@ -996,6 +1671,10 @@ const countryFunctions: Record<string, Function> = {
     austria: parseXLSXAustria,
     czech_republic: getCzechData,
     spain: parseCSVSpain,
+    italy: parseXLSItaly,
+    netherlands: parseCSVNetherlands,
+    northern_ireland: parseXLSNorthernIreland,
+    belgium: parseCSVBelgium,
 };
 
 const countrySources: Record<string, Array<string>> = {
@@ -1008,6 +1687,17 @@ const countrySources: Record<string, Array<string>> = {
     austria: ['data/source_files/austria/austria.xlsx'],
     czech_republic: [''],
     spain: ['data/source_files/spain/spain_1.csv', 'data/source_files/spain/spain_2.csv'],
+    italy: ['data/source_files/italy/italy.xls'],
+    netherlands: fs
+        .readdirSync('data/source_files/netherlands/')
+        .sort((x, y) => Number(x.match(/\d/g)!.join('')) - Number(y.match(/\d/g)!.join(''))),
+    northern_ireland: [
+        'data/source_files/northern-ireland/northern-ireland_1.xls',
+        'data/source_files/northern-ireland/northern-ireland_2.xls',
+    ],
+    belgium: fs
+        .readdirSync('data/source_files/belgium/')
+        .sort((x, y) => Number(x.match(/\d/g)!.join('')) - Number(y.match(/\d/g)!.join(''))),
 };
 ////////////////////////////////////////////
 ///////////PUBLIC FUNCTIONS////////////////

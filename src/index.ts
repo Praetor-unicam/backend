@@ -35,7 +35,7 @@ app.get('/loader', (request, response) => {
     response.send(parseCSVLuxembourg(['data/source_files/luxembourg/luxembourg.csv']));
 });
 app.get('/getdata', async (request, response) => {
-    response.send(await getData('spain'));
+    response.send(await getData('belgium'));
 });
 ///////////////////////////////////////////////////////
 
