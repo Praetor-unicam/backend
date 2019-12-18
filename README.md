@@ -6,19 +6,19 @@ Copy .env.example to a .env file and fill all the parameters
 --|----------| --------|---------------
 Luxembourg | Y | Y | Rimuovere sottoregioni?
 Cyprus | Solo 2019 | Solo 2019 | Y
-Austria | ? | ? | ?
+Austria | ? | Solo 2018 | ?
 Finland | ? | ? | ?
 Poland | ? | Attendere API | ?
 Belgium | ? | ? | ?
-Spain | ? | ? | ?
+Spain | ? | Solo 2018 | ?
 England | ? | ? | ?
 Northern Ireland | ? | ? | ?
 Germany | ? | ? | ?
 Italy | ? | ? | ?
 France | ? | ? | ?
 Netherlands | ? | ? | ?
-Denmark | ? | ? | ?
-Portugal | ? | ? | ?
-Bulgaria | ? | ? | ?
-Czech Republic | ? | Attendere API | ?
-Hungary | ? | ? | ?
+Denmark | ? | Solo 2019 | ?
+Portugal | ? | Solo 2018 | ?
+Bulgaria | ? | Dal 2016 | ?
+Czech Republic | ? | Solo 2019| ?
+Hungary | ? | Y | ?
