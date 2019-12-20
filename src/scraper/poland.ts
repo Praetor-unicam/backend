@@ -81,7 +81,10 @@ export const getData = async (year: number, level: number) => {
             const locationName = resultData['name'];
             const value = resultData['values'][0]['val'];
             data[locationName] = data[locationName] || {}; // Create locationKey if it doesn't exist
-            data[locationName][varName] = value;
+            data[locationName]['values'] = data[locationName]['values'] || {};
+            data[locationName]['values'][varName] = value;
+            const locationId = resultData['id'];
+            data[locationName]['id'] = locationId;
         }
 
         if (dataRequest.hasOwnProperty('links')) {
@@ -92,7 +95,10 @@ export const getData = async (year: number, level: number) => {
                     const locationName = resultData['name'];
                     const value = resultData['values'][0]['val'];
                     data[locationName] = data[locationName] || {}; // Create locationKey if it doesn't exist
-                    data[locationName][varName] = value;
+                    data[locationName]['values'] = data[locationName]['values'] || {};
+                    data[locationName]['values'][varName] = value;
+                    const locationId = resultData['id'];
+                    data[locationName]['id'] = locationId;
                 }
             }
         }
@@ -111,7 +117,10 @@ export const getData = async (year: number, level: number) => {
                 const locationName = resultData['name'];
                 const value = resultData['values'][0]['val'];
                 data[locationName] = data[locationName] || {}; // Create locationKey if it doesn't exist
-                data[locationName][varName] = value;
+                data[locationName]['values'] = data[locationName]['values'] || {};
+                data[locationName]['values'][varName] = value;
+                const locationId = resultData['id'];
+                data[locationName]['id'] = locationId;
             }
 
             if (dataRequest.hasOwnProperty('links')) {
@@ -122,7 +131,10 @@ export const getData = async (year: number, level: number) => {
                         const locationName = resultData['name'];
                         const value = resultData['values'][0]['val'];
                         data[locationName] = data[locationName] || {}; // Create locationKey if it doesn't exist
-                        data[locationName][varName] = value;
+                        data[locationName]['values'] = data[locationName]['values'] || {};
+                        data[locationName]['values'][varName] = value;
+                        const locationId = resultData['id'];
+                        data[locationName]['id'] = locationId;
                     }
                 }
             }

@@ -37,6 +37,7 @@ router.get('/api/variables', async (req, res) => {
     try {
         variables = await scraper.getVariables();
     } catch (error) {
+        console.log(error);
         return res.sendStatus(502);
     }
 
