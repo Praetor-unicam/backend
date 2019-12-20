@@ -65,7 +65,7 @@ const requestData = async (varId: number, year: number, level: number) => {
     return request.data;
 };
 
-export const getData = async (year: number, level: number) => {
+export const getPolandData = async (year: number, level: number) => {
     const data: LooseData = {};
 
     const params = {

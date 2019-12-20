@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/camelcase */
 import fs = require('fs');
 import parse = require('csv-parse/lib/sync');
+import { getPolandData } from './scraper/poland';
 import { stringify } from 'yamljs';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const excelToJson = require('convert-excel-to-json');
@@ -1985,6 +1986,7 @@ function parseXLSGermany(filename: string[]): Country {
 }
 
 function parseXLSFinland(filename: string[]): Country {
+    const folder = 'data/source_files/finland/';
     const output: Country = { country: 'Finland', year: [] };
     const provMap: {
         [key: string]: string;
@@ -2011,9 +2013,10 @@ function parseXLSFinland(filename: string[]): Country {
     };
 
     for (let y = 0; y < 9; y++) {
+        console.log(y);
         output.year.push({ year: '2019M' + String(9 - y), region: [], data: [] });
         let records = excelToJson({
-            sourceFile: filename[y * 2],
+            sourceFile: folder + filename[y * 2],
             columnToKey: {
                 A: 'Crime',
                 B: 'Place',
@@ -2083,7 +2086,7 @@ function parseXLSFinland(filename: string[]): Country {
         }
 
         records = excelToJson({
-            sourceFile: filename[y * 2 + 1],
+            sourceFile: folder + filename[y * 2 + 1],
             columnToKey: {
                 A: 'Crime',
                 B: 'Place',
@@ -2145,6 +2148,13 @@ function parseXLSFinland(filename: string[]): Country {
 
     return output;
 }
+
+async function getPolishData(filename: string[]): Promise<Country> {
+    const output: Country = { country: 'Poland', year: [] };
+    const test = await getPolandData(2018, 0);
+    console.log(test);
+    return output;
+}
 ///////////////////////////////////////////////////////
 
 //////// DICTIONARY OF FUNCTIONS ////////////
@@ -2170,6 +2180,7 @@ const countryFunctions: Record<string, Function> = {
     france: parseXLSFrance,
     germany: parseXLSGermany,
     finland: parseXLSFinland,
+    poland: getPolishData,
 };
 
 const countrySources: Record<string, Array<string>> = {
@@ -2214,7 +2225,10 @@ const countrySources: Record<string, Array<string>> = {
         'data/source_files/germany/germany_5.xlsx',
         'data/source_files/germany/germany_6.xlsx',
     ],
-    finland: ['data/source_files/finland/finland_1.xlsx', 'data/source_files/finland/finland_2.xlsx'],
+    finland: fs
+        .readdirSync('data/source_files/finland/')
+        .sort((x, y) => Number(x.match(/\d/g)!.join('')) - Number(y.match(/\d/g)!.join(''))),
+    poland: [''],
 };
 ////////////////////////////////////////////
 ///////////PUBLIC FUNCTIONS////////////////
