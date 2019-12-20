@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/camelcase */
 import fs = require('fs');
 import parse = require('csv-parse/lib/sync');
+import { stringify } from 'yamljs';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const excelToJson = require('convert-excel-to-json');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -1461,7 +1462,8 @@ function parseCSVBelgium(filename: string[]): Country {
         let skipNext = false;
         let firstLiege = true;
         const usedNames: Array<string> = [];
-        let regIndex = 0, provIndex = 0;
+        let regIndex = 0,
+            provIndex = 0;
         for (const row of records) {
             if (row.Place === 'Nationaal') {
                 Object.keys(row).forEach(function(key) {
@@ -1600,7 +1602,8 @@ function parseCSVBelgium(filename: string[]): Country {
                                 if (key != 'Place') {
                                     const yearIndex = output.year.map(x => x.year).indexOf(key);
                                     output.year[yearIndex].region[regIndex].province[provIndex].data?.push({
-                                        crime: crimes[crimIndex], value: Number(row[key])
+                                        crime: crimes[crimIndex],
+                                        value: Number(row[key]),
                                     });
                                 }
                             });
@@ -1625,8 +1628,8 @@ function parseCSVBelgium(filename: string[]): Country {
                                 }
                             });
                         } else {
-                             //regIndex = output.year[0].region.map(x => x.region).indexOf;
-                             //provIndex = output.year[0].region[regIndex].province.map(x => x.province).indexOf;
+                            //regIndex = output.year[0].region.map(x => x.region).indexOf;
+                            //provIndex = output.year[0].region[regIndex].province.map(x => x.province).indexOf;
                             const countIndex = output.year[0].region[regIndex].province[provIndex].county
                                 .map(x => x.county)
                                 .indexOf(row.Place);
@@ -1655,6 +1658,493 @@ function parseCSVBelgium(filename: string[]): Country {
     return output;
 }
 
+//ordine anticronologico
+function parseXLSEngland(filename: string[]): Country {
+    const output: Country = { country: 'England', year: [] };
+    let i = 0;
+    for (const file of filename) {
+        let records = excelToJson({
+            sourceFile: file,
+            header: {
+                rows: 5,
+            },
+            columnToKey: {
+                C: 'Total',
+                '*': '{{columnHeader}}',
+            },
+            range: 'A8:Z56',
+        });
+
+        records = records['Table P1'];
+
+        let regIndex = 0,
+            provIndex = 0;
+        output.year.push({ year: String(2019 - (i + 1)) + '/' + String(2019 - i), region: [], data: [] });
+        for (const row of records) {
+            if (row['Area Name'] === 'ENGLAND') {
+                Object.keys(row).forEach(function(key) {
+                    if (key !== 'Area Name' && key !== 'Area Code') {
+                        output.year[i].data?.push({
+                            crime: key.replace(/\s*[0-9],*[0-9]*/g, ''),
+                            value: Number(row[key]),
+                        });
+                    }
+                });
+            } else if (row['Area Code'].startsWith('E12')) {
+                output.year[i].region.push({
+                    region: row['Area Name'].replace(/\s[0-9],[0-9]/g, ''),
+                    province: [],
+                    data: [],
+                });
+                regIndex = output.year[i].region.length - 1;
+                Object.keys(row).forEach(function(key) {
+                    if (key !== 'Area Name' && key !== 'Area Code') {
+                        output.year[i].region[regIndex].data?.push({
+                            crime: key.replace(/\s*[0-9],*[0-9]*/g, ''),
+                            value: Number(row[key]),
+                        });
+                    }
+                });
+            } else {
+                output.year[i].region[regIndex].province.push({
+                    province: row['Area Name'].replace(/\s*[0-9]/g, ''),
+                    county: [{ county: row['Area Name'].replace(/\s*[0-9]/g, ''), data: [] }],
+                });
+                provIndex = output.year[i].region[regIndex].province.length - 1;
+                Object.keys(row).forEach(function(key) {
+                    if (key !== 'Area Name' && key !== 'Area Code') {
+                        output.year[i].region[regIndex].province[provIndex].county[0].data.push({
+                            crime: key.replace(/\s*[0-9],*[0-9]*/g, ''),
+                            value: Number(row[key]),
+                        });
+                    }
+                });
+            }
+        }
+        i++;
+    }
+    return output;
+}
+
+function parseXLSWales(filename: string[]): Country {
+    const output: Country = { country: 'Wales', year: [] };
+    let i = 0;
+    for (const file of filename) {
+        let records = excelToJson({
+            sourceFile: file,
+            header: {
+                rows: 5,
+            },
+            columnToKey: {
+                C: 'Total',
+                '*': '{{columnHeader}}',
+            },
+            range: 'A57:Z61',
+        });
+
+        records = records['Table P1'];
+
+        let regIndex = 0;
+        output.year.push({ year: String(2019 - (i + 1)) + '/' + String(2019 - i), region: [], data: [] });
+        for (const row of records) {
+            if (row['Area Name'] === 'WALES') {
+                Object.keys(row).forEach(function(key) {
+                    if (key !== 'Area Name' && key !== 'Area Code') {
+                        output.year[i].data?.push({
+                            crime: key.replace(/\s*[0-9],*[0-9]*/g, ''),
+                            value: Number(row[key]),
+                        });
+                    }
+                });
+            } else {
+                output.year[i].region.push({
+                    region: row['Area Name'],
+                    province: [{ province: row['Area Name'], county: [{ county: row['Area Name'], data: [] }] }],
+                });
+                regIndex = output.year[i].region.length - 1;
+                Object.keys(row).forEach(function(key) {
+                    if (key !== 'Area Name' && key !== 'Area Code') {
+                        output.year[i].region[regIndex].province[0].county[0].data.push({
+                            crime: key.replace(/\s*[0-9],*[0-9]*/g, ''),
+                            value: Number(row[key]),
+                        });
+                    }
+                });
+            }
+        }
+        i++;
+    }
+    return output;
+}
+
+function parseXLSFrance(filename: string[]): Country {
+    const output: Country = { country: 'France', year: [] };
+    const text = fs.readFileSync('data/source_files/france/helper.csv', 'utf-8');
+    const helper = parse(text, {
+        columns: true,
+    });
+    for (let y = 0; y < 7; y++) {
+        output.year.push({ year: String(2018 - y), region: [] });
+        let records = excelToJson({
+            sourceFile: filename[0],
+            range: 'C1:NL2',
+        });
+
+        records = records['Services GN ' + String(2018 - y)];
+
+        let regions = [];
+        for (const row of helper) {
+            regions.push(row.Region);
+        }
+        regions = Array.from(new Set(regions));
+        for (const region of regions) {
+            output.year[y].region.push({ region: region, province: [] });
+        }
+
+        const usedProvinces: Array<string> = [];
+        Object.keys(records[0]).forEach(function(key) {
+            const provinceCode = records[0][key];
+            if (!usedProvinces.includes(provinceCode)) {
+                let index = helper.map((x: Record<string, string>) => x['INSEE code']).indexOf(provinceCode);
+                if (index != -1) {
+                    const assocRegion = helper[index].Region;
+                    const provinceName = helper[index].Department;
+                    index = output.year[y].region.map(x => x.region).indexOf(assocRegion);
+                    output.year[y].region[index].province.push({ province: provinceName, county: [] });
+                    usedProvinces.push(provinceCode);
+                }
+            }
+        });
+
+        Object.keys(records[1]).forEach(function(key) {
+            const county = records[1][key].replace('CGD ', '');
+            const provinceCode = records[0][key];
+            const index = helper.map((x: Record<string, string>) => x['INSEE code']).indexOf(provinceCode);
+            if (index != -1) {
+                const regionName = helper[index].Region;
+                const provinceName = helper[index].Department;
+                const regIndex = output.year[y].region.map(x => x.region).indexOf(regionName);
+                const provIndex = output.year[y].region[regIndex].province.map(x => x.province).indexOf(provinceName);
+                output.year[y].region[regIndex].province[provIndex].county.push({ county: county, data: [] });
+            }
+        });
+
+        let crimeRecords = excelToJson({
+            sourceFile: filename[0],
+            range: 'B2:NL109',
+        });
+
+        crimeRecords = crimeRecords['Services GN ' + String(2018 - y)];
+        console.log(y);
+        const counties = crimeRecords[0];
+        crimeRecords.shift();
+
+        for (const row of crimeRecords) {
+            let crime = '';
+            Object.keys(row).forEach(function(key) {
+                if (key === 'B') {
+                    crime = row[key];
+                } else {
+                    const countyName = counties[key].replace('CGD ', '');
+                    const provinceCode = records[0][key];
+                    const index = helper.map((x: Record<string, string>) => x['INSEE code']).indexOf(provinceCode);
+                    if (index != -1) {
+                        const regionName = helper[index].Region;
+                        const provinceName = helper[index].Department;
+                        const regIndex = output.year[y].region.map(x => x.region).indexOf(regionName);
+                        const provIndex = output.year[y].region[regIndex].province
+                            .map(x => x.province)
+                            .indexOf(provinceName);
+                        const countIndex = output.year[y].region[regIndex].province[provIndex].county
+                            .map(x => x.county)
+                            .indexOf(countyName);
+                        output.year[y].region[regIndex].province[provIndex].county[countIndex].data.push({
+                            crime: crime,
+                            value: Number(row[key]),
+                        });
+                    }
+                }
+            });
+        }
+    }
+    return output;
+}
+
+//might have duplicates kreis / landkreis, ordine anticronologico
+function parseXLSGermany(filename: string[]): Country {
+    const output: Country = { country: 'Germany', year: [] };
+    const text = fs.readFileSync('data/source_files/germany/helper.csv', 'utf-8');
+    const helper = parse(text, {
+        columns: true,
+    });
+
+    const regions: {
+        [key: string]: string;
+    } = {
+        'Baden-Württemberg': 'Baden-Württemberg',
+        Bavaria: 'Bayern',
+        Berlin: 'Berlin',
+        Brandenburg: 'Brandenburg',
+        'Bremen (state)': 'Bremen',
+        Hamburg: 'Hamburg',
+        Hesse: 'Hessen',
+        'Mecklenburg-Vorpommern': 'Mecklenburg-Vorpommern',
+        'Lower Saxony': 'Niedersachsen',
+        'North Rhine-Westphalia': 'Nordrhein-Westfalen',
+        'Rhineland-Palatinate': 'Rheinland-Pfalz',
+        Saarland: 'Saarland',
+        Saxony: 'Sachsen',
+        'Saxony-Anhalt': 'Sachsen-Anhalt',
+        'Schleswig-Holstein': 'Schleswig-Holstein',
+        Thuringia: 'Thüringen',
+    };
+
+    for (let y = 0; y < 3; y++) {
+        output.year.push({ year: String(2018 - y), region: [], data: [] });
+        Object.keys(regions).forEach(function(key) {
+            output.year[y].region.push({ region: regions[key], province: [], data: [] });
+        });
+        let records: any;
+        if (y === 2) {
+            records = excelToJson({
+                sourceFile: filename[y * 2],
+                columnToKey: {
+                    B: 'Crime',
+                    D: 'Place',
+                    E: 'Value',
+                },
+                from_line: 8,
+            });
+            records = records['BKA-LKS-F-01-T01 Länder'];
+        } else {
+            records = excelToJson({
+                sourceFile: filename[y * 2],
+                columnToKey: {
+                    B: 'Crime',
+                    C: 'Place',
+                    D: 'Value',
+                },
+                from_line: 8,
+            });
+            records = records['T01_LÜ'];
+        }
+
+        records.shift();
+        records.shift();
+
+        for (const row of records) {
+            if (row.Place !== 'Bundesrepublik Deutschland' && row.Place !== 'Bund echte Zählung der Tatverdächtigen') {
+                const regIndex = output.year[y].region.map(x => x.region).indexOf(row.Place);
+                output.year[y].region[regIndex].data?.push({ crime: row.Crime, value: Number(row.Value) });
+            } else {
+                output.year[y].data?.push({ crime: row.Crime, value: Number(row.Value) });
+            }
+        }
+
+        records = excelToJson({
+            sourceFile: filename[y * 2 + 1],
+            columnToKey: {
+                B: 'Crime',
+                D: 'Place',
+                F: 'Value',
+            },
+            from_line: 13,
+        });
+        records = records['T01_Kreise'];
+        records.concat(records.splice(0, 5));
+        let firstPass = true;
+        for (const row of records) {
+            const index = helper.map((x: Record<string, string>) => x.District).indexOf(row.Place);
+            if (index === -1) {
+                continue;
+            }
+            const state = regions[helper[index].State];
+            const regIndex = output.year[y].region.map(x => x.region).indexOf(state);
+            if (firstPass) {
+                output.year[y].region[regIndex].province.push({
+                    province: row.Place,
+                    county: [{ county: row.Place, data: [{ crime: row.Crime, value: Number(row.Value) }] }],
+                });
+            } else {
+                let provIndex = output.year[y].region[regIndex].province.map(x => x.province).indexOf(row.Place);
+                provIndex = output.year[y].region[regIndex].province
+                    .map(x => x.province)
+                    .indexOf(row.Place, provIndex + 1);
+                output.year[y].region[regIndex].province[provIndex].county[0].data.push({
+                    crime: row.Crime,
+                    value: Number(row.Value),
+                });
+            }
+
+            if (row.Crime !== 'Straftaten insgesamt') {
+                firstPass = false;
+            }
+        }
+    }
+    return output;
+}
+
+function parseXLSFinland(filename: string[]): Country {
+    const output: Country = { country: 'Finland', year: [] };
+    const provMap: {
+        [key: string]: string;
+    } = {
+        Uusimaa: 'Helsinki-Uusimaa',
+        'Southwest Finland': 'Varsinais-Suomi',
+        Satakunta: 'Satakunta',
+        'Kanta-Häme': 'Kanta-Häme',
+        Pirkanmaa: 'Pirkanmaa',
+        'Päijät-Häme': 'Päijät-Häme',
+        Kymenlaakso: 'Kymenlaakso',
+        'South Karelia': 'Etelä-Karjala',
+        'South Savo': 'Etelä-Savo',
+        'North Savo': 'Pohjois-Savo',
+        'North Karelia': 'Pohjois-Karjala',
+        'Central Finland': 'Keski-Suomi',
+        'South Ostrobothnia': 'Etelä-Pohjanmaa',
+        Ostrobothnia: 'Pohjanmaa',
+        'Central Ostrobothnia': 'Keski-Pohjanmaa',
+        'North Ostrobothnia': 'Pohjois-Pohjanmaa',
+        Kainuu: 'Kainuu',
+        Lapland: 'Lappi',
+        Åland: 'Åland',
+    };
+
+    for (let y = 0; y < 9; y++) {
+        output.year.push({ year: '2019M' + String(9 - y), region: [], data: [] });
+        let records = excelToJson({
+            sourceFile: filename[y * 2],
+            columnToKey: {
+                A: 'Crime',
+                B: 'Place',
+                D: 'Value',
+            },
+            range: 'A5:D5431',
+        });
+        records = records['001_117t_2019m09'];
+        let firstPass = true;
+        let crime = '';
+        let regIndex = 0;
+        for (const row of records) {
+            if (row.hasOwnProperty('Crime')) {
+                crime = row.Crime;
+                output.year[y].data?.push({ crime: crime, value: Number(row.Value) });
+            } else if (row.Place === 'FI1 MANNER-SUOMI' || row.Place === 'FI2 ÅLAND' || row.Place === 'FI200 Åland') {
+                continue;
+            } else {
+                if (firstPass) {
+                    if (row.Place === 'FI20 Åland') {
+                        output.year[y].region.push({
+                            region: row.Place.split(' ')[1],
+                            province: [
+                                {
+                                    province: row.Place.split(' ')[1],
+                                    county: [],
+                                    data: [{ crime: crime, value: Number(row.Value) }],
+                                },
+                            ],
+                        });
+                        firstPass = false;
+                    } else if (row.Place.split(' ')[0].length === 4) {
+                        output.year[y].region.push({
+                            region: row.Place.split(' ')[1],
+                            province: [],
+                            data: [{ crime: crime, value: Number(row.Value) }],
+                        });
+                    } else if (row.Place.split(' ')[0].length === 5) {
+                        regIndex = output.year[y].region.length - 1;
+                        output.year[y].region[regIndex].province.push({
+                            province: row.Place.split(' ')[1],
+                            county: [],
+                            data: [{ crime: crime, value: Number(row.Value) }],
+                        });
+                    }
+                } else {
+                    if (row.Place === 'FI20 Åland') {
+                        regIndex = output.year[y].region.map(x => x.region).indexOf(row.Place.split(' ')[1]);
+                        output.year[y].region[regIndex].province[0].data?.push({
+                            crime: crime,
+                            value: Number(row.Value),
+                        });
+                    } else if (row.Place.split(' ')[0].length === 4) {
+                        regIndex = output.year[y].region.map(x => x.region).indexOf(row.Place.split(' ')[1]);
+                        output.year[y].region[regIndex].data?.push({ crime: crime, value: Number(row.Value) });
+                    } else if (row.Place.split(' ')[0].length === 5) {
+                        const provIndex = output.year[y].region[regIndex].province
+                            .map(x => x.province)
+                            .indexOf(row.Place.split(' ')[1]);
+                        output.year[y].region[regIndex].province[provIndex].data?.push({
+                            crime: crime,
+                            value: Number(row.Value),
+                        });
+                    }
+                }
+            }
+        }
+
+        records = excelToJson({
+            sourceFile: filename[y * 2 + 1],
+            columnToKey: {
+                A: 'Crime',
+                B: 'Place',
+                D: 'Value',
+            },
+            range: 'A5:D66937',
+        });
+        records = records['001_117t_2019m09'];
+        firstPass = true;
+        crime = '';
+        regIndex = 0;
+        let provIndex = 0;
+        for (const row of records) {
+            if (row.hasOwnProperty('Crime')) {
+                crime = row.Crime;
+                if (row.Crime === '2) OFFENCES AGAINST THE CRIMINAL CODE') {
+                    firstPass = false;
+                }
+            } else if (row.Place === 'MAINLAND FINLAND' || row.Place === 'ÅLAND') {
+                continue;
+            } else {
+                if (firstPass) {
+                    if (Object.keys(provMap).includes(row.Place)) {
+                        const province = provMap[row.Place];
+                        for (regIndex = 0; regIndex < output.year[y].region.length; regIndex++) {
+                            provIndex = output.year[y].region[regIndex].province.map(x => x.province).indexOf(province);
+                            if (provIndex !== -1) {
+                                break;
+                            }
+                        }
+                    } else {
+                        output.year[y].region[regIndex].province[provIndex].county.push({
+                            county: row.Place.replace('..', ''),
+                            data: [{ crime: crime, value: Number(row.Value) }],
+                        });
+                    }
+                } else {
+                    if (Object.keys(provMap).includes(row.Place)) {
+                        const province = provMap[row.Place];
+                        for (regIndex = 0; regIndex < output.year[y].region.length; regIndex++) {
+                            provIndex = output.year[y].region[regIndex].province.map(x => x.province).indexOf(province);
+                            if (provIndex !== -1) {
+                                break;
+                            }
+                        }
+                    } else {
+                        const countIndex = output.year[y].region[regIndex].province[provIndex].county
+                            .map(x => x.county)
+                            .indexOf(row.Place.replace('..', ''));
+                        output.year[y].region[regIndex].province[provIndex].county[countIndex].data.push({
+                            crime: crime,
+                            value: Number(row.Value),
+                        });
+                    }
+                }
+            }
+        }
+    }
+
+    return output;
+}
 ///////////////////////////////////////////////////////
 
 //////// DICTIONARY OF FUNCTIONS ////////////
@@ -1675,6 +2165,11 @@ const countryFunctions: Record<string, Function> = {
     netherlands: parseCSVNetherlands,
     northern_ireland: parseXLSNorthernIreland,
     belgium: parseCSVBelgium,
+    england: parseXLSEngland,
+    wales: parseXLSWales,
+    france: parseXLSFrance,
+    germany: parseXLSGermany,
+    finland: parseXLSFinland,
 };
 
 const countrySources: Record<string, Array<string>> = {
@@ -1698,6 +2193,28 @@ const countrySources: Record<string, Array<string>> = {
     belgium: fs
         .readdirSync('data/source_files/belgium/')
         .sort((x, y) => Number(x.match(/\d/g)!.join('')) - Number(y.match(/\d/g)!.join(''))),
+    england: [
+        'data/source_files/england/england_1.xlsx',
+        'data/source_files/england/england_2.xlsx',
+        'data/source_files/england/england_3.xls',
+        'data/source_files/england/england_4.xls',
+    ],
+    wales: [
+        'data/source_files/england/england_1.xlsx',
+        'data/source_files/england/england_2.xlsx',
+        'data/source_files/england/england_3.xls',
+        'data/source_files/england/england_4.xls',
+    ],
+    france: ['data/source_files/france/france.xlsx'],
+    germany: [
+        'data/source_files/germany/germany_1.xlsx',
+        'data/source_files/germany/germany_2.xlsx',
+        'data/source_files/germany/germany_3.xlsx',
+        'data/source_files/germany/germany_4.xlsx',
+        'data/source_files/germany/germany_5.xlsx',
+        'data/source_files/germany/germany_6.xlsx',
+    ],
+    finland: ['data/source_files/finland/finland_1.xlsx', 'data/source_files/finland/finland_2.xlsx'],
 };
 ////////////////////////////////////////////
 ///////////PUBLIC FUNCTIONS////////////////
