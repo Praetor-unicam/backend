@@ -3,7 +3,7 @@ import axios, { AxiosResponse } from 'axios';
 const api_url = 'https://bdl.stat.gov.pl/api/v1';
 const crime_subject_id = 'P2290';
 
-const headers = { 'X-ClientId': process.env.POLAND_KEY };
+const headers = process.env.POLAND_KEY ? { 'X-ClientId': process.env.POLAND_KEY } : {};
 
 interface LooseData {
     [key: string]: any;
