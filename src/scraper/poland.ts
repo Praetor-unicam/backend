@@ -68,6 +68,36 @@ const requestData = async (varId: number, year: number, level: number) => {
 export const getData = async (year: number, level: number) => {
     const data: LooseData = {};
 
+    const params = {
+        format: 'JSON',
+        level,
+    };
+
+    const idParentId: any = {};
+    const requestParentIds: any = await axios.get(api_url + '/units', { params, headers });
+
+    let requestParentIdsData = requestParentIds['data'];
+
+    for (const result of requestParentIdsData['results']) {
+        const id = result['id'];
+        const parentId = result['parentId'];
+
+        idParentId[id] = parentId;
+    }
+
+    if (requestParentIdsData.hasOwnProperty('links')) {
+        while (requestParentIdsData['links'].hasOwnProperty('next')) {
+            const newReq = await axios.get(requestParentIdsData['links']['next'], { headers });
+            requestParentIdsData = newReq['data'];
+            for (const result of requestParentIdsData['results']) {
+                const id = result['id'];
+                const parentId = result['parentId'];
+
+                idParentId[id] = parentId;
+            }
+        }
+    }
+
     let variablesRequest = await requestVariables();
     let varId;
     let varName;
@@ -85,6 +115,7 @@ export const getData = async (year: number, level: number) => {
             data[locationName]['values'][varName] = value;
             const locationId = resultData['id'];
             data[locationName]['id'] = locationId;
+            data[locationName]['parentId'] = idParentId[locationId];
         }
 
         if (dataRequest.hasOwnProperty('links')) {
@@ -99,6 +130,7 @@ export const getData = async (year: number, level: number) => {
                     data[locationName]['values'][varName] = value;
                     const locationId = resultData['id'];
                     data[locationName]['id'] = locationId;
+                    data[locationName]['parentId'] = idParentId[locationId];
                 }
             }
         }
@@ -121,6 +153,7 @@ export const getData = async (year: number, level: number) => {
                 data[locationName]['values'][varName] = value;
                 const locationId = resultData['id'];
                 data[locationName]['id'] = locationId;
+                data[locationName]['parentId'] = idParentId[locationId];
             }
 
             if (dataRequest.hasOwnProperty('links')) {
@@ -135,6 +168,7 @@ export const getData = async (year: number, level: number) => {
                         data[locationName]['values'][varName] = value;
                         const locationId = resultData['id'];
                         data[locationName]['id'] = locationId;
+                        data[locationName]['parentId'] = idParentId[locationId];
                     }
                 }
             }
