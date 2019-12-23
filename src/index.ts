@@ -45,7 +45,7 @@ app.use('/scraper/poland', poland);
 app.use('/scraper/hungary', hungary);
 ///////////////////DEBUG ROUTES//////////////////////////
 app.get('/getdata', async (request, response) => {
-    response.send(await getData('poland'));
+    response.send(await getData('belgium'));
 });
 ///////////////////////////////////////////////////////
 

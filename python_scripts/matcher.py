@@ -106,7 +106,7 @@ def nederland_processor(data):
     return data
 
 def spain_processor(data):
-    data = [ re.sub(r'[0-9]*(\.[0-9])*\.-*', '', elem).strip() for elem in data ]
+    data = [ re.sub(r'[0-9]*(\.[0-9])*(\.-)*', '', elem).strip() for elem in data ]
     return data
 
 def denmark_processor(data):
@@ -148,7 +148,7 @@ def france_processor(data):
     '''
     return data
 
-def norther_ireland_processor(data):
+def northern_ireland_processor(data):
     '''
     check for nested categories, cant find provincial data
     '''
