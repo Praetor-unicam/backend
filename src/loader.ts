@@ -832,7 +832,7 @@ async function parseXLSXAustria(filename: string[]): Promise<Country> {
             }
         });
     }
-    translateCountryCrimes(output, 'de', 'en');
+    await translateCountryCrimes(output, 'de', 'en');
     return output;
 }
 
@@ -2086,7 +2086,7 @@ async function parseXLSGermany(filename: string[]): Promise<Country> {
             }
         }
     }
-    translateCountryCrimes(output, 'de', 'en');
+    await translateCountryCrimes(output, 'de', 'en');
     return output;
 }
 
