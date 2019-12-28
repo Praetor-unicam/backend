@@ -13,7 +13,7 @@ Belgium | ? | Y | ?
 Spain | ? | Solo 2018 | ?
 England | Solo 2019 | ? | ?
 Northern Ireland | Y | Y | ?
-Germany | ? | Dal 2016 | ?
+Germany | Y | Dal 2016 | ?
 Italy | ? | Solo 2018 | ?
 France | Y | Dal 2012 | ?
 Netherlands | ? | Dal 2016 | ?
