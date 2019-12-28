@@ -15,7 +15,7 @@ England | Solo 2019 | ? | ?
 Northern Ireland | Y | Y | ?
 Germany | ? | Dal 2016 | ?
 Italy | ? | Solo 2018 | ?
-France | ? | Dal 2012 | ?
+France | Y | Dal 2012 | ?
 Netherlands | ? | Dal 2016 | ?
 Denmark | ? | Solo 2019 | ?
 Portugal | ? | Solo 2018 | ?
