@@ -26,8 +26,7 @@ import * as swaggerUi from 'swagger-ui-express';
 
 import { swaggerSpec } from './swaggerDef';
 
-
-import { getData } from './loader'; // getData will return luxembourg's data so far
+import { getData, parseCSVLuxembourg } from './loader'; // getData will return luxembourg's data so far
 import { request } from 'http';
 
 const app = express();
