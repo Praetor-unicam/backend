@@ -11,7 +11,7 @@ Finland | ? | ? | ?
 Poland | ? | Attendere API | ?
 Belgium | ? | Y | ?
 Spain | ? | Solo 2018 | ?
-England | ? | Y | ?
+England | Solo 2019 | ? | ?
 Northern Ireland | ? | Y | ?
 Germany | ? | Dal 2016 | ?
 Italy | ? | Solo 2018 | ?
