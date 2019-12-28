@@ -23,6 +23,7 @@ import hungary from './routes/scraper/hungary';
 import england from './routes/scraper/england';
 import ireland from './routes/scraper/ireland';
 import france from './routes/scraper/france';
+import germany from './routes/scraper/germany';
 
 import * as swaggerUi from 'swagger-ui-express';
 
@@ -49,6 +50,7 @@ app.use('/scraper/hungary', hungary);
 app.use('/scraper/england', england);
 app.use('/scraper/ireland', ireland);
 app.use('/scraper/france', france);
+app.use('/scraper/germany', germany);
 ///////////////////DEBUG ROUTES//////////////////////////
 app.get('/loader', (request, response) => {
     response.send(parseCSVLuxembourg(['data/source_files/luxembourg/luxembourg.csv']));

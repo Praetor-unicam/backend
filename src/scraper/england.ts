@@ -31,12 +31,6 @@ const downloadFiles = async (customDestination?: string, removeFiles = false) =>
     }
 };
 
-const downloadFile = async () => {
-    for (const year in downloadUrls) {
-        console.log(year);
-    }
-};
-
 const dummyDownload = async () => await downloadFiles('.', true);
 
 export const isServiceAvailable = async (): Promise<boolean> => {
