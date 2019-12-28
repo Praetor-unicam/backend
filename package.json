@@ -39,16 +39,20 @@
     "@types/yamljs": "^0.2.30",
     "@typescript-eslint/eslint-plugin": "^2.8.0",
     "@typescript-eslint/parser": "^2.8.0",
+    "axios": "^0.19.0",
     "convert-excel-to-json": "^1.6.1",
     "csv": "^5.3.0",
     "csv-parser": "^2.3.2",
     "eslint": "^6.6.0",
     "eslint-config-prettier": "^6.7.0",
     "eslint-plugin-prettier": "^3.1.1",
+    "glob": "^7.1.6",
     "prettier": "^1.19.1",
+    "request": "^2.88.0",
     "ts-node": "^8.5.2",
     "ts-node-dev": "^1.0.0-pre.44",
-    "typescript": "^3.7.2",
-    "xls-to-json": "^0.5.4"
+    "typescript": "^3.7.3",
+    "xls-to-json": "^0.5.4",
+    "xmlhttprequest": "^1.8.0"
   }
 }
