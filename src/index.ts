@@ -26,6 +26,7 @@ import * as swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './swaggerDef';
 
 import { getData } from './loader'; // getData will return luxembourg's data so far
+import { compare } from './iccs_manager';
 import { request } from 'http';
 
 const app = express();
@@ -45,7 +46,18 @@ app.use('/scraper/poland', poland);
 app.use('/scraper/hungary', hungary);
 ///////////////////DEBUG ROUTES//////////////////////////
 app.get('/getdata', async (request, response) => {
-    response.send(await getData('germany'));
+    response.send(await getData('cyprus'));
+});
+
+app.get('/compare', async (request, response) => {
+    response.send(
+        await compare(
+            [await getData('cyprus'), await getData('luxembourg')],
+            ['Cyprus', 'Luxembourg'],
+            'national',
+            '2017',
+        ),
+    );
 });
 ///////////////////////////////////////////////////////
 
