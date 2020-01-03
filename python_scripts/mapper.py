@@ -64,6 +64,7 @@ def avg_feature_vector(sentence, model, num_features, index2word_set):
     else:
         return np.array([])    
 
+
 ######## COUNTRY SPECIFIC FUNCTIONS ###############
 # used to remember regular expressions used and additional info
 
@@ -168,11 +169,10 @@ def belgium_processor(data):
 
 ####### PUBLIC USE FUNCTIONS ##########
 
-def match_list(path):
+def match_list(data):
     '''
     Matches labels in [data] to ICCS categories using avg_feature_vector
     '''
-    data = read_file(path)
     model = gensim.models.KeyedVectors.load_word2vec_format('../data/model/GoogleNews-vectors-negative300.bin', binary=True)
     index2word_set = set(model.index2word)
     best_matching = dict.fromkeys(data)
@@ -209,5 +209,6 @@ def save_matching(country, data):
         json_file.write(data)
 
 if __name__ == '__main__':
-    result = match_list('../data/matching/bulgaria/bulgaria-translated.txt')
+    data = read_file('../data/matching/bulgaria/bulgaria-translated.txt') # data might also be a function call
+    result = match_list(data)
     save_matching('bulgaria', result)
