@@ -365,23 +365,6 @@ function macroCategory(cat: string): string {
     }
 }
 
-//////// MAPPER USE FUNCTIONS //////////////
-export function getCrimeCategories(source: Country): string {
-    const crimes = [];
-    if (source.year[0].data !== undefined) {
-        for (const crime of source.year[0].data) {
-            crimes.push(crime.crime);
-        }
-    } else {
-        for (const crime of source.year[0].region[0].province[0].county[0].data) {
-            crimes.push(crime.crime);
-        }
-    }
-
-    return JSON.stringify(crimes);
-}
-
-
 //// COMPARE USE FUNCTIONS ///////
 function mergeByICCS(crimes: Array<Crime>): Array<DataCategories> {
     const output: Array<DataCategories> = [];

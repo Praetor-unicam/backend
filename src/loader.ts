@@ -2,13 +2,11 @@
 import fs = require('fs');
 import parse = require('csv-parse/lib/sync');
 import { getPolandData } from './scraper/poland';
-import { stringify } from 'yamljs';
 const translate = require('translate');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const excelToJson = require('convert-excel-to-json');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const axios = require('axios');
-const glob = require('glob');
 
 const sourcePath = 'data/source_files/';
 
@@ -309,7 +307,7 @@ function _disentangleSubcategory(array: Array<Crime>, topCategory: string, subCa
 }
 
 //apply before mapping
-function disentangleSubcategory(source: Country, topCategory: string, subCategory: string): Country {
+function disentangleSubcategory(source: Country, topCategory: string, subCategory: string): void {
     for (const year of source.year) {
         if (year.data) {
             _disentangleSubcategory(year.data, topCategory, subCategory);
@@ -328,18 +326,16 @@ function disentangleSubcategory(source: Country, topCategory: string, subCategor
             }
         }
     }
-    return source;
 }
 
-function disentangleSubcategories(source: Country, subcategories: Record<string, string>): Country {
+function disentangleSubcategories(source: Country, subcategories: Record<string, string>): void {
     Object.entries(subcategories).forEach(([key, value]) => {
-        source = disentangleSubcategory(source, key, value);
+        disentangleSubcategory(source, key, value);
     });
-    return source;
 }
 
 //levels: region, province, county, region+, province+
-function rename(source: Country, level: string, substitutions: Record<string, string>): Country {
+function rename(source: Country, level: string, substitutions: Record<string, string>): void {
     switch (level) {
         case 'region': {
             for (const year of source.year) {
@@ -386,7 +382,6 @@ function rename(source: Country, level: string, substitutions: Record<string, st
             break;
         }
     }
-    return source;
 }
 
 /**
@@ -487,9 +482,10 @@ function parseCSVLuxembourg(filename: string[]): Country {
         firstPass = false;
     }
 
-    return disentangleSubcategories(output, {
+    disentangleSubcategories(output, {
         'Thefts including acts of violence': 'thereof: thefts of vehicules including acts of violence',
     });
+    return output;
 }
 //double category
 function parseXLSCyprus(filename: string[]): Country {
@@ -572,7 +568,8 @@ function parseXLSCyprus(filename: string[]): Country {
             firstPass = false;
         }
     }
-    return rename(output, 'region+', { Limasol: 'Limassol', Ammochostos: 'Famagusta', Morfou: 'Kyrenia' });
+    rename(output, 'region+', { Limasol: 'Limassol', Ammochostos: 'Famagusta', Morfou: 'Kyrenia' });
+    return output;
 }
 
 function parseXLSHungary(filename: string[]): Country {
@@ -2614,4 +2611,19 @@ export async function getData(country: string): Promise<Country> {
         mapCategories(data, country, false);
     }
     return data;
+}
+
+export function getCrimeCategories(source: Country): string {
+    const crimes = [];
+    if (source.year[0].data !== undefined) {
+        for (const crime of source.year[0].data) {
+            crimes.push(crime.crime);
+        }
+    } else {
+        for (const crime of source.year[0].region[0].province[0].county[0].data) {
+            crimes.push(crime.crime);
+        }
+    }
+
+    return JSON.stringify(crimes);
 }
