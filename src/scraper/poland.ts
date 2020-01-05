@@ -2,8 +2,8 @@ import axios, { AxiosResponse } from 'axios';
 
 import { DataApi } from './interfaces';
 
-const api_url = 'https://bdl.stat.gov.pl/api/v1';
-const crime_subject_id = 'P2290';
+const apiUrl = 'https://bdl.stat.gov.pl/api/v1';
+const crimeSubjectId = 'P2290';
 
 const headers = process.env.POLAND_KEY ? { 'X-ClientId': process.env.POLAND_KEY } : {};
 
@@ -22,12 +22,12 @@ interface VariableRequestData {
 
 const requestVariables = async () => {
     const params = {
-        'subject-id': crime_subject_id,
+        'subject-id': crimeSubjectId,
         format: 'JSON',
         lang: 'en',
     };
 
-    const request = await axios.get(api_url + '/variables', { params, headers });
+    const request = await axios.get(apiUrl + '/variables', { params, headers });
 
     if (request.status !== 200) throw 'Upstream broken';
 
@@ -60,7 +60,7 @@ const requestData = async (varId: number, year: number, level: number) => {
         format: 'JSON',
     };
 
-    const request = await axios.get(api_url + '/data/by-variable/' + varId, { params, headers });
+    const request = await axios.get(apiUrl + '/data/by-variable/' + varId, { params, headers });
 
     if (request.status !== 200) throw 'Upstream broken';
 
@@ -76,7 +76,7 @@ export const getData: DataApi = async (year: number, level: number) => {
     };
 
     const idParentId: any = {};
-    const requestParentIds: any = await axios.get(api_url + '/units', { params, headers });
+    const requestParentIds: any = await axios.get(apiUrl + '/units', { params, headers });
 
     let requestParentIdsData = requestParentIds['data'];
 
