@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/camelcase */
 import download from 'download';
 import * as fs from 'fs';
 import { promisify } from 'util';

@@ -4,6 +4,8 @@ import * as dotenv from 'dotenv';
 import fs from 'fs';
 import util from 'util';
 
+import { ServiceChecker, FileDownloader } from './interfaces';
+
 const exists = util.promisify(fs.exists);
 const rename = util.promisify(fs.rename);
 
@@ -46,7 +48,7 @@ const getDownloadButton = async (driver: WebDriver): Promise<WebElement | null> 
     return downloadButton;
 };
 
-export const isServiceAvailable = async (): Promise<boolean> => {
+export const isServiceAvailable: ServiceChecker = async (): Promise<boolean> => {
     const driver = await createWebDriver();
 
     const downloadButton = await getDownloadButton(driver);
@@ -56,7 +58,7 @@ export const isServiceAvailable = async (): Promise<boolean> => {
     return downloadButton !== null;
 };
 
-export const scrapeData = async (): Promise<boolean> => {
+export const scrapeData: FileDownloader = async (): Promise<boolean> => {
     const driver = await createWebDriver();
 
     const downloadButton = await getDownloadButton(driver);
