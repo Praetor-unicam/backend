@@ -1,5 +1,7 @@
 import axios, { AxiosResponse } from 'axios';
 
+import { DataApi } from './interfaces';
+
 const api_url = 'https://bdl.stat.gov.pl/api/v1';
 const crime_subject_id = 'P2290';
 
@@ -65,7 +67,7 @@ const requestData = async (varId: number, year: number, level: number) => {
     return request.data;
 };
 
-export const getData = async (year: number, level: number) => {
+export const getData: DataApi = async (year: number, level: number) => {
     const data: LooseData = {};
 
     const params = {
