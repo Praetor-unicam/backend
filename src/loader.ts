@@ -927,7 +927,7 @@ async function parseXLSXAustria(filename: string[]): Promise<Country> {
         let i = -1;
         for (const row of records) {
             output.year[y].region.push({
-                region: row.Place,
+                region: row.Place.replace('Regional court district of ', ''),
                 province: [],
                 data: [],
             });
@@ -942,7 +942,7 @@ async function parseXLSXAustria(filename: string[]): Promise<Country> {
             });
         }
     }
-    await translateCountryCrimes(output, 'de', 'en');
+    //await translateCountryCrimes(output, 'de', 'en');
     return output;
 }
 
