@@ -1,4 +1,4 @@
-import { Country, Crime } from './loader'; // getData will return luxembourg's data so far
+import { Country, Crime, getData } from './loader'; // getData will return luxembourg's data so far
 
 const ICCS: {
     [key: string]: string;
@@ -329,7 +329,7 @@ const ICCS: {
     '1109': 'Other criminal acts not elsewhere classified',
 };
 
-interface DataCategories {
+interface DataCategory {
     categoryCode: string;
     categoryName: string;
     value: number;
@@ -339,7 +339,7 @@ interface LocalizedData {
     country: string;
     location: string;
     year: string;
-    data: Array<DataCategories>;
+    data: Array<DataCategory>;
 }
 
 export interface Comparation {
@@ -366,8 +366,8 @@ function macroCategory(cat: string): string {
 }
 
 //// COMPARE USE FUNCTIONS ///////
-function mergeByICCS(crimes: Array<Crime>): Array<DataCategories> {
-    const output: Array<DataCategories> = [];
+function mergeByICCS(crimes: Array<Crime>): Array<DataCategory> {
+    const output: Array<DataCategory> = [];
     let macroCategories: Array<string> = [];
     for (const crime of crimes) {
         if (crime.ICCS_code) {
@@ -387,24 +387,35 @@ function mergeByICCS(crimes: Array<Crime>): Array<DataCategories> {
 }
 
 //levels county, province, region, national
-export function compare(countries: Country[], locations: string[], level: string, year: string): Comparation {
+export async function compare(
+    countries: string[],
+    locations: string[],
+    level: string,
+    year: string,
+): Promise<Comparation> {
+    const sources: Array<Country> = [];
+    ///////////////////////////////////
+    for (const country of countries) {
+        sources.push(await getData(country.toLowerCase()));
+    }
+    //////////////////////////////////
     const output: Comparation = { countries: [] };
     const crimes: Array<Array<Crime>> = [];
     for (let i = 0; i < countries.length; i++) {
-        const yearIndex = countries[i].year.map(x => x.year).indexOf(year);
+        const yearIndex = sources[i].year.map(x => x.year).indexOf(year);
         if (yearIndex === -1) {
             console.log('year not found');
             return { countries: [] };
         }
         if (level === 'national') {
-            if (countries[i].year[yearIndex].data) {
-                crimes.push(countries[i].year[yearIndex].data!);
+            if (sources[i].year[yearIndex].data) {
+                crimes.push(sources[i].year[yearIndex].data);
             } else {
                 console.log('national data not found');
                 return { countries: [] };
             }
         } else {
-            for (const region of countries[i].year[yearIndex].region) {
+            for (const region of sources[i].year[yearIndex].region) {
                 if (region.region === locations[i] && level === 'region') {
                     if (region.data) {
                         crimes.push(region.data);
@@ -434,7 +445,7 @@ export function compare(countries: Country[], locations: string[], level: string
     //console.log(crimes);
     for (let i = 0; i < crimes.length; i++) {
         output.countries.push({
-            country: countries[i].country,
+            country: countries[i],
             location: locations[i],
             year: year,
             data: mergeByICCS(crimes[i]),

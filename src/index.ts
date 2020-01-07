@@ -25,7 +25,7 @@ import * as swaggerUi from 'swagger-ui-express';
 
 import { swaggerSpec } from './swaggerDef';
 
-import { getData } from './loader'; // getData will return luxembourg's data so far
+import { getData, getCrimeCategories } from './loader'; // getData will return luxembourg's data so far
 import { compare } from './comparator';
 import { request } from 'http';
 
@@ -46,18 +46,15 @@ app.use('/scraper/poland', poland);
 app.use('/scraper/hungary', hungary);
 ///////////////////DEBUG ROUTES//////////////////////////
 app.get('/getdata', async (request, response) => {
-    response.send(await getData('luxembourg'));
+    response.send(await getData('italy'));
+});
+
+app.get('/getcategories', async (request, response) => {
+    response.send(await getCrimeCategories('italy'));
 });
 
 app.get('/compare', async (request, response) => {
-    response.send(
-        await compare(
-            [await getData('cyprus'), await getData('luxembourg')],
-            ['Cyprus', 'Luxembourg'],
-            'national',
-            '2017',
-        ),
-    );
+    response.send(await compare(['Cyprus', 'Luxembourg'], ['Cyprus', 'Luxembourg'], 'national', '2017'));
 });
 ///////////////////////////////////////////////////////
 

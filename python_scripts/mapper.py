@@ -203,12 +203,11 @@ def save_matching(country, data):
     '''
     Saves the matching contained in [data] to [filename]
     '''
-    #data = json.loads(data)
-    #write_to_file(filename, data)
     with open('../data/matching/'+country+'/'+country+'-matching.txt', 'w', encoding='utf8') as json_file:
         json_file.write(data)
 
 if __name__ == '__main__':
     data = read_file('../data/matching/bulgaria/bulgaria-translated.txt') # data might also be a function call
+    # or data = getCrimeCategories('country')
     result = match_list(data)
     save_matching('bulgaria', result)
