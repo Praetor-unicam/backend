@@ -558,7 +558,7 @@ function parseXLSCyprus(filename: string[]): Country {
             firstPass = false;
         }
     }
-    rename(output, 'region+', { Limasol: 'Limassol', Ammochostos: 'Famagusta', Morfou: 'Kyrenia' });
+    rename(output, 'region', { Limasol: 'Limassol', Ammochostos: 'Famagusta', Morfou: 'Kyrenia' });
     return output;
 }
 
@@ -942,7 +942,7 @@ async function parseXLSXAustria(filename: string[]): Promise<Country> {
             });
         }
     }
-    //await translateCountryCrimes(output, 'de', 'en');
+    await translateCountryCrimes(output, 'de', 'en');
     return output;
 }
 
@@ -2456,7 +2456,9 @@ async function getPolishData(filename: string[]): Promise<Country> {
     for (let y = 2002; y <= new Date().getFullYear(); y++) {
         console.log(y);
         const tmp = await _getPolishData(y);
-        output.year.push(tmp.year[0]);
+        if (tmp.year.length !== 0) {
+            output.year.push(tmp.year[0]);
+        }
         await sleep(30000);
     }
 
