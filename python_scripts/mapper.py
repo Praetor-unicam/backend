@@ -64,6 +64,7 @@ def avg_feature_vector(sentence, model, num_features, index2word_set):
     else:
         return np.array([])    
 
+
 ######## COUNTRY SPECIFIC FUNCTIONS ###############
 # used to remember regular expressions used and additional info
 
@@ -106,7 +107,7 @@ def nederland_processor(data):
     return data
 
 def spain_processor(data):
-    data = [ re.sub(r'[0-9]*(\.[0-9])*\.-*', '', elem).strip() for elem in data ]
+    data = [ re.sub(r'[0-9]*(\.[0-9])*(\.-)*', '', elem).strip() for elem in data ]
     return data
 
 def denmark_processor(data):
@@ -148,7 +149,7 @@ def france_processor(data):
     '''
     return data
 
-def norther_ireland_processor(data):
+def northern_ireland_processor(data):
     '''
     check for nested categories, cant find provincial data
     '''
@@ -168,11 +169,10 @@ def belgium_processor(data):
 
 ####### PUBLIC USE FUNCTIONS ##########
 
-def match_list(path):
+def match_list(data):
     '''
     Matches labels in [data] to ICCS categories using avg_feature_vector
     '''
-    data = read_file(path)
     model = gensim.models.KeyedVectors.load_word2vec_format('../data/model/GoogleNews-vectors-negative300.bin', binary=True)
     index2word_set = set(model.index2word)
     best_matching = dict.fromkeys(data)
@@ -203,11 +203,11 @@ def save_matching(country, data):
     '''
     Saves the matching contained in [data] to [filename]
     '''
-    #data = json.loads(data)
-    #write_to_file(filename, data)
     with open('../data/matching/'+country+'/'+country+'-matching.txt', 'w', encoding='utf8') as json_file:
         json_file.write(data)
 
 if __name__ == '__main__':
-    result = match_list('../data/matching/bulgaria/bulgaria-translated.txt')
+    data = read_file('../data/matching/bulgaria/bulgaria-translated.txt') # data might also be a function call
+    # or data = getCrimeCategories('country')
+    result = match_list(data)
     save_matching('bulgaria', result)

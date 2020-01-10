@@ -29,7 +29,8 @@ import * as swaggerUi from 'swagger-ui-express';
 
 import { swaggerSpec } from './swaggerDef';
 
-import { getData, parseCSVLuxembourg } from './loader'; // getData will return luxembourg's data so far
+import { getData, getCrimeCategories } from './loader'; // getData will return luxembourg's data so far
+import { compare } from './comparator';
 import { request } from 'http';
 
 const app = express();
@@ -52,11 +53,16 @@ app.use('/scraper/ireland', ireland);
 app.use('/scraper/france', france);
 app.use('/scraper/germany', germany);
 ///////////////////DEBUG ROUTES//////////////////////////
-app.get('/loader', (request, response) => {
-    response.send(parseCSVLuxembourg(['data/source_files/luxembourg/luxembourg.csv']));
-});
 app.get('/getdata', async (request, response) => {
-    response.send(await getData('finland'));
+    response.send(await getData('austria'));
+});
+
+app.get('/getcategories', async (request, response) => {
+    response.send(await getCrimeCategories('italy'));
+});
+
+app.get('/compare', async (request, response) => {
+    response.send(await compare(['Cyprus', 'Luxembourg'], ['Cyprus', 'Luxembourg'], 'national', '2017'));
 });
 ///////////////////////////////////////////////////////
 
