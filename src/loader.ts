@@ -11,6 +11,180 @@ const axios = require('axios');
 
 const sourcePath = 'data/source_files/';
 
+enum NUTS {
+    NUTS1 = 3,
+    NUTS2 = 4,
+    NUTS3 = 5,
+    LAU = 6,
+}
+
+const austriaRenaming = {
+    Vienna: 'Wien',
+    Eisenstadt: 'Burgenland',
+    Klagenfurt: 'Kärnten',
+    Innsbruck: 'Tirol',
+    Feldkirch: 'Vorarlberg',
+};
+
+const cyprusRenaming = {
+    Nicosia: 'Λευκωσία',
+    Limasol: 'Λεμεσός',
+    Ammochostos: 'Αμμόχωστος',
+    Morfou: 'Κερύνεια',
+    Pafos: 'Πάφος',
+    Larnaka: 'Λάρνακα',
+};
+
+const franceRenaming = {
+    'BOURG EN BRESSE': 'Bourg-en-Bresse',
+    TREVOUX: 'Trévoux',
+    'CHATEAU THIERRY': 'Château-Thierry',
+    'ST QUENTIN': 'Saint-Quentin',
+    MONTLUCON: 'Montluçon',
+    'ST FLOUR': 'Saint-Flour',
+    ANGOULEME: 'Angoulême',
+    'LA ROCHELLE': 'Rochelle',
+    'ST JEAN D ANGELY': "Saint-Jean-d'Angély",
+    'ST AMAND MONTROND': 'Saint-Amand-Montrond',
+    'BRIVE LA GAILLARDE': 'Brive-la-Gaillarde',
+    'IS SUR TILLE': 'Is-sur-Tille',
+    'ST BRIEUC': 'Saint-Brieuc',
+    GUERET: 'Guéret',
+    PERIGUEUX: 'Périgueux',
+    RIBERAC: 'Ribérac',
+    'SARLAT LA CANEDA': 'Sarlat-la-Canéda',
+    BESANCON: 'Besançon',
+    MONTBELIARD: 'Montbéliard',
+    'ROMANS SUR ISERE': 'Romans-sur-Isère',
+    EVREUX: 'Évreux',
+    'LES ANDELYS': 'Andelys',
+    'PONT AUDEMER': 'Pont-Audemer',
+    CHATEAUDUN: 'Châteaudun',
+    LUCE: 'Chartres',
+    'NOGENT LE ROTROU': 'Nogent-le-Rotrou',
+    CHATEAULIN: 'Châteaulin',
+    'PLOURIN LES MORLAIX': 'Morlaix',
+    QUIMPERLE: 'Quimper',
+    'PORTO VECCHIO': 'Porto-Vecchio',
+    SARTENE: 'Sartène',
+    ALES: 'Alès',
+    'BAGNOLS SUR CEZE': 'Bagnols-sur-Cèze',
+    'LE VIGAN': 'Vigan',
+    NIMES: 'Nîmes',
+    'ST GAUDENS': 'Saint-Gaudens',
+    'VILLEFRANCHE DE LAURAGAIS': 'Villefranche-de-Lauragais',
+    'BORDEAUX-BASTIDE': 'Bordeaux',
+    'LESPARRE MEDOC': 'Lesparre-Médoc',
+    MERIGNAC: 'Mérignac',
+    BEZIERS: 'Béziers',
+    'CASTELNAU LE LEZ': 'Castelnau-le-Lez',
+    LODEVE: 'Lodève',
+    PEZENAS: 'Pézenas',
+    'MONTFORT SUR MEU': 'Montfort-sur-Meu',
+    'ST MALO': 'Saint-Malo',
+    VITRE: 'Vitré',
+    'LA CHATRE': 'Châtre',
+    'LE BLANC': 'Blanc',
+    'BOURGOIN JALLIEU': 'Bourgoin-Jallieu',
+    'LA MURE': 'Mure',
+    'LA TOUR DU PIN': 'Tour-du-Pin',
+    'ST MARCELLIN': 'Saint-Marcellin',
+    'LONS LE SAUNIER': 'Lons-le-Saunier',
+    'ST CLAUDE': 'Saint-Claude',
+    'MONT DE MARSAN': 'Mont-de-Marsan',
+    'PARENTIS EN BORN': 'Parentis-en-Born',
+    'ROMORANTIN LANTHENAY': 'Romorantin-Lanthenay',
+    VENDOME: 'Vendôme',
+    'ST ETIENNE': 'Saint-Étienne',
+    'LE PUY EN VELAY': 'Puy-en-Velay',
+    CHATEAUBRIANT: 'Châteaubriant',
+    REZE: 'Rezé',
+    'ST NAZAIRE': 'Saint-Nazaire',
+    ORLEANS: 'Orléans',
+    NERAC: 'Nérac',
+    'VILLENEUVE SUR LOT': 'Villeneuve-sur-Lot',
+    'FLORAC TROIS RIVIERES': 'Florac Trois Rivières',
+    SEGRE: 'Segré-en-Anjou Bleu',
+    'CHERBOURG EN COTENTIN': 'Cherbourg-en-Cotentin',
+    'ST LO': 'Saint-Lô',
+    'CHALONS EN CHAMPAGNE': 'Châlons-en-Champagne',
+    EPERNAY: 'Épernay',
+    'VITRY LE FRANCOIS': 'Vitry-le-François',
+    'ST DIZIER': 'Saint-Dizier',
+    'CHATEAU GONTIER': 'Château-Gontier',
+    BRIEY: 'Val de Briey',
+    LUNEVILLE: 'Lunéville',
+    PLOERMEL: 'Ploërmel',
+    'BOULAY MOSELLE': 'Boulay-Moselle',
+    'CHATEAU CHINON VILLE': 'Château-Chinon (Ville)',
+    'COSNE COURS SUR LOIRE': 'Cosne-Cours-sur-Loire',
+    'AVESNES SUR HELPE': 'Avesnes-sur-Helpe',
+    COMPIEGNE: 'Compiègne',
+    MERU: 'Méru',
+    'ALENCON ARGENTAN': 'Alençon',
+    'MORTAGNE AU PERCHE': 'Mortagne-au-Perche',
+    BETHUNE: 'Béthune',
+    ECUIRES: 'Écuires',
+    'ST OMER': 'Saint-Omer',
+    'ST POL SUR TERNOISE': 'Saint-Pol-sur-Ternoise',
+    'CLERMONT FERRAND': 'Clermont-Ferrand',
+    'LA BOURBOULE': 'Bourboule',
+    'MAULEON LICHARRE': 'Mauléon-Licharre',
+    'OLORON STE MARIE': 'Oloron-Sainte-Marie',
+    'ARGELES GAZOST': 'Argelès-Gazost',
+    'BAGNERES DE BIGORRE': 'Bagnères-de-Bigorre',
+    CERET: 'Céret',
+    SELESTAT: 'Sélestat',
+    'SOULTZ GUEBWILLER': 'Guebwiller',
+    'L ARBRESLE': 'Arbresle',
+    'VILLEFRANCHE SUR SAONE': 'Villefranche-sur-Saône',
+    'CHALON SUR SAONE': 'Chalon-sur-Saône',
+    MACON: 'Mâcon',
+    'LA FLECHE': 'Flèche',
+    'LE MANS': 'Mans',
+    CHAMBERY: 'Chambéry',
+    'ST JEAN DE MAURIENNE': 'Saint-Jean-de-Maurienne',
+    'CHAMONIX MONT BLANC': 'Chamonix-Mont-Blanc',
+    'ST JULIEN EN GENEVOIS': 'Saint-Julien-en-Genevois',
+    'THONON LES BAINS': 'Thonon-les-Bains',
+    FECAMP: 'Fécamp',
+    'LE HAVRE': 'Havre',
+    'NEUFCHATEL EN BRAY': 'Neufchâtel-en-Bray',
+    'MANTES LA JOLIE': 'Mantes-la-Jolie',
+    'ST GERMAIN EN LAYE': 'Saint-Germain-en-Laye',
+    PERONNE: 'Péronne',
+    'GASSIN ST TROPEZ': 'Gassin',
+    HYERES: 'Hyères',
+    'LA VALETTE DU VAR': 'Valette-du-Var',
+    'FONTENAY LE COMTE': 'Fontenay-le-Comte',
+    'LA ROCHE SUR YON': 'Roche-sur-Yon',
+    'LES SABLES D OLONNE': "Sables-d'Olonne",
+    CHATELLERAULT: 'Châtellerault',
+    'ST JUNIEN': 'Saint-Junien',
+    NEUFCHATEAU: 'Neufchâteau',
+    'ST DIE DES VOSGES': 'Saint-Dié-des-Vosges',
+    ETAMPES: 'Étampes',
+    EVRY: 'Évry',
+    'LE MOULE': 'Moule',
+    'POINTE A PITRE': 'Pointe-à-Pitre',
+    'ST CLAUDE ': 'Saint-Claude',
+    'FORT DE FRANCE': 'Fort-de-France',
+    'LA TRINITE': 'Trinité',
+    'LE MARIN': 'Marin',
+    'ST LAURENT DU MARONI': 'Saint-Laurent-du-Maroni',
+    'ST BENOIT': 'Saint-Benoît',
+    'ST PAUL': 'Saint-Paul',
+    'ST PIERRE': 'Saint-Pierre',
+    'CHATEAU THIERRY NOGENTEL': 'Nogentel',
+    'LANGON TOULENNE': 'Langon',
+    'ANCENIS ST GEREON': 'Ancenis',
+    'SEGRE EN ANJOU BLEU': 'Segré-en-Anjou Bleu',
+    'CHATEAU GONTIER SUR MAYENNE': 'Château-Gontier',
+    'DUNKERQUE HOYMILLE': 'Hoymille',
+    'EVRY COURCOURONNES': 'Évry',
+    'L ISLE ADAM': 'Isle-Adam',
+};
+
 ////////// INTERFACES ///////////
 
 export interface Crime {
@@ -23,18 +197,21 @@ export interface Crime {
 interface County {
     county: string;
     data: Array<Crime>;
+    NUTS?: string;
 }
 
 interface Province {
     province: string;
     county: Array<County>;
     data: Array<Crime>;
+    NUTS?: string;
 }
 
 interface Region {
     region: string;
     province: Array<Province>;
     data: Array<Crime>;
+    NUTS?: string;
 }
 
 interface Year {
@@ -45,13 +222,165 @@ interface Year {
 
 export interface Country {
     country: string;
+    NUTS: Array<NUTS>;
     year: Array<Year>;
 }
 
 //////// GENERAL USE FUNCTIONS /////////////
 
+function addNUTSCodes(source: Country, countryCode: string): void {
+    const data = JSON.parse(fs.readFileSync('data/NUTS_lists/' + countryCode + '.json', 'utf8'));
+
+    for (let i = 0; i < source.NUTS.length; i++) {
+        const nuts = source.NUTS[i];
+        switch (i) {
+            case 0:
+                for (const year of source.year) {
+                    for (const region of year.region) {
+                        let dataByNUTS;
+                        if (nuts == NUTS.LAU) {
+                            dataByNUTS = data.filter((x: Record<string, string>) => x.id.length > NUTS.NUTS3);
+                        } else {
+                            dataByNUTS = data.filter((x: Record<string, string>) => x.id.length === nuts);
+                        }
+                        const index = dataByNUTS
+                            .map((x: Record<string, string>) => x.original_name.toLowerCase())
+                            .indexOf(region.region.toLowerCase());
+                        if (index !== -1) {
+                            region.NUTS = dataByNUTS[index].id;
+                        } else {
+                            console.log("'" + region.region + "': '',");
+                        }
+                    }
+                    console.log('----------------------');
+                }
+                break;
+            case 1:
+                for (const year of source.year) {
+                    for (const region of year.region) {
+                        for (const province of region.province) {
+                            let dataByNUTS;
+                            if (nuts == NUTS.LAU) {
+                                dataByNUTS = data.filter((x: Record<string, string>) => x.id.length > NUTS.NUTS3);
+                            } else {
+                                dataByNUTS = data.filter((x: Record<string, string>) => x.id.length === nuts);
+                            }
+                            const index = dataByNUTS
+                                .map((x: Record<string, string>) => x.original_name.toLowerCase())
+                                .indexOf(province.province.toLowerCase());
+                            if (index !== -1) {
+                                province.NUTS = dataByNUTS[index].id;
+                            } else {
+                                console.log('Not mapped: ' + province.province);
+                            }
+                        }
+                    }
+                }
+                break;
+            case 2:
+                for (const year of source.year) {
+                    for (const region of year.region) {
+                        for (const province of region.province) {
+                            for (const county of province.county) {
+                                let dataByNUTS;
+                                if (nuts == NUTS.LAU) {
+                                    dataByNUTS = data.filter((x: Record<string, string>) => x.id.length > NUTS.NUTS3);
+                                } else {
+                                    dataByNUTS = data.filter((x: Record<string, string>) => x.id.length === nuts);
+                                }
+                                const index = dataByNUTS
+                                    .map((x: Record<string, string>) => x.original_name.toLowerCase())
+                                    .indexOf(county.county.toLowerCase());
+                                if (index !== -1) {
+                                    county.NUTS = dataByNUTS[index].id;
+                                } else {
+                                    console.log('Not mapped: ' + county.county);
+                                }
+                            }
+                        }
+                    }
+                }
+                break;
+        }
+    }
+    ////////////////////////
+    /*
+    fs.writeFile('data/NUTS_lists/' + countryCode + '.json', JSON.stringify(data), function(err) {
+        if (err) {
+            console.log(err);
+        }
+    });
+    */
+    ///////////////////////
+}
+
+function mergeLocations(source: Country, locations: string[], level: string, newLocation: string): void {
+    switch (level) {
+        case 'region':
+            for (let i = 0; i < source.year.length; i++) {
+                const locationArray: Region[] = [];
+                for (let j = 0; j < source.year[i].region.length; j++) {
+                    if (locations.includes(source.year[i].region[j].region)) {
+                        locationArray.push(source.year[i].region[j]);
+                    }
+                }
+                source.year[i].region = source.year[i].region.filter(
+                    x => locationArray.map(y => y.region).includes(x.region) === false,
+                );
+                const tmpRegion: Region = { region: newLocation, province: [], data: [] };
+
+                if (locationArray[0].data) {
+                    for (let k = 0; k < locationArray[0].data.length; k++) {
+                        let sum = 0;
+                        for (let r = 0; r < locationArray.length; r++) {
+                            if (locationArray[r].data !== undefined) {
+                                sum = sum + locationArray[r].data[k].value;
+                            }
+                        }
+                        tmpRegion.data.push({ crime: locationArray[0].data[k].crime, value: sum });
+                    }
+                }
+                source.year[i].region.push(tmpRegion);
+            }
+            break;
+        case 'province':
+            for (let i = 0; i < source.year.length; i++) {
+                const locationArray: Province[] = [];
+                let regIndex = 0;
+                for (let j = 0; j < source.year[i].region.length; j++) {
+                    for (const province of source.year[i].region[j].province) {
+                        if (locations.includes(province.province)) {
+                            locationArray.push(province);
+                            regIndex = j;
+                        }
+                    }
+                }
+                source.year[i].region[regIndex].province = source.year[i].region[regIndex].province.filter(
+                    x => locationArray.map(y => y.province).includes(x.province) === false,
+                );
+                const tmpProvince: Province = { province: newLocation, county: [], data: [] };
+
+                if (locationArray[0].data) {
+                    for (let k = 0; k < locationArray[0].data.length; k++) {
+                        let sum = 0;
+                        for (let r = 0; r < locationArray.length; r++) {
+                            if (locationArray[r].data !== undefined) {
+                                sum = sum + locationArray[r].data[k].value;
+                            }
+                        }
+                        tmpProvince.data.push({ crime: locationArray[0].data[k].crime, value: sum });
+                    }
+                }
+                source.year[i].region[regIndex].province.push(tmpProvince);
+            }
+            break;
+        case 'county':
+            break;
+    }
+}
+
 function mergeYears(source: Country, years: string[], newYear: string): void {
-    const yearArray = [];
+    const yearArray: Year[] = [];
     //get years from source
     for (let i = 0; i < source.year.length; i++) {
         if (years.includes(source.year[i].year)) {
@@ -59,11 +388,16 @@ function mergeYears(source: Country, years: string[], newYear: string): void {
         }
     }
 
+    //return if no years found
+    if (yearArray.length === 0) {
+        return;
+    }
     //remove years from source
-    for (const year of yearArray) {
+    source.year = source.year.filter(x => yearArray.map(y => y.year).includes(x.year) === false);
+    /*for (const year of yearArray) {
         const index = source.year.map(x => x.year).indexOf(year.year);
         source.year.splice(index, 1);
-    }
+    }*/
 
     //create new merged year
     const tmpYear: Year = { year: newYear, region: [], data: [] };
@@ -430,7 +764,7 @@ function mapCategories(source: Country, country: string, removeUnmatched: boolea
 
 function parseCSVLuxembourg(filename: string[]): Country {
     let text = fs.readFileSync(sourcePath + 'luxembourg/' + filename[0], 'utf-8');
-    const output: Country = { country: 'Luxembourg', year: [] };
+    const output: Country = { country: 'Luxembourg', year: [], NUTS: [] };
 
     text = text.replace('Year', 'Qualification');
 
@@ -483,7 +817,7 @@ function parseCSVLuxembourg(filename: string[]): Country {
 }
 //double category
 function parseXLSCyprus(filename: string[]): Country {
-    const output: Country = { country: 'Cyprus', year: [] };
+    const output: Country = { country: 'Cyprus', year: [], NUTS: [NUTS.LAU] };
     for (let y = 0; y < filename.length / 2; y++) {
         const year = y + 2016 >= 2018 ? y + 1 + 2016 : y + 2016;
         output.year.push({ year: String(year), region: [], data: [] });
@@ -558,12 +892,13 @@ function parseXLSCyprus(filename: string[]): Country {
             firstPass = false;
         }
     }
-    rename(output, 'region', { Limasol: 'Limassol', Ammochostos: 'Famagusta', Morfou: 'Kyrenia' });
+    rename(output, 'region', cyprusRenaming);
+    addNUTSCodes(output, 'CY');
     return output;
 }
 
 function parseXLSHungary(filename: string[]): Country {
-    const output: Country = { country: 'Hungary', year: [] };
+    const output: Country = { country: 'Hungary', year: [], NUTS: [NUTS.NUTS2, NUTS.NUTS3] };
     let records = excelToJson({
         sourceFile: sourcePath + 'hungary/' + filename[0],
         header: {
@@ -707,7 +1042,6 @@ function parseXLSHungary(filename: string[]): Country {
             }
         }
     }
-
     return output;
 }
 
@@ -716,6 +1050,7 @@ function parseXLSBulgaria(filename: string[]): Country {
     const output: Country = {
         country: 'Bulgaria',
         year: [],
+        NUTS: [NUTS.NUTS3],
     };
     const records = excelToJson({
         sourceFile: sourcePath + 'bulgaria/' + filename[0],
@@ -762,7 +1097,7 @@ function parseXLSBulgaria(filename: string[]): Country {
 }
 
 function parseXLSPortugal(filename: string[]): Country {
-    const output: Country = { country: 'Portugal', year: [] };
+    const output: Country = { country: 'Portugal', year: [], NUTS: [NUTS.NUTS2, NUTS.NUTS3, NUTS.LAU] };
     for (let y = 0; y < filename.length; y++) {
         output.year.push({ year: String(y + 2011), region: [], data: [] });
         let records = excelToJson({
@@ -849,7 +1184,7 @@ function parseXLSPortugal(filename: string[]): Country {
 }
 
 function parseCSVDenmark(filename: string[]): Country {
-    const output: Country = { country: 'Denmark', year: [] };
+    const output: Country = { country: 'Denmark', year: [], NUTS: [NUTS.NUTS2, NUTS.LAU] };
     for (let y = 0; y < filename.length; y++) {
         const text = fs.readFileSync(sourcePath + 'denmark/' + filename[y], 'utf-8');
         const records = parse(text, {
@@ -905,11 +1240,15 @@ function parseCSVDenmark(filename: string[]): Country {
             firstPass = false;
         }
     }
+    for (let y = 2011; y < new Date().getFullYear(); y++) {
+        const years = Array.from({ length: 4 }, (_, id) => y + 'Q' + (id + 1));
+        mergeYears(output, years, String(y));
+    }
     return output;
 }
 
 async function parseXLSXAustria(filename: string[]): Promise<Country> {
-    const output: Country = { country: 'Austria', year: [] };
+    const output: Country = { country: 'Austria', year: [], NUTS: [NUTS.NUTS2] };
     for (let y = 0; y < filename.length; y++) {
         output.year.push({ year: String(2011 + y), region: [], data: [] });
         let records = excelToJson({
@@ -942,7 +1281,13 @@ async function parseXLSXAustria(filename: string[]): Promise<Country> {
             });
         }
     }
-    await translateCountryCrimes(output, 'de', 'en');
+    //await translateCountryCrimes(output, 'de', 'en');
+    NaNtoZero(output);
+    mergeLocations(output, ['Wr. Neustadt', 'Korneuburg', 'Krems/Donau', 'St. Pölten'], 'region', 'Niederösterreich');
+    mergeLocations(output, ['Linz', 'Ried/Innkreis', 'Steyr', 'Wels'], 'region', 'Oberösterreich');
+    mergeLocations(output, ['Graz', 'Leoben'], 'region', 'Steiermark');
+    rename(output, 'region', austriaRenaming);
+    addNUTSCodes(output, 'AT');
     return output;
 }
 
@@ -969,7 +1314,7 @@ async function getCzechData(filename: string[]): Promise<Country> {
         areaData.push({ code: area.Code, name: area.Name, level: Number(area.AreaLevel) });
     }
 
-    const output: Country = { country: 'Czech Republic', year: [] };
+    const output: Country = { country: 'Czech Republic', year: [], NUTS: [NUTS.NUTS3, NUTS.LAU] };
     for (let y = 0; y <= new Date().getFullYear() - 2013; y++) {
         let noData = false;
         output.year.push({ year: String(y + 2013), region: [], data: [] });
@@ -1110,7 +1455,7 @@ async function getCzechData(filename: string[]): Promise<Country> {
 }
 
 async function parseCSVSpain(filename: string[]): Promise<Country> {
-    const output: Country = { country: 'Spain', year: [] };
+    const output: Country = { country: 'Spain', year: [], NUTS: [NUTS.NUTS2, NUTS.NUTS3] };
     for (let y = 0; y < filename.length / 2; y++) {
         output.year.push({ year: String(2011 + y), region: [], data: [] });
         let text = fs.readFileSync(sourcePath + 'spain/' + filename[y * 2], 'utf-8');
@@ -1224,12 +1569,12 @@ async function parseCSVSpain(filename: string[]): Promise<Country> {
             }
         }
     }
-    await translateCountryCrimes(output, 'es', 'en');
+    //await translateCountryCrimes(output, 'es', 'en');
     return output;
 }
 
 function parseXLSItaly(filename: string[]): Country {
-    const output: Country = { country: 'Italy', year: [] };
+    const output: Country = { country: 'Italy', year: [], NUTS: [NUTS.NUTS2, NUTS.NUTS3, NUTS.LAU] };
     for (let y = 0; y < filename.length; y++) {
         output.year.push({ year: String(2017 + y), region: [], data: [] });
         let records = excelToJson({
@@ -1388,7 +1733,7 @@ async function parseCSVNetherlands(filename: string[]): Promise<Country> {
     const folder = 'data/source_files/netherlands/';
     const regionsAndTotal = folder + filename[0];
     const provinces = folder + filename[1];
-    const output: Country = { country: 'Netherlands', year: [] };
+    const output: Country = { country: 'Netherlands', year: [], NUTS: [NUTS.NUTS2, NUTS.LAU] };
     let text = fs.readFileSync(regionsAndTotal, 'utf-8');
 
     let crimes = parse(text, {
@@ -1520,7 +1865,7 @@ async function parseCSVNetherlands(filename: string[]): Promise<Country> {
 }
 
 function parseXLSNorthernIreland(filename: string[]): Country {
-    const output: Country = { country: 'Northern Ireland', year: [] };
+    const output: Country = { country: 'Northern Ireland', year: [], NUTS: [NUTS.LAU] };
     let records = excelToJson({
         sourceFile: sourcePath + 'northern-ireland/' + filename[0],
         header: {
@@ -1636,7 +1981,7 @@ async function parseCSVBelgium(filename: string[]): Promise<Country> {
         'IFG: seksueel (totaal)',
     ];
     const folder = 'data/source_files/belgium/';
-    const output: Country = { country: 'Belgium', year: [] };
+    const output: Country = { country: 'Belgium', year: [], NUTS: [NUTS.NUTS1, NUTS.NUTS2, NUTS.LAU] };
     const extPoliceZones = [
         'Geen PZ toegekend - Noordzee',
         'Geen PZ toegekend - Brussels Airport',
@@ -1873,7 +2218,7 @@ async function parseCSVBelgium(filename: string[]): Promise<Country> {
 
 //ordine cronologico
 function parseXLSEngland(filename: string[]): Country {
-    const output: Country = { country: 'England', year: [] };
+    const output: Country = { country: 'England', year: [], NUTS: [NUTS.NUTS1, NUTS.NUTS2] };
     let i = 0;
     for (const file of filename) {
         let records = excelToJson({
@@ -1937,12 +2282,13 @@ function parseXLSEngland(filename: string[]): Country {
         }
         i++;
     }
+    //mergeLocations(output, [])
     return output;
 }
 
 //come sopra
 function parseXLSWales(filename: string[]): Country {
-    const output: Country = { country: 'Wales', year: [] };
+    const output: Country = { country: 'Wales', year: [], NUTS: [] };
     let i = 0;
     for (const file of filename) {
         let records = excelToJson({
@@ -1994,106 +2340,56 @@ function parseXLSWales(filename: string[]): Country {
 }
 
 async function parseXLSFrance(filename: string[]): Promise<Country> {
-    const output: Country = { country: 'France', year: [] };
-    const text = fs.readFileSync('data/helper_files/france/helper.csv', 'utf-8');
-    const helper = parse(text, {
-        columns: true,
-    });
-
+    const output: Country = { country: 'France', year: [], NUTS: [NUTS.LAU] };
     const records = excelToJson({
-        sourceFile: sourcePath + 'france/' + filename[0],
-        range: 'C1:NL2',
-    });
-
-    const crimeRecords = excelToJson({
         sourceFile: sourcePath + 'france/' + filename[0],
         range: 'B2:NL109',
     });
 
     for (let y = 0; y <= new Date().getFullYear() - 2012; y++) {
         const _records = records['Services GN ' + String(2012 + y)];
+        console.log(y);
         if (_records === undefined) {
             continue;
         }
+        //console.log(_records[1]);
         output.year.push({ year: String(2012 + y), region: [], data: [] });
-        let regions = [];
-        for (const row of helper) {
-            regions.push(row.Region);
-        }
-        regions = Array.from(new Set(regions));
-        for (const region of regions) {
-            output.year[y].region.push({ region: region, province: [], data: [] });
-        }
-
-        const usedProvinces: Array<string> = [];
         Object.keys(_records[0]).forEach(function(key) {
-            const provinceCode = _records[0][key];
-            if (!usedProvinces.includes(provinceCode)) {
-                let index = helper.map((x: Record<string, string>) => x['INSEE code']).indexOf(provinceCode);
-                if (index != -1) {
-                    const assocRegion = helper[index].Region;
-                    const provinceName = helper[index].Department;
-                    index = output.year[y].region.map(x => x.region).indexOf(assocRegion);
-                    output.year[y].region[index].province.push({ province: provinceName, county: [], data: [] });
-                    usedProvinces.push(provinceCode);
-                }
+            if (key !== 'B') {
+                const county = _records[0][key].replace('CGD ', '').replace(/\(...\)/, '');
+                output.year[y].region.push({ region: county, province: [], data: [] });
             }
         });
 
-        Object.keys(_records[1]).forEach(function(key) {
-            const county = _records[1][key].replace('CGD ', '').replace(/\(...\)/, '');
-            const provinceCode = _records[0][key];
-            const index = helper.map((x: Record<string, string>) => x['INSEE code']).indexOf(provinceCode);
-            if (index != -1) {
-                const regionName = helper[index].Region;
-                const provinceName = helper[index].Department;
-                const regIndex = output.year[y].region.map(x => x.region).indexOf(regionName);
-                const provIndex = output.year[y].region[regIndex].province.map(x => x.province).indexOf(provinceName);
-                output.year[y].region[regIndex].province[provIndex].county.push({ county: county, data: [] });
-            }
-        });
+        const counties = _records[0];
+        _records.shift();
 
-        const _crimeRecords = crimeRecords['Services GN ' + String(2012 + y)];
-        console.log(y);
-        const counties = _crimeRecords[0];
-        _crimeRecords.shift();
-
-        for (const row of _crimeRecords) {
+        for (const row of _records) {
             let crime = '';
             Object.keys(row).forEach(function(key) {
                 if (key === 'B') {
                     crime = row[key];
                 } else {
                     const countyName = counties[key].replace('CGD ', '').replace(/\(...\)/, '');
-                    const provinceCode = _records[0][key];
-                    const index = helper.map((x: Record<string, string>) => x['INSEE code']).indexOf(provinceCode);
-                    if (index != -1) {
-                        const regionName = helper[index].Region;
-                        const provinceName = helper[index].Department;
-                        const regIndex = output.year[y].region.map(x => x.region).indexOf(regionName);
-                        const provIndex = output.year[y].region[regIndex].province
-                            .map(x => x.province)
-                            .indexOf(provinceName);
-                        const countIndex = output.year[y].region[regIndex].province[provIndex].county
-                            .map(x => x.county)
-                            .indexOf(countyName);
-                        output.year[y].region[regIndex].province[provIndex].county[countIndex].data.push({
-                            crime: crime,
-                            value: Number(row[key]),
-                        });
-                    }
+                    const countIndex = output.year[y].region.map(x => x.region).indexOf(countyName);
+                    output.year[y].region[countIndex].data.push({
+                        crime: crime,
+                        value: Number(row[key]),
+                    });
                 }
             });
         }
     }
-
-    await translateCountryCrimes(output, 'fr', 'en');
+    mergeLocations(output, ['TOULOUSE MIRAIL', 'TOULOUSE ST MICHEL'], 'region', 'Toulouse');
+    rename(output, 'region', franceRenaming);
+    //await translateCountryCrimes(output, 'fr', 'en');
+    addNUTSCodes(output, 'FR');
     return output;
 }
 
 //might have duplicates kreis / landkreis, ordine cronologico
 async function parseXLSGermany(filename: string[]): Promise<Country> {
-    const output: Country = { country: 'Germany', year: [] };
+    const output: Country = { country: 'Germany', year: [], NUTS: [NUTS.NUTS1, NUTS.NUTS3] };
     const text = fs.readFileSync('data/helper_files/germany/helper.csv', 'utf-8');
     const helper = parse(text, {
         columns: true,
@@ -2204,13 +2500,18 @@ async function parseXLSGermany(filename: string[]): Promise<Country> {
             }
         }
     }
-    await translateCountryCrimes(output, 'de', 'en');
+    //await translateCountryCrimes(output, 'de', 'en');
+    for (const year of output.year) {
+        for (const region of year.region) {
+            region.region = region.region.toUpperCase();
+        }
+    }
     return output;
 }
 
 function parseXLSFinland(filename: string[]): Country {
     const folder = 'data/source_files/finland/';
-    const output: Country = { country: 'Finland', year: [] };
+    const output: Country = { country: 'Finland', year: [], NUTS: [NUTS.NUTS2, NUTS.NUTS3, NUTS.LAU] };
     const provMap: {
         [key: string]: string;
     } = {
@@ -2248,7 +2549,7 @@ function parseXLSFinland(filename: string[]): Country {
             range: 'A5:D5431',
         });
         records = records['001_117t_2019m09'];
-        output.year.push({ year: records[0].Year, region: [], data: [] });
+        output.year.push({ year: records[0].Year.replace('*', ''), region: [], data: [] });
         let firstPass = true;
         let crime = '';
         let regIndex = 0;
@@ -2378,16 +2679,17 @@ function parseXLSFinland(filename: string[]): Country {
             }
         }
     }
-    /*fs.writeFile('data/source_files/testfinland.txt', JSON.stringify(output), function(err) {
-        if (err) {
-            console.log(err);
-        }
-    });*/
+
+    for (let y = 2011; y < new Date().getFullYear(); y++) {
+        const years = Array.from({ length: 12 }, (_, id) => y + 'M0' + (id + 1));
+        mergeYears(output, years, String(y));
+    }
+
     return output;
 }
 
 async function _getPolishData(year: number): Promise<Country> {
-    const output: Country = { country: 'Poland', year: [] };
+    const output: Country = { country: 'Poland', year: [], NUTS: [NUTS.NUTS2, NUTS.NUTS3] };
     const initial = year;
     for (let y = initial; y >= initial; y--) {
         let national = await getPolandData(y, 0);
@@ -2452,7 +2754,7 @@ async function _getPolishData(year: number): Promise<Country> {
 
 async function getPolishData(filename: string[]): Promise<Country> {
     console.log('starting');
-    const output: Country = { country: 'Poland', year: [] };
+    const output: Country = { country: 'Poland', year: [], NUTS: [NUTS.NUTS2, NUTS.NUTS3] };
     for (let y = 2002; y <= new Date().getFullYear(); y++) {
         console.log(y);
         const tmp = await _getPolishData(y);
@@ -2554,6 +2856,7 @@ const countrySources: Record<string, Array<string>> = {
         .sort((x, y) => Number(x.match(/\d/g)!.join('')) - Number(y.match(/\d/g)!.join(''))),
     poland: [''],
 };
+
 ////////////////////////////////////////////
 ///////////PUBLIC FUNCTIONS////////////////
 /**

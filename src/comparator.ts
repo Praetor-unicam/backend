@@ -393,14 +393,14 @@ export async function compare(
     level: string,
     year: string,
 ): Promise<Comparation> {
-    const sources: Array<Country> = [];
+    const output: Comparation = { countries: [] };
+    const crimes: Array<Array<Crime>> = [];
+    //USE NUTS FROM DB HERE
     ///////////////////////////////////
+    const sources: Array<Country> = [];
     for (const country of countries) {
         sources.push(await getData(country.toLowerCase()));
     }
-    //////////////////////////////////
-    const output: Comparation = { countries: [] };
-    const crimes: Array<Array<Crime>> = [];
     for (let i = 0; i < countries.length; i++) {
         const yearIndex = sources[i].year.map(x => x.year).indexOf(year);
         if (yearIndex === -1) {
@@ -442,7 +442,7 @@ export async function compare(
             }
         }
     }
-    //console.log(crimes);
+    //////////////////////////////////
     for (let i = 0; i < crimes.length; i++) {
         output.countries.push({
             country: countries[i],
