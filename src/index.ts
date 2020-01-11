@@ -20,6 +20,10 @@ import bulgary from './routes/scraper/bulgary';
 import cyprus from './routes/scraper/cyprus';
 import poland from './routes/scraper/poland';
 import hungary from './routes/scraper/hungary';
+import england from './routes/scraper/england';
+import ireland from './routes/scraper/ireland';
+import france from './routes/scraper/france';
+import germany from './routes/scraper/germany';
 
 import * as swaggerUi from 'swagger-ui-express';
 
@@ -44,6 +48,10 @@ app.use('/scraper/bulgary', bulgary);
 app.use('/scraper/cyprus', cyprus);
 app.use('/scraper/poland', poland);
 app.use('/scraper/hungary', hungary);
+app.use('/scraper/england', england);
+app.use('/scraper/ireland', ireland);
+app.use('/scraper/france', france);
+app.use('/scraper/germany', germany);
 ///////////////////DEBUG ROUTES//////////////////////////
 app.get('/getdata', async (request, response) => {
     response.send(await getData('france'));
