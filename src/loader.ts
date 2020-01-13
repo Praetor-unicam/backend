@@ -185,6 +185,289 @@ const franceRenaming = {
     'L ISLE ADAM': 'Isle-Adam',
 };
 
+const englandRenamingRegions = {
+    'North East': 'NORTH EAST (ENGLAND)',
+    'North West': 'NORTH WEST (ENGLAND)',
+    'East Midlands': 'EAST MIDLANDS (ENGLAND)',
+    'West Midlands': 'WEST MIDLANDS (ENGLAND)',
+    'West Midlands region': 'WEST MIDLANDS (ENGLAND)',
+    East: 'EAST OF ENGLAND',
+    'South East': 'SOUTH EAST (ENGLAND)',
+    'South West': 'SOUTH WEST (ENGLAND)',
+};
+const englandRenamingProvinces = {
+    Northumbria: 'Tees Valley and Durham',
+    Humberside: 'East Yorkshire and Northern Lincolnshire',
+    Hampshire: 'Hampshire and Isle of Wight',
+    'Thames Valley': 'Berkshire, Buckinghamshire and Oxfordshire',
+};
+
+const czechRenamingRegions = {
+    'HL. M. PRAHY': 'Hlavní město Praha',
+    'STŘEDOČESKÉHO KRAJE': 'Středočeský kraj',
+    'JIHOČESKÉHO KRAJE': 'Jihočeský kraj',
+    'PLZEŇSKÉHO KRAJE': 'Plzeňský kraj',
+    'ÚSTECKÉHO KRAJE': 'Ústecký kraj',
+    'KRÁLOVÉHRADECKÉHO KRAJE': 'Královéhradecký kraj',
+    'JIHOMORAVSKÉHO KRAJE': 'Jihomoravský kraj',
+    'MORAVSKOSLEZSKÉHO KRAJE': 'Moravskoslezský kraj',
+    'OLOMOUCKÉHO KRAJE': 'Olomoucký kraj',
+    'ZLÍNSKÉHO KRAJE': 'Zlínský kraj',
+    'KRAJE VYSOČINA': 'Kraj Vysočina',
+    'PARDUBICKÉHO KRAJE': 'Pardubický kraj',
+    'LIBERECKÉHO KRAJE': 'Liberecký kraj',
+    'KARLOVARSKÉHO KRAJE': 'Karlovarský kraj',
+};
+
+const belgiumRenamingRegions = {
+    'Brussels Hoofdstedelijk Gewest': 'RÉGION DE BRUXELLES-CAPITALE/BRUSSELS HOOFDSTEDELIJK GEWEST',
+    'Waals Gewest': 'RÉGION WALLONNE',
+};
+
+const belgiumRenamingProvinces = {
+    'Brussel-Hoofdstad': 'Région de Bruxelles-Capitale/ Brussels Hoofdstedelijk Gewest',
+    Antwerpen: 'Prov. Antwerpen',
+    Limburg: 'Prov. Limburg (BE)',
+    'Oost-Vlaanderen': 'Prov. Oost-Vlaanderen',
+    'Vlaams Brabant': 'Prov. Vlaams-Brabant',
+    'West-Vlaanderen': 'Prov. West-Vlaanderen',
+    'Brabant wallon': 'Prov. Brabant Wallon',
+    Hainaut: 'Prov. Hainaut',
+    Liège: 'Prov. Liège',
+    Luxembourg: 'Prov. Luxembourg (BE)',
+    Namur: 'Prov. Namur',
+};
+
+const germanyRenamingProvinces = {
+    Stuttgart: 'Stuttgart, Stadtkreis',
+    Heilbronn: 'Heilbronn, Stadtkreis',
+    Heilbronn2: 'Heilbronn, Landkreis',
+    'Baden-Baden': 'Baden-Baden, Stadtkreis',
+    Karlsruhe: 'Karlsruhe, Stadtkreis',
+    Karlsruhe2: 'Karlsruhe, Landkreis',
+    Heidelberg: 'Heidelberg, Stadtkreis',
+    Mannheim: 'Mannheim, Stadtkreis',
+    Pforzheim: 'Pforzheim, Stadtkreis',
+    'Freiburg im Breisgau': 'Freiburg im Breisgau, Stadtkreis',
+    Tübingen: 'Tübingen, Landkreis',
+    Ulm: 'Ulm, Stadtkreis',
+    Ingolstadt: 'Ingolstadt, Kreisfreie Stadt',
+    München: 'München, Kreisfreie Stadt',
+    Rosenheim: 'Rosenheim, Kreisfreie Stadt',
+    'Mühldorf a.Inn': 'Mühldorf a. Inn',
+    München2: 'München, Landkreis',
+    'Pfaffenhofen a.d.Ilm': 'Pfaffenhofen a. d. Ilm',
+    Rosenheim2: 'Rosenheim, Landkreis',
+    Landshut: 'Landshut, Kreisfreie Stadt',
+    Passau: 'Passau, Kreisfreie Stadt',
+    Straubing: 'Straubing, Kreisfreie Stadt',
+    Landshut2: 'Landshut, Landkreis',
+    Passau2: 'Passau, Landkreis',
+    Amberg: 'Amberg, Kreisfreie Stadt',
+    Regensburg: 'Regensburg, Kreisfreie Stadt',
+    'Weiden i.d.OPf.': 'Weiden i. d. Opf, Kreisfreie Stadt',
+    'Neumarkt i.d.OPf.': 'Neumarkt i. d. OPf.',
+    'Neustadt a.d.Waldnaab': 'Neustadt a. d. Waldnaab',
+    Regensburg2: 'Regensburg, Landkreis',
+    Bamberg: 'Bamberg, Kreisfreie Stadt',
+    Bayreuth: 'Bayreuth, Kreisfreie Stadt',
+    Coburg: 'Coburg, Kreisfreie Stadt',
+    Hof: 'Hof, Kreisfreie Stadt',
+    Bamberg2: 'Bamberg, Landkreis',
+    Bayreuth2: 'Bayreuth, Landkreis',
+    Coburg2: 'Coburg, Landkreis',
+    Hof2: 'Hof, Landkreis',
+    'Wunsiedel i.Fichtelgebirge': 'Wunsiedel i. Fichtelgebirge',
+    Ansbach: 'Ansbach, Kreisfreie Stadt',
+    Erlangen: 'Erlangen, Kreisfreie Stadt',
+    Fürth: 'Fürth, Kreisfreie Stadt',
+    Nürnberg: 'Nürnberg, Kreisfreie Stadt',
+    Schwabach: 'Schwabach, Kreisfreie Stadt',
+    Ansbach2: 'Ansbach, Landkreis',
+    Fürth2: 'Fürth, Landkreis',
+    'Neustadt a.d.Aisch-Bad Windsheim': 'Neustadt a. d. Aisch-Bad Windsheim',
+    Aschaffenburg: 'Aschaffenburg, Kreisfreie Stadt',
+    Schweinfurt: 'Schweinfurt, Kreisfreie Stadt',
+    Würzburg: 'Würzburg, Kreisfreie Stadt',
+    Aschaffenburg2: 'Aschaffenburg, Landkreis',
+    Schweinfurt2: 'Schweinfurt, Landkreis',
+    Würzburg2: 'Würzburg, Landkreis',
+    Augsburg: 'Augsburg, Kreisfreie Stadt',
+    Kaufbeuren: 'Kaufbeuren, Kreisfreie Stadt',
+    'Kempten (Allgäu)': 'Kempten (Allgäu), Kreisfreie Stadt',
+    Memmingen: 'Memmingen, Kreisfreie Stadt',
+    Augsburg2: 'Augsburg, Landkreis',
+    'Dillingen a.d.Donau': 'Dillingen a.d. Donau',
+    'Brandenburg an der Havel': 'Brandenburg an der Havel, Kreisfreie Stadt',
+    Cottbus: 'Cottbus, Kreisfreie Stadt',
+    'Frankfurt (Oder)': 'Frankfurt (Oder), Kreisfreie Stadt',
+    Potsdam: 'Potsdam, Kreisfreie Stadt',
+    Bremen: 'Bremen, Kreisfreie Stadt',
+    Bremerhaven: 'Bremerhaven, Kreisfreie Stadt',
+    Darmstadt: 'Darmstadt, Kreisfreie Stadt',
+    'Frankfurt am Main': 'Frankfurt am Main, Kreisfreie Stadt',
+    'Offenbach am Main': 'Offenbach am Main, Kreisfreie Stadt',
+    Wiesbaden: 'Wiesbaden, Kreisfreie Stadt',
+    Offenbach: 'Offenbach, Landkreis',
+    Gießen: 'Gießen, Landkreis',
+    Kassel: 'Kassel, Kreisfreie Stadt',
+    Kassel2: 'Kassel, Landkreis',
+    Rostock: 'Rostock, Kreisfreie Stadt',
+    Schwerin: 'Schwerin, Kreisfreie Stadt',
+    Braunschweig: 'Braunschweig, Kreisfreie Stadt',
+    Salzgitter: 'Salzgitter, Kreisfreie Stadt',
+    Wolfsburg: 'Wolfsburg, Kreisfreie Stadt',
+    Lüneburg: 'Lüneburg, Landkreis',
+    'Landkreis Heidekreis': 'Heidekreis',
+    Delmenhorst: 'Delmenhorst, Kreisfreie Stadt',
+    Emden: 'Emden, Kreisfreie Stadt',
+    'Oldenburg (Oldenburg)': 'Oldenburg (Oldenburg), Kreisfreie Stadt',
+    Osnabrück: 'Osnabrück, Kreisfreie Stadt',
+    Wilhelmshaven: 'Wilhelmshaven, Kreisfreie Stadt',
+    Friesland: 'Friesland (DE)',
+    Oldenburg: 'Oldenburg, Landkreis',
+    Osnabrück2: 'Osnabrück, Landkreis',
+    Düsseldorf: 'Düsseldorf, Kreisfreie Stadt',
+    Duisburg: 'Duisburg, Kreisfreie Stadt',
+    Essen: 'Essen, Kreisfreie Stadt',
+    Krefeld: 'Krefeld, Kreisfreie Stadt',
+    Mönchengladbach: 'Mönchengladbach, Kreisfreie Stadt',
+    'Mülheim an der Ruhr': 'Mülheim an der Ruhr, Kreisfreie Stadt',
+    Oberhausen: 'Oberhausen, Kreisfreie Stadt',
+    Remscheid: 'Remscheid, Kreisfreie Stadt',
+    Solingen: 'Solingen, Kreisfreie Stadt',
+    Wuppertal: 'Wuppertal, Kreisfreie Stadt',
+    Bonn: 'Bonn, Kreisfreie Stadt',
+    Köln: 'Köln, Kreisfreie Stadt',
+    Leverkusen: 'Leverkusen, Kreisfreie Stadt',
+    Aachen: 'Städteregion Aachen',
+    Bottrop: 'Bottrop, Kreisfreie Stadt',
+    Gelsenkirchen: 'Gelsenkirchen, Kreisfreie Stadt',
+    Münster: 'Münster, Kreisfreie Stadt',
+    Bielefeld: 'Bielefeld, Kreisfreie Stadt',
+    Bochum: 'Bochum, Kreisfreie Stadt',
+    Dortmund: 'Dortmund, Kreisfreie Stadt',
+    Hagen: 'Hagen, Kreisfreie Stadt',
+    Hamm: 'Hamm, Kreisfreie Stadt',
+    Herne: 'Herne, Kreisfreie Stadt',
+    Koblenz: 'Koblenz, Kreisfreie Stadt',
+    Trier: 'Trier, Kreisfreie Stadt',
+    'Frankenthal (Pfalz)': 'Frankenthal (Pfalz), Kreisfreie Stadt',
+    Kaiserslautern: 'Kaiserslautern, Kreisfreie Stadt',
+    'Landau in der Pfalz': 'Landau in der Pfalz, Kreisfreie Stadt',
+    'Ludwigshafen am Rhein': 'Ludwigshafen am Rhein, Kreisfreie Stadt',
+    Mainz: 'Mainz, Kreisfreie Stadt',
+    'Neustadt an der Weinstraße': 'Neustadt an der Weinstraße, Kreisfreie Stadt',
+    Pirmasens: 'Pirmasens, Kreisfreie Stadt',
+    Speyer: 'Speyer, Kreisfreie Stadt',
+    Worms: 'Worms, Kreisfreie Stadt',
+    Zweibrücken: 'Zweibrücken, Kreisfreie Stadt',
+    Kaiserslautern2: 'Kaiserslautern, Landkreis',
+    Chemnitz: 'Chemnitz, Kreisfreie Stadt',
+    Dresden: 'Dresden, Kreisfreie Stadt',
+    'Dessau-Roßlau': 'Dessau-Roßlau, Kreisfreie Stadt',
+    'Halle (Saale)': 'Halle (Saale), Kreisfreie Stadt',
+    Magdeburg: 'Magdeburg, Kreisfreie Stadt',
+    Flensburg: 'Flensburg, Kreisfreie Stadt',
+    Kiel: 'Kiel, Kreisfreie Stadt',
+    Lübeck: 'Lübeck, Kreisfreie Stadt',
+    Neumünster: 'Neumünster, Kreisfreie Stadt',
+    Flensburg2: 'Schleswig-Flensburg',
+    Erfurt: 'Erfurt, Kreisfreie Stadt',
+    Gera: 'Gera, Kreisfreie Stadt',
+    Jena: 'Jena, Kreisfreie Stadt',
+    Suhl: 'Suhl, Kreisfreie Stadt',
+    Weimar: 'Weimar, Kreisfreie Stadt',
+    Eisenach: 'Eisenach, Kreisfreie Stadt',
+    Leipzig: 'Leipzig, Kreisfreie Stadt',
+    Leipzig2: 'Leipzig',
+};
+
+const bulgariaRenamingRegions = {
+    Blagoevgrad: 'Благоевград',
+    Burgas: 'Бургас',
+    Varna: 'Варна',
+    'Veliko Tarnovo': 'Велико Търново',
+    Vidin: 'Видин',
+    Vratsa: 'Враца',
+    Gabrovo: 'Габрово',
+    Dobrich: 'Добрич',
+    Kardzhali: 'Кърджали',
+    Kyustendil: 'Кюстендил',
+    Lovech: 'Ловеч',
+    Montana: 'Монтана',
+    Pazardzhik: 'Пазарджик',
+    Pernik: 'Перник',
+    Pleven: 'Плевен',
+    Plovdiv: 'Пловдив',
+    Razgrad: 'Разград',
+    Ruse: 'Русе',
+    Silistra: 'Силистра',
+    Sliven: 'Сливен',
+    Smolyan: 'Смолян',
+    'Sofia cap.': 'София (столица)',
+    Sofia: 'София',
+    'Stara Zagora': 'Стара Загора',
+    Targovishte: 'Търговище',
+    Haskovo: 'Хасково',
+    Shumen: 'Шумен',
+    Yambol: 'Ямбол',
+};
+
+const spainRenamingRegions = {
+    'ASTURIAS (PRINCIPADO DE)': 'Principado de Asturias',
+    'BALEARS (ILLES)': 'Illes Balears',
+    'CASTILLA - LA MANCHA': 'Castilla-La Mancha',
+    'COMUNITAT VALENCIANA': 'Comunidad Valenciana',
+    'MADRID (COMUNIDAD DE)': 'Comunidad de Madrid',
+    'MURCIA (REGIÓN DE)': 'Región de Murcia',
+    'NAVARRA (COMUNIDAD FORAL DE)': 'Comunidad Foral de Navarra',
+    'RIOJA (LA)': 'La Rioja',
+};
+
+const spainRenamingProvinces = {
+    'Palmas (Las)': 'La Palma',
+    'Santa Cruz de Tenerife': 'Tenerife',
+    'Alicante/Alacant': 'Alicante / Alacant',
+    'Castellón/Castelló': 'Castellón / Castelló',
+    'Valencia/València': 'Valencia / València',
+    'Coruña (A)': 'A Coruña',
+    'Rioja (La)': 'La Rioja',
+};
+
+const italyRenamingRegions = {
+    "Valle d'Aosta / Vallée d'Aoste": "Valle d'Aosta/Vallée d'Aoste",
+};
+
+const italyRenamingProvinces = {
+    "Valle d'Aosta / Vallée d'Aoste": "Valle d'Aosta/Vallée d'Aoste",
+    'Provincia Autonoma Bolzano / Bozen': 'Bolzano-Bozen',
+    'Provincia Autonoma Trento': 'Trento',
+    Barletta: 'Barletta-Andria-Trani',
+};
+
+const denmarkRenamingProvinces = {
+    Copenhagen: 'København',
+};
+
+const polandRenamingProvinces = {
+    'CITY OF KRAKÓW': 'Miasto Kraków',
+    'CITY OF POZNAŃ': 'Miasto Poznań',
+    'CITY OF SZCZECIN': 'Miasto Szczecin',
+    'CITY OF WROCŁAW': 'Miasto Wrocław',
+    'CITY OF ŁÓDŹ': 'Miasto Łódź',
+    'CAPITAL CITY OF WARSZAWA': 'Miasto Warszawa',
+};
+
+const hungaryRenamingRegions = {
+    'Central Transdanubia': 'Közép-Dunántúl',
+    'Western Transdanubia': 'Nyugat-Dunántúl',
+    'Southern Transdanubia': 'Dél-Dunántúl',
+    'Northern Hungary': 'Észak-Magyarország',
+    'Northern Great Plain': 'Észak-Alföld',
+    'Southern Great Plain': 'Dél-Alföld',
+};
+
 ////////// INTERFACES ///////////
 
 export interface Crime {
@@ -228,6 +511,40 @@ export interface Country {
 
 //////// GENERAL USE FUNCTIONS /////////////
 
+/**
+ * merges same fields and removes NaNs
+ *
+ */
+function _NaNtoZero(array: Array<Crime>): void {
+    for (let i = 0; i < array.length; i++) {
+        if (isNaN(array[i].value)) {
+            //convert invalid values to 0
+            array[i].value = 0;
+        }
+    }
+}
+
+function NaNtoZero(source: Country): void {
+    for (const year of source.year) {
+        if (year.data) {
+            _NaNtoZero(year.data);
+        }
+        for (const region of year.region) {
+            if (region.data) {
+                _NaNtoZero(region.data);
+            }
+            for (const province of region.province) {
+                if (province.data) {
+                    _NaNtoZero(province.data);
+                }
+                for (const county of province.county) {
+                    _NaNtoZero(county.data);
+                }
+            }
+        }
+    }
+}
+
 function addNUTSCodes(source: Country, countryCode: string): void {
     const data = JSON.parse(fs.readFileSync('data/NUTS_lists/' + countryCode + '.json', 'utf8'));
 
@@ -235,6 +552,7 @@ function addNUTSCodes(source: Country, countryCode: string): void {
         const nuts = source.NUTS[i];
         switch (i) {
             case 0:
+                console.log('region');
                 for (const year of source.year) {
                     for (const region of year.region) {
                         let dataByNUTS;
@@ -256,6 +574,7 @@ function addNUTSCodes(source: Country, countryCode: string): void {
                 }
                 break;
             case 1:
+                console.log('province');
                 for (const year of source.year) {
                     for (const region of year.region) {
                         for (const province of region.province) {
@@ -271,13 +590,15 @@ function addNUTSCodes(source: Country, countryCode: string): void {
                             if (index !== -1) {
                                 province.NUTS = dataByNUTS[index].id;
                             } else {
-                                console.log('Not mapped: ' + province.province);
+                                console.log("'" + province.province + "': '',");
                             }
                         }
                     }
+                    console.log('----------------------');
                 }
                 break;
             case 2:
+                console.log('county');
                 for (const year of source.year) {
                     for (const region of year.region) {
                         for (const province of region.province) {
@@ -288,17 +609,42 @@ function addNUTSCodes(source: Country, countryCode: string): void {
                                 } else {
                                     dataByNUTS = data.filter((x: Record<string, string>) => x.id.length === nuts);
                                 }
-                                const index = dataByNUTS
-                                    .map((x: Record<string, string>) => x.original_name.toLowerCase())
-                                    .indexOf(county.county.toLowerCase());
+                                let index;
+                                if (countryCode === 'BE') {
+                                    index = dataByNUTS
+                                        .map((x: Record<string, string>) =>
+                                            x.original_name
+                                                .toLowerCase()
+                                                .split('/')[0]
+                                                .trim(),
+                                        )
+                                        .indexOf(county.county.toLowerCase());
+                                    if (index === -1) {
+                                        index = dataByNUTS
+                                            .map((x: Record<string, string>) =>
+                                                x.original_name.includes('/')
+                                                    ? x.original_name
+                                                          .toLowerCase()
+                                                          .split('/')[1]
+                                                          .trim()
+                                                    : x.original_name.toLowerCase(),
+                                            )
+                                            .indexOf(county.county.toLowerCase());
+                                    }
+                                } else {
+                                    index = dataByNUTS
+                                        .map((x: Record<string, string>) => x.original_name.toLowerCase())
+                                        .indexOf(county.county.toLowerCase());
+                                }
                                 if (index !== -1) {
                                     county.NUTS = dataByNUTS[index].id;
                                 } else {
-                                    console.log('Not mapped: ' + county.county);
+                                    console.log("'" + county.county + "': '',");
                                 }
                             }
                         }
                     }
+                    console.log('----------------------');
                 }
                 break;
         }
@@ -315,6 +661,7 @@ function addNUTSCodes(source: Country, countryCode: string): void {
 }
 
 function mergeLocations(source: Country, locations: string[], level: string, newLocation: string): void {
+    NaNtoZero(source);
     switch (level) {
         case 'region':
             for (let i = 0; i < source.year.length; i++) {
@@ -511,40 +858,6 @@ async function translateCountryCrimes(source: Country, from: string, to: string)
                 }
                 for (const county of province.county) {
                     await translateCrimes(county.data, from, to);
-                }
-            }
-        }
-    }
-}
-
-/**
- * merges same fields and removes NaNs
- *
- */
-function _NaNtoZero(array: Array<Crime>): void {
-    for (let i = 0; i < array.length; i++) {
-        if (isNaN(array[i].value)) {
-            //convert invalid values to 0
-            array[i].value = 0;
-        }
-    }
-}
-
-function NaNtoZero(source: Country): void {
-    for (const year of source.year) {
-        if (year.data) {
-            _NaNtoZero(year.data);
-        }
-        for (const region of year.region) {
-            if (region.data) {
-                _NaNtoZero(region.data);
-            }
-            for (const province of region.province) {
-                if (province.data) {
-                    _NaNtoZero(province.data);
-                }
-                for (const county of province.county) {
-                    _NaNtoZero(county.data);
                 }
             }
         }
@@ -1042,6 +1355,8 @@ function parseXLSHungary(filename: string[]): Country {
             }
         }
     }
+    rename(output, 'region', hungaryRenamingRegions);
+    addNUTSCodes(output, 'HU');
     return output;
 }
 
@@ -1093,6 +1408,8 @@ function parseXLSBulgaria(filename: string[]): Country {
             }
         }
     }
+    rename(output, 'region', bulgariaRenamingRegions);
+    addNUTSCodes(output, 'BG');
     return output;
 }
 
@@ -1180,6 +1497,7 @@ function parseXLSPortugal(filename: string[]): Country {
             }
         }
     }
+    addNUTSCodes(output, 'PT');
     return output;
 }
 
@@ -1214,7 +1532,7 @@ function parseCSVDenmark(filename: string[]): Country {
                     regions++;
                     if (firstPass) {
                         output.year[y].region.push({
-                            region: records[j][1].replace('Region', ''),
+                            region: records[j][1].replace('Region ', ''),
                             data: [{ crime: crime, value: Number(records[j][2]) }],
                             province: [],
                         });
@@ -1244,6 +1562,8 @@ function parseCSVDenmark(filename: string[]): Country {
         const years = Array.from({ length: 4 }, (_, id) => y + 'Q' + (id + 1));
         mergeYears(output, years, String(y));
     }
+    rename(output, 'province', denmarkRenamingProvinces);
+    addNUTSCodes(output, 'DK');
     return output;
 }
 
@@ -1282,7 +1602,6 @@ async function parseXLSXAustria(filename: string[]): Promise<Country> {
         }
     }
     //await translateCountryCrimes(output, 'de', 'en');
-    NaNtoZero(output);
     mergeLocations(output, ['Wr. Neustadt', 'Korneuburg', 'Krems/Donau', 'St. Pölten'], 'region', 'Niederösterreich');
     mergeLocations(output, ['Linz', 'Ried/Innkreis', 'Steyr', 'Wels'], 'region', 'Oberösterreich');
     mergeLocations(output, ['Graz', 'Leoben'], 'region', 'Steiermark');
@@ -1314,7 +1633,7 @@ async function getCzechData(filename: string[]): Promise<Country> {
         areaData.push({ code: area.Code, name: area.Name, level: Number(area.AreaLevel) });
     }
 
-    const output: Country = { country: 'Czech Republic', year: [], NUTS: [NUTS.NUTS3, NUTS.LAU] };
+    const output: Country = { country: 'Czech Republic', year: [], NUTS: [NUTS.NUTS3, NUTS.LAU, NUTS.LAU] };
     for (let y = 0; y <= new Date().getFullYear() - 2013; y++) {
         let noData = false;
         output.year.push({ year: String(y + 2013), region: [], data: [] });
@@ -1352,7 +1671,11 @@ async function getCzechData(filename: string[]): Promise<Country> {
                     break;
                 case 1:
                     regions[area.code] = regIndex;
-                    output.year[y].region.push({ region: area.name, province: [], data: [] });
+                    output.year[y].region.push({
+                        region: area.name.substr(area.name.indexOf(' ') + 1),
+                        province: [],
+                        data: [],
+                    });
                     for (const crime of data.data.crimes) {
                         output.year[y].region[regIndex].data?.push({
                             crime: crimeData[crime.CrimeType],
@@ -1394,7 +1717,11 @@ async function getCzechData(filename: string[]): Promise<Country> {
             const region = area.code.substring(0, area.code.length - 2) + '00';
             regIndex = regions[region];
 
-            output.year[y].region[regIndex].province.push({ province: area.name, county: [], data: [] });
+            output.year[y].region[regIndex].province.push({
+                province: area.name.substr(area.name.indexOf(' ') + 1),
+                county: [],
+                data: [],
+            });
             provIndex = output.year[y].region[regIndex].province.length - 1;
             provinces[area.code] = provIndex;
             for (const crime of data.data.crimes) {
@@ -1431,7 +1758,10 @@ async function getCzechData(filename: string[]): Promise<Country> {
             const province = area.code.substring(0, area.code.length - 2);
             provIndex = provinces[province];
 
-            output.year[y].region[regIndex].province[provIndex].county.push({ county: area.name, data: [] });
+            output.year[y].region[regIndex].province[provIndex].county.push({
+                county: area.name.substr(area.name.indexOf(' ') + 1),
+                data: [],
+            });
             countIndex = output.year[y].region[regIndex].province[provIndex].county.length - 1;
             for (const crime of data.data.crimes) {
                 output.year[y].region[regIndex].province[provIndex].county[countIndex].data.push({
@@ -1442,15 +1772,21 @@ async function getCzechData(filename: string[]): Promise<Country> {
         }
 
         console.log('counties done');
+        await sleep(30000);
     }
-    //console.log(JSON.stringify(output));
 
+    for (const year of output.year) {
+        for (const region of year.region) {
+            region.province = region.province.filter((x: Province) => x.county.length > 0);
+        }
+    }
+    rename(output, 'region', czechRenamingRegions);
+    addNUTSCodes(output, 'CZ');
     /*fs.writeFile('data/source_files/test3n.txt', JSON.stringify(output), function(err) {
         if (err) {
             console.log(err);
         }
     });*/
-
     return output;
 }
 
@@ -1570,6 +1906,9 @@ async function parseCSVSpain(filename: string[]): Promise<Country> {
         }
     }
     //await translateCountryCrimes(output, 'es', 'en');
+    rename(output, 'region', spainRenamingRegions);
+    rename(output, 'province', spainRenamingProvinces);
+    addNUTSCodes(output, 'ES');
     return output;
 }
 
@@ -1645,7 +1984,6 @@ function parseXLSItaly(filename: string[]): Country {
         const macroRegions = ['Nord-ovest', 'Nord-est', 'Centro (I)', 'Sud', 'Isole'];
         const regions = [
             'Piemonte',
-            "Valle d'Aosta / Vallée d'Aoste",
             'Lombardia',
             'Trentino Alto Adige / Südtirol',
             'Veneto',
@@ -1669,6 +2007,8 @@ function parseXLSItaly(filename: string[]): Country {
         let regIndex = -1;
         let provIndex = -1;
         let isProvince = true;
+        let trent = true;
+        let aosta = true;
         for (const row of records) {
             if (row.Place.includes('Data extracted on')) {
                 continue;
@@ -1680,12 +2020,15 @@ function parseXLSItaly(filename: string[]): Country {
                 });
             } else if (macroRegions.includes(row.Place)) {
                 continue;
-            } else if (regions.includes(row.Place)) {
-                if (
+            } else if (regions.includes(row.Place) || (row.Place === "Valle d'Aosta / Vallée d'Aoste" && aosta)) {
+                /*if (
                     row.Place === "Valle d'Aosta / Vallée d'Aoste" &&
                     output.year[y].region[regIndex].region === "Valle d'Aosta / Vallée d'Aoste"
                 ) {
                     continue;
+                }*/
+                if (row.Place === "Valle d'Aosta / Vallée d'Aoste" && aosta) {
+                    aosta = false;
                 }
                 output.year[y].region.push({ region: row.Place, province: [], data: [] });
                 regIndex = output.year[y].region.length - 1;
@@ -1706,12 +2049,19 @@ function parseXLSItaly(filename: string[]): Country {
                         });
                     }
                 });
-                if (row.Place == 'Aosta') {
+                isProvince = false;
+                /*if (row.Place == 'Aosta') {
                     isProvince = true;
                 } else {
                     isProvince = false;
-                }
+                }*/
             } else {
+                if (row.Place === 'Bolzano / Bozen' || (row.Place === 'Trento' && trent)) {
+                    if (row.Place === 'Trento' && trent) {
+                        trent = false;
+                    }
+                    continue;
+                }
                 output.year[y].region[regIndex].province[provIndex].county.push({ county: row.Place, data: [] });
                 Object.keys(row).forEach(function(key) {
                     if (key != 'Place') {
@@ -1725,7 +2075,9 @@ function parseXLSItaly(filename: string[]): Country {
             }
         }
     }
-
+    rename(output, 'region', italyRenamingRegions);
+    rename(output, 'province', italyRenamingProvinces);
+    addNUTSCodes(output, 'IT');
     return output;
 }
 
@@ -2212,7 +2564,10 @@ async function parseCSVBelgium(filename: string[]): Promise<Country> {
         //console.log('iteration ended');
         firstPass = false;
     }
-    await translateCountryCrimes(output, 'nl', 'en');
+    //await translateCountryCrimes(output, 'nl', 'en');
+    rename(output, 'region', belgiumRenamingRegions);
+    rename(output, 'province', belgiumRenamingProvinces);
+    addNUTSCodes(output, 'BE');
     return output;
 }
 
@@ -2250,7 +2605,7 @@ function parseXLSEngland(filename: string[]): Country {
                 });
             } else if (row['Area Code'].startsWith('E12')) {
                 output.year[i].region.push({
-                    region: row['Area Name'].replace(/\s[0-9],[0-9]/g, ''),
+                    region: row['Area Name'].replace(/\s*[0-9](,[0-9])*/g, ''),
                     province: [],
                     data: [],
                 });
@@ -2282,7 +2637,27 @@ function parseXLSEngland(filename: string[]): Country {
         }
         i++;
     }
-    //mergeLocations(output, [])
+    mergeLocations(output, ['Cleveland', 'Durham'], 'province', 'Northumberland and Tyne and Wear');
+    mergeLocations(output, ['Derbyshire', 'Nottinghamshire'], 'province', 'Derbyshire and Nottinghamshire');
+    mergeLocations(
+        output,
+        ['Leicestershire', 'Northamptonshire'],
+        'province',
+        'Leicestershire, Rutland and Northamptonshire',
+    );
+    mergeLocations(output, ['Bedfordshire', 'Hertfordshire'], 'province', 'Bedfordshire and Hertfordshire');
+    mergeLocations(output, ['Cambridgeshire', 'Suffolk', 'Norfolk'], 'province', 'East Anglia');
+    mergeLocations(output, ['Surrey', 'Sussex'], 'province', 'Surrey, East and West Sussex');
+    mergeLocations(output, ['Avon and Somerset', 'Dorset'], 'province', 'Dorset and Somerset');
+    mergeLocations(
+        output,
+        ['Gloucestershire', 'Wiltshire'],
+        'province',
+        'Gloucestershire, Wiltshire and Bristol/Bath area',
+    );
+    rename(output, 'region', englandRenamingRegions);
+    rename(output, 'province', englandRenamingProvinces);
+    addNUTSCodes(output, 'UK');
     return output;
 }
 
@@ -2387,7 +2762,7 @@ async function parseXLSFrance(filename: string[]): Promise<Country> {
     return output;
 }
 
-//might have duplicates kreis / landkreis, ordine cronologico
+// ordine cronologico
 async function parseXLSGermany(filename: string[]): Promise<Country> {
     const output: Country = { country: 'Germany', year: [], NUTS: [NUTS.NUTS1, NUTS.NUTS3] };
     const text = fs.readFileSync('data/helper_files/germany/helper.csv', 'utf-8');
@@ -2417,6 +2792,7 @@ async function parseXLSGermany(filename: string[]): Promise<Country> {
     };
 
     for (let y = 0; y < filename.length / 2; y++) {
+        console.log(y);
         output.year.push({ year: String(2016 + y), region: [], data: [] });
         Object.keys(regions).forEach(function(key) {
             output.year[y].region.push({ region: regions[key], province: [], data: [] });
@@ -2474,6 +2850,7 @@ async function parseXLSGermany(filename: string[]): Promise<Country> {
         records = records['T01_Kreise'];
         records.concat(records.splice(0, 5));
         let firstPass = true;
+        let usedNames: string[] = [];
         for (const row of records) {
             const index = helper.map((x: Record<string, string>) => x.District).indexOf(row.Place);
             if (index === -1) {
@@ -2482,13 +2859,25 @@ async function parseXLSGermany(filename: string[]): Promise<Country> {
             const state = regions[helper[index].State];
             const regIndex = output.year[y].region.map(x => x.region).indexOf(state);
             if (firstPass) {
+                let place: string = row.Place;
+                if (usedNames.includes(place)) {
+                    place = place + 2;
+                } else {
+                    usedNames.push(place);
+                }
                 output.year[y].region[regIndex].province.push({
-                    province: row.Place,
+                    province: place,
                     county: [],
                     data: [{ crime: row.Crime.replace(/§.*/, '').trim(), value: Number(row.Value) }],
                 });
             } else {
-                const provIndex = output.year[y].region[regIndex].province.map(x => x.province).indexOf(row.Place);
+                let place: string = row.Place;
+                if (usedNames.includes(place)) {
+                    place = place + 2;
+                } else {
+                    usedNames.push(place);
+                }
+                const provIndex = output.year[y].region[regIndex].province.map(x => x.province).indexOf(place);
                 output.year[y].region[regIndex].province[provIndex].data?.push({
                     crime: row.Crime.replace(/§.*/, '').trim(),
                     value: Number(row.Value),
@@ -2498,14 +2887,15 @@ async function parseXLSGermany(filename: string[]): Promise<Country> {
             if (row.Crime !== 'Straftaten insgesamt') {
                 firstPass = false;
             }
+
+            if (row.Place === 'Altenburger Land') {
+                usedNames = [];
+            }
         }
     }
     //await translateCountryCrimes(output, 'de', 'en');
-    for (const year of output.year) {
-        for (const region of year.region) {
-            region.region = region.region.toUpperCase();
-        }
-    }
+    rename(output, 'province', germanyRenamingProvinces);
+    addNUTSCodes(output, 'DE');
     return output;
 }
 
@@ -2707,8 +3097,8 @@ async function _getPolishData(year: number): Promise<Country> {
             [key: string]: string;
         } = {};
         Object.keys(regional).forEach(function(key) {
-            output.year[initial - y].region.push({ region: key, province: [], data: [] });
-            regMap[regional[key]['id']] = key;
+            output.year[initial - y].region.push({ region: key.substr(key.indexOf(' ') + 1), province: [], data: [] });
+            regMap[regional[key]['id']] = key.substr(key.indexOf(' ') + 1);
             Object.keys(regional[key]['values']).forEach(function(key2) {
                 const regIndex = output.year[initial - y].region.length - 1;
                 output.year[initial - y].region[regIndex].data?.push({
@@ -2725,8 +3115,12 @@ async function _getPolishData(year: number): Promise<Country> {
         Object.keys(provincial).forEach(function(key) {
             const region = regMap[provincial[key]['parentId']];
             const regIndex = output.year[initial - y].region.map(x => x.region).indexOf(region);
-            output.year[initial - y].region[regIndex].province.push({ province: key, county: [], data: [] });
-            provMap[provincial[key]['id']] = key;
+            output.year[initial - y].region[regIndex].province.push({
+                province: key.substr(key.indexOf(' ') + 1),
+                county: [],
+                data: [],
+            });
+            provMap[provincial[key]['id']] = key.substr(key.indexOf(' ') + 1);
             Object.keys(provincial[key]['values']).forEach(function(key2) {
                 const provIndex = output.year[initial - y].region[regIndex].province.length - 1;
                 output.year[initial - y].region[regIndex].province[provIndex].data?.push({
@@ -2755,7 +3149,7 @@ async function _getPolishData(year: number): Promise<Country> {
 async function getPolishData(filename: string[]): Promise<Country> {
     console.log('starting');
     const output: Country = { country: 'Poland', year: [], NUTS: [NUTS.NUTS2, NUTS.NUTS3] };
-    for (let y = 2002; y <= new Date().getFullYear(); y++) {
+    for (let y = 2018; y <= new Date().getFullYear(); y++) {
         console.log(y);
         const tmp = await _getPolishData(y);
         if (tmp.year.length !== 0) {
@@ -2770,6 +3164,8 @@ async function getPolishData(filename: string[]): Promise<Country> {
         }
     });*/
     console.log('ended');
+    rename(output, 'province', polandRenamingProvinces);
+    addNUTSCodes(output, 'PL');
     //console.log(output);
     return output;
 }
