@@ -468,6 +468,46 @@ const hungaryRenamingRegions = {
     'Southern Great Plain': 'Dél-Alföld',
 };
 
+const nirelandRenamingRegions = {
+    'Belfast City': 'Belfast',
+    'Lisburn & Castlereagh City': 'Lisburn and Castlereagh',
+    'Ards & North Down': 'Ards and North Down',
+    'Newry, Mourne & Down': 'Newry, Mourne and Down',
+    'Armagh City, Banbridge & Craigavon': 'Armagh City, Banbridge and Craigavon',
+    'Fermanagh & Omagh': 'Fermanagh and Omagh',
+    'Derry City & Strabane': 'Derry City and Strabane',
+    'Causeway Coast & Glens': 'Causeway Coast and Glens',
+    'Mid & East Antrim': 'Mid and East Antrim',
+    'Antrim & Newtownabbey': 'Antrim and Newtownabbey',
+};
+
+const portugalRenamingRegions = {
+    Centro: 'Centro (PT)',
+};
+
+const finlandRenamingCounties = {
+    Pedersöre: 'Pedersören kunta',
+};
+
+const netherlandRenamingRegions = {
+    Friesland: 'Friesland (NL)',
+    Limburg: 'Limburg (NL)',
+};
+
+const netherlandsRenamingProvinces = {
+    'Groningen (gemeente)': 'Groningen',
+    'De Friese Meren': 'De Fryske Marren',
+    'Hengelo (O.)': 'Hengelo',
+    Groesbeek: 'Berg en Dal',
+    'Utrecht (gemeente)': 'Utrecht',
+    'Laren (NH.)': 'Laren',
+    "'s-Gravenhage (gemeente)": 's-Gravenhage',
+    'Rijswijk (ZH.)': 'Rijswijk',
+    'Middelburg (Z.)': 'Middelburg',
+    'Beek (L.)': 'Beek',
+    'Stein (L.)': 'Stein',
+};
+
 ////////// INTERFACES ///////////
 
 export interface Crime {
@@ -610,7 +650,7 @@ function addNUTSCodes(source: Country, countryCode: string): void {
                                     dataByNUTS = data.filter((x: Record<string, string>) => x.id.length === nuts);
                                 }
                                 let index;
-                                if (countryCode === 'BE') {
+                                if (countryCode === 'BE' || countryCode === 'FI') {
                                     index = dataByNUTS
                                         .map((x: Record<string, string>) =>
                                             x.original_name
@@ -1414,7 +1454,7 @@ function parseXLSBulgaria(filename: string[]): Country {
 }
 
 function parseXLSPortugal(filename: string[]): Country {
-    const output: Country = { country: 'Portugal', year: [], NUTS: [NUTS.NUTS2, NUTS.NUTS3, NUTS.LAU] };
+    const output: Country = { country: 'Portugal', year: [], NUTS: [NUTS.NUTS2, NUTS.NUTS3] };
     for (let y = 0; y < filename.length; y++) {
         output.year.push({ year: String(y + 2011), region: [], data: [] });
         let records = excelToJson({
@@ -1497,6 +1537,7 @@ function parseXLSPortugal(filename: string[]): Country {
             }
         }
     }
+    rename(output, 'region', portugalRenamingRegions);
     addNUTSCodes(output, 'PT');
     return output;
 }
@@ -2212,7 +2253,10 @@ async function parseCSVNetherlands(filename: string[]): Promise<Country> {
         }
     });
 
-    await translateCountryCrimes(output, 'nl', 'en');
+    //await translateCountryCrimes(output, 'nl', 'en');
+    rename(output, 'region', netherlandRenamingRegions);
+    rename(output, 'province', netherlandsRenamingProvinces);
+    addNUTSCodes(output, 'NL');
     return output;
 }
 
@@ -2303,7 +2347,8 @@ function parseXLSNorthernIreland(filename: string[]): Country {
             }
         });
     }
-
+    rename(output, 'region', nirelandRenamingRegions);
+    addNUTSCodes(output, 'UK');
     return output;
 }
 
@@ -3074,7 +3119,8 @@ function parseXLSFinland(filename: string[]): Country {
         const years = Array.from({ length: 12 }, (_, id) => y + 'M0' + (id + 1));
         mergeYears(output, years, String(y));
     }
-
+    rename(output, 'county', finlandRenamingCounties);
+    addNUTSCodes(output, 'FI');
     return output;
 }
 
