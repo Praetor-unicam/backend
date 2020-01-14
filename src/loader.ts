@@ -2,6 +2,7 @@
 import fs = require('fs');
 import parse = require('csv-parse/lib/sync');
 import { getPolandData } from './scraper/poland';
+import * as dicts from '../data/dictionaries';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const translate = require('translate');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -17,496 +18,6 @@ enum NUTS {
     NUTS3 = 5,
     LAU = 6,
 }
-
-const austriaRenaming = {
-    Vienna: 'Wien',
-    Eisenstadt: 'Burgenland',
-    Klagenfurt: 'Kärnten',
-    Innsbruck: 'Tirol',
-    Feldkirch: 'Vorarlberg',
-};
-
-const cyprusRenaming = {
-    Nicosia: 'Λευκωσία',
-    Limasol: 'Λεμεσός',
-    Ammochostos: 'Αμμόχωστος',
-    Morfou: 'Κερύνεια',
-    Pafos: 'Πάφος',
-    Larnaka: 'Λάρνακα',
-};
-
-const franceRenaming = {
-    'BOURG EN BRESSE': 'Bourg-en-Bresse',
-    TREVOUX: 'Trévoux',
-    'CHATEAU THIERRY': 'Château-Thierry',
-    'ST QUENTIN': 'Saint-Quentin',
-    MONTLUCON: 'Montluçon',
-    'ST FLOUR': 'Saint-Flour',
-    ANGOULEME: 'Angoulême',
-    'LA ROCHELLE': 'Rochelle',
-    'ST JEAN D ANGELY': "Saint-Jean-d'Angély",
-    'ST AMAND MONTROND': 'Saint-Amand-Montrond',
-    'BRIVE LA GAILLARDE': 'Brive-la-Gaillarde',
-    'IS SUR TILLE': 'Is-sur-Tille',
-    'ST BRIEUC': 'Saint-Brieuc',
-    GUERET: 'Guéret',
-    PERIGUEUX: 'Périgueux',
-    RIBERAC: 'Ribérac',
-    'SARLAT LA CANEDA': 'Sarlat-la-Canéda',
-    BESANCON: 'Besançon',
-    MONTBELIARD: 'Montbéliard',
-    'ROMANS SUR ISERE': 'Romans-sur-Isère',
-    EVREUX: 'Évreux',
-    'LES ANDELYS': 'Andelys',
-    'PONT AUDEMER': 'Pont-Audemer',
-    CHATEAUDUN: 'Châteaudun',
-    LUCE: 'Chartres',
-    'NOGENT LE ROTROU': 'Nogent-le-Rotrou',
-    CHATEAULIN: 'Châteaulin',
-    'PLOURIN LES MORLAIX': 'Morlaix',
-    QUIMPERLE: 'Quimper',
-    'PORTO VECCHIO': 'Porto-Vecchio',
-    SARTENE: 'Sartène',
-    ALES: 'Alès',
-    'BAGNOLS SUR CEZE': 'Bagnols-sur-Cèze',
-    'LE VIGAN': 'Vigan',
-    NIMES: 'Nîmes',
-    'ST GAUDENS': 'Saint-Gaudens',
-    'VILLEFRANCHE DE LAURAGAIS': 'Villefranche-de-Lauragais',
-    'BORDEAUX-BASTIDE': 'Bordeaux',
-    'LESPARRE MEDOC': 'Lesparre-Médoc',
-    MERIGNAC: 'Mérignac',
-    BEZIERS: 'Béziers',
-    'CASTELNAU LE LEZ': 'Castelnau-le-Lez',
-    LODEVE: 'Lodève',
-    PEZENAS: 'Pézenas',
-    'MONTFORT SUR MEU': 'Montfort-sur-Meu',
-    'ST MALO': 'Saint-Malo',
-    VITRE: 'Vitré',
-    'LA CHATRE': 'Châtre',
-    'LE BLANC': 'Blanc',
-    'BOURGOIN JALLIEU': 'Bourgoin-Jallieu',
-    'LA MURE': 'Mure',
-    'LA TOUR DU PIN': 'Tour-du-Pin',
-    'ST MARCELLIN': 'Saint-Marcellin',
-    'LONS LE SAUNIER': 'Lons-le-Saunier',
-    'ST CLAUDE': 'Saint-Claude',
-    'MONT DE MARSAN': 'Mont-de-Marsan',
-    'PARENTIS EN BORN': 'Parentis-en-Born',
-    'ROMORANTIN LANTHENAY': 'Romorantin-Lanthenay',
-    VENDOME: 'Vendôme',
-    'ST ETIENNE': 'Saint-Étienne',
-    'LE PUY EN VELAY': 'Puy-en-Velay',
-    CHATEAUBRIANT: 'Châteaubriant',
-    REZE: 'Rezé',
-    'ST NAZAIRE': 'Saint-Nazaire',
-    ORLEANS: 'Orléans',
-    NERAC: 'Nérac',
-    'VILLENEUVE SUR LOT': 'Villeneuve-sur-Lot',
-    'FLORAC TROIS RIVIERES': 'Florac Trois Rivières',
-    SEGRE: 'Segré-en-Anjou Bleu',
-    'CHERBOURG EN COTENTIN': 'Cherbourg-en-Cotentin',
-    'ST LO': 'Saint-Lô',
-    'CHALONS EN CHAMPAGNE': 'Châlons-en-Champagne',
-    EPERNAY: 'Épernay',
-    'VITRY LE FRANCOIS': 'Vitry-le-François',
-    'ST DIZIER': 'Saint-Dizier',
-    'CHATEAU GONTIER': 'Château-Gontier',
-    BRIEY: 'Val de Briey',
-    LUNEVILLE: 'Lunéville',
-    PLOERMEL: 'Ploërmel',
-    'BOULAY MOSELLE': 'Boulay-Moselle',
-    'CHATEAU CHINON VILLE': 'Château-Chinon (Ville)',
-    'COSNE COURS SUR LOIRE': 'Cosne-Cours-sur-Loire',
-    'AVESNES SUR HELPE': 'Avesnes-sur-Helpe',
-    COMPIEGNE: 'Compiègne',
-    MERU: 'Méru',
-    'ALENCON ARGENTAN': 'Alençon',
-    'MORTAGNE AU PERCHE': 'Mortagne-au-Perche',
-    BETHUNE: 'Béthune',
-    ECUIRES: 'Écuires',
-    'ST OMER': 'Saint-Omer',
-    'ST POL SUR TERNOISE': 'Saint-Pol-sur-Ternoise',
-    'CLERMONT FERRAND': 'Clermont-Ferrand',
-    'LA BOURBOULE': 'Bourboule',
-    'MAULEON LICHARRE': 'Mauléon-Licharre',
-    'OLORON STE MARIE': 'Oloron-Sainte-Marie',
-    'ARGELES GAZOST': 'Argelès-Gazost',
-    'BAGNERES DE BIGORRE': 'Bagnères-de-Bigorre',
-    CERET: 'Céret',
-    SELESTAT: 'Sélestat',
-    'SOULTZ GUEBWILLER': 'Guebwiller',
-    'L ARBRESLE': 'Arbresle',
-    'VILLEFRANCHE SUR SAONE': 'Villefranche-sur-Saône',
-    'CHALON SUR SAONE': 'Chalon-sur-Saône',
-    MACON: 'Mâcon',
-    'LA FLECHE': 'Flèche',
-    'LE MANS': 'Mans',
-    CHAMBERY: 'Chambéry',
-    'ST JEAN DE MAURIENNE': 'Saint-Jean-de-Maurienne',
-    'CHAMONIX MONT BLANC': 'Chamonix-Mont-Blanc',
-    'ST JULIEN EN GENEVOIS': 'Saint-Julien-en-Genevois',
-    'THONON LES BAINS': 'Thonon-les-Bains',
-    FECAMP: 'Fécamp',
-    'LE HAVRE': 'Havre',
-    'NEUFCHATEL EN BRAY': 'Neufchâtel-en-Bray',
-    'MANTES LA JOLIE': 'Mantes-la-Jolie',
-    'ST GERMAIN EN LAYE': 'Saint-Germain-en-Laye',
-    PERONNE: 'Péronne',
-    'GASSIN ST TROPEZ': 'Gassin',
-    HYERES: 'Hyères',
-    'LA VALETTE DU VAR': 'Valette-du-Var',
-    'FONTENAY LE COMTE': 'Fontenay-le-Comte',
-    'LA ROCHE SUR YON': 'Roche-sur-Yon',
-    'LES SABLES D OLONNE': "Sables-d'Olonne",
-    CHATELLERAULT: 'Châtellerault',
-    'ST JUNIEN': 'Saint-Junien',
-    NEUFCHATEAU: 'Neufchâteau',
-    'ST DIE DES VOSGES': 'Saint-Dié-des-Vosges',
-    ETAMPES: 'Étampes',
-    EVRY: 'Évry',
-    'LE MOULE': 'Moule',
-    'POINTE A PITRE': 'Pointe-à-Pitre',
-    'ST CLAUDE ': 'Saint-Claude',
-    'FORT DE FRANCE': 'Fort-de-France',
-    'LA TRINITE': 'Trinité',
-    'LE MARIN': 'Marin',
-    'ST LAURENT DU MARONI': 'Saint-Laurent-du-Maroni',
-    'ST BENOIT': 'Saint-Benoît',
-    'ST PAUL': 'Saint-Paul',
-    'ST PIERRE': 'Saint-Pierre',
-    'CHATEAU THIERRY NOGENTEL': 'Nogentel',
-    'LANGON TOULENNE': 'Langon',
-    'ANCENIS ST GEREON': 'Ancenis',
-    'SEGRE EN ANJOU BLEU': 'Segré-en-Anjou Bleu',
-    'CHATEAU GONTIER SUR MAYENNE': 'Château-Gontier',
-    'DUNKERQUE HOYMILLE': 'Hoymille',
-    'EVRY COURCOURONNES': 'Évry',
-    'L ISLE ADAM': 'Isle-Adam',
-};
-
-const englandRenamingRegions = {
-    'North East': 'NORTH EAST (ENGLAND)',
-    'North West': 'NORTH WEST (ENGLAND)',
-    'East Midlands': 'EAST MIDLANDS (ENGLAND)',
-    'West Midlands': 'WEST MIDLANDS (ENGLAND)',
-    'West Midlands region': 'WEST MIDLANDS (ENGLAND)',
-    East: 'EAST OF ENGLAND',
-    'South East': 'SOUTH EAST (ENGLAND)',
-    'South West': 'SOUTH WEST (ENGLAND)',
-};
-const englandRenamingProvinces = {
-    Northumbria: 'Tees Valley and Durham',
-    Humberside: 'East Yorkshire and Northern Lincolnshire',
-    Hampshire: 'Hampshire and Isle of Wight',
-    'Thames Valley': 'Berkshire, Buckinghamshire and Oxfordshire',
-};
-
-const czechRenamingRegions = {
-    'HL. M. PRAHY': 'Hlavní město Praha',
-    'STŘEDOČESKÉHO KRAJE': 'Středočeský kraj',
-    'JIHOČESKÉHO KRAJE': 'Jihočeský kraj',
-    'PLZEŇSKÉHO KRAJE': 'Plzeňský kraj',
-    'ÚSTECKÉHO KRAJE': 'Ústecký kraj',
-    'KRÁLOVÉHRADECKÉHO KRAJE': 'Královéhradecký kraj',
-    'JIHOMORAVSKÉHO KRAJE': 'Jihomoravský kraj',
-    'MORAVSKOSLEZSKÉHO KRAJE': 'Moravskoslezský kraj',
-    'OLOMOUCKÉHO KRAJE': 'Olomoucký kraj',
-    'ZLÍNSKÉHO KRAJE': 'Zlínský kraj',
-    'KRAJE VYSOČINA': 'Kraj Vysočina',
-    'PARDUBICKÉHO KRAJE': 'Pardubický kraj',
-    'LIBERECKÉHO KRAJE': 'Liberecký kraj',
-    'KARLOVARSKÉHO KRAJE': 'Karlovarský kraj',
-};
-
-const belgiumRenamingRegions = {
-    'Brussels Hoofdstedelijk Gewest': 'RÉGION DE BRUXELLES-CAPITALE/BRUSSELS HOOFDSTEDELIJK GEWEST',
-    'Waals Gewest': 'RÉGION WALLONNE',
-};
-
-const belgiumRenamingProvinces = {
-    'Brussel-Hoofdstad': 'Région de Bruxelles-Capitale/ Brussels Hoofdstedelijk Gewest',
-    Antwerpen: 'Prov. Antwerpen',
-    Limburg: 'Prov. Limburg (BE)',
-    'Oost-Vlaanderen': 'Prov. Oost-Vlaanderen',
-    'Vlaams Brabant': 'Prov. Vlaams-Brabant',
-    'West-Vlaanderen': 'Prov. West-Vlaanderen',
-    'Brabant wallon': 'Prov. Brabant Wallon',
-    Hainaut: 'Prov. Hainaut',
-    Liège: 'Prov. Liège',
-    Luxembourg: 'Prov. Luxembourg (BE)',
-    Namur: 'Prov. Namur',
-};
-
-const germanyRenamingProvinces = {
-    Stuttgart: 'Stuttgart, Stadtkreis',
-    Heilbronn: 'Heilbronn, Stadtkreis',
-    Heilbronn2: 'Heilbronn, Landkreis',
-    'Baden-Baden': 'Baden-Baden, Stadtkreis',
-    Karlsruhe: 'Karlsruhe, Stadtkreis',
-    Karlsruhe2: 'Karlsruhe, Landkreis',
-    Heidelberg: 'Heidelberg, Stadtkreis',
-    Mannheim: 'Mannheim, Stadtkreis',
-    Pforzheim: 'Pforzheim, Stadtkreis',
-    'Freiburg im Breisgau': 'Freiburg im Breisgau, Stadtkreis',
-    Tübingen: 'Tübingen, Landkreis',
-    Ulm: 'Ulm, Stadtkreis',
-    Ingolstadt: 'Ingolstadt, Kreisfreie Stadt',
-    München: 'München, Kreisfreie Stadt',
-    Rosenheim: 'Rosenheim, Kreisfreie Stadt',
-    'Mühldorf a.Inn': 'Mühldorf a. Inn',
-    München2: 'München, Landkreis',
-    'Pfaffenhofen a.d.Ilm': 'Pfaffenhofen a. d. Ilm',
-    Rosenheim2: 'Rosenheim, Landkreis',
-    Landshut: 'Landshut, Kreisfreie Stadt',
-    Passau: 'Passau, Kreisfreie Stadt',
-    Straubing: 'Straubing, Kreisfreie Stadt',
-    Landshut2: 'Landshut, Landkreis',
-    Passau2: 'Passau, Landkreis',
-    Amberg: 'Amberg, Kreisfreie Stadt',
-    Regensburg: 'Regensburg, Kreisfreie Stadt',
-    'Weiden i.d.OPf.': 'Weiden i. d. Opf, Kreisfreie Stadt',
-    'Neumarkt i.d.OPf.': 'Neumarkt i. d. OPf.',
-    'Neustadt a.d.Waldnaab': 'Neustadt a. d. Waldnaab',
-    Regensburg2: 'Regensburg, Landkreis',
-    Bamberg: 'Bamberg, Kreisfreie Stadt',
-    Bayreuth: 'Bayreuth, Kreisfreie Stadt',
-    Coburg: 'Coburg, Kreisfreie Stadt',
-    Hof: 'Hof, Kreisfreie Stadt',
-    Bamberg2: 'Bamberg, Landkreis',
-    Bayreuth2: 'Bayreuth, Landkreis',
-    Coburg2: 'Coburg, Landkreis',
-    Hof2: 'Hof, Landkreis',
-    'Wunsiedel i.Fichtelgebirge': 'Wunsiedel i. Fichtelgebirge',
-    Ansbach: 'Ansbach, Kreisfreie Stadt',
-    Erlangen: 'Erlangen, Kreisfreie Stadt',
-    Fürth: 'Fürth, Kreisfreie Stadt',
-    Nürnberg: 'Nürnberg, Kreisfreie Stadt',
-    Schwabach: 'Schwabach, Kreisfreie Stadt',
-    Ansbach2: 'Ansbach, Landkreis',
-    Fürth2: 'Fürth, Landkreis',
-    'Neustadt a.d.Aisch-Bad Windsheim': 'Neustadt a. d. Aisch-Bad Windsheim',
-    Aschaffenburg: 'Aschaffenburg, Kreisfreie Stadt',
-    Schweinfurt: 'Schweinfurt, Kreisfreie Stadt',
-    Würzburg: 'Würzburg, Kreisfreie Stadt',
-    Aschaffenburg2: 'Aschaffenburg, Landkreis',
-    Schweinfurt2: 'Schweinfurt, Landkreis',
-    Würzburg2: 'Würzburg, Landkreis',
-    Augsburg: 'Augsburg, Kreisfreie Stadt',
-    Kaufbeuren: 'Kaufbeuren, Kreisfreie Stadt',
-    'Kempten (Allgäu)': 'Kempten (Allgäu), Kreisfreie Stadt',
-    Memmingen: 'Memmingen, Kreisfreie Stadt',
-    Augsburg2: 'Augsburg, Landkreis',
-    'Dillingen a.d.Donau': 'Dillingen a.d. Donau',
-    'Brandenburg an der Havel': 'Brandenburg an der Havel, Kreisfreie Stadt',
-    Cottbus: 'Cottbus, Kreisfreie Stadt',
-    'Frankfurt (Oder)': 'Frankfurt (Oder), Kreisfreie Stadt',
-    Potsdam: 'Potsdam, Kreisfreie Stadt',
-    Bremen: 'Bremen, Kreisfreie Stadt',
-    Bremerhaven: 'Bremerhaven, Kreisfreie Stadt',
-    Darmstadt: 'Darmstadt, Kreisfreie Stadt',
-    'Frankfurt am Main': 'Frankfurt am Main, Kreisfreie Stadt',
-    'Offenbach am Main': 'Offenbach am Main, Kreisfreie Stadt',
-    Wiesbaden: 'Wiesbaden, Kreisfreie Stadt',
-    Offenbach: 'Offenbach, Landkreis',
-    Gießen: 'Gießen, Landkreis',
-    Kassel: 'Kassel, Kreisfreie Stadt',
-    Kassel2: 'Kassel, Landkreis',
-    Rostock: 'Rostock, Kreisfreie Stadt',
-    Schwerin: 'Schwerin, Kreisfreie Stadt',
-    Braunschweig: 'Braunschweig, Kreisfreie Stadt',
-    Salzgitter: 'Salzgitter, Kreisfreie Stadt',
-    Wolfsburg: 'Wolfsburg, Kreisfreie Stadt',
-    Lüneburg: 'Lüneburg, Landkreis',
-    'Landkreis Heidekreis': 'Heidekreis',
-    Delmenhorst: 'Delmenhorst, Kreisfreie Stadt',
-    Emden: 'Emden, Kreisfreie Stadt',
-    'Oldenburg (Oldenburg)': 'Oldenburg (Oldenburg), Kreisfreie Stadt',
-    Osnabrück: 'Osnabrück, Kreisfreie Stadt',
-    Wilhelmshaven: 'Wilhelmshaven, Kreisfreie Stadt',
-    Friesland: 'Friesland (DE)',
-    Oldenburg: 'Oldenburg, Landkreis',
-    Osnabrück2: 'Osnabrück, Landkreis',
-    Düsseldorf: 'Düsseldorf, Kreisfreie Stadt',
-    Duisburg: 'Duisburg, Kreisfreie Stadt',
-    Essen: 'Essen, Kreisfreie Stadt',
-    Krefeld: 'Krefeld, Kreisfreie Stadt',
-    Mönchengladbach: 'Mönchengladbach, Kreisfreie Stadt',
-    'Mülheim an der Ruhr': 'Mülheim an der Ruhr, Kreisfreie Stadt',
-    Oberhausen: 'Oberhausen, Kreisfreie Stadt',
-    Remscheid: 'Remscheid, Kreisfreie Stadt',
-    Solingen: 'Solingen, Kreisfreie Stadt',
-    Wuppertal: 'Wuppertal, Kreisfreie Stadt',
-    Bonn: 'Bonn, Kreisfreie Stadt',
-    Köln: 'Köln, Kreisfreie Stadt',
-    Leverkusen: 'Leverkusen, Kreisfreie Stadt',
-    Aachen: 'Städteregion Aachen',
-    Bottrop: 'Bottrop, Kreisfreie Stadt',
-    Gelsenkirchen: 'Gelsenkirchen, Kreisfreie Stadt',
-    Münster: 'Münster, Kreisfreie Stadt',
-    Bielefeld: 'Bielefeld, Kreisfreie Stadt',
-    Bochum: 'Bochum, Kreisfreie Stadt',
-    Dortmund: 'Dortmund, Kreisfreie Stadt',
-    Hagen: 'Hagen, Kreisfreie Stadt',
-    Hamm: 'Hamm, Kreisfreie Stadt',
-    Herne: 'Herne, Kreisfreie Stadt',
-    Koblenz: 'Koblenz, Kreisfreie Stadt',
-    Trier: 'Trier, Kreisfreie Stadt',
-    'Frankenthal (Pfalz)': 'Frankenthal (Pfalz), Kreisfreie Stadt',
-    Kaiserslautern: 'Kaiserslautern, Kreisfreie Stadt',
-    'Landau in der Pfalz': 'Landau in der Pfalz, Kreisfreie Stadt',
-    'Ludwigshafen am Rhein': 'Ludwigshafen am Rhein, Kreisfreie Stadt',
-    Mainz: 'Mainz, Kreisfreie Stadt',
-    'Neustadt an der Weinstraße': 'Neustadt an der Weinstraße, Kreisfreie Stadt',
-    Pirmasens: 'Pirmasens, Kreisfreie Stadt',
-    Speyer: 'Speyer, Kreisfreie Stadt',
-    Worms: 'Worms, Kreisfreie Stadt',
-    Zweibrücken: 'Zweibrücken, Kreisfreie Stadt',
-    Kaiserslautern2: 'Kaiserslautern, Landkreis',
-    Chemnitz: 'Chemnitz, Kreisfreie Stadt',
-    Dresden: 'Dresden, Kreisfreie Stadt',
-    'Dessau-Roßlau': 'Dessau-Roßlau, Kreisfreie Stadt',
-    'Halle (Saale)': 'Halle (Saale), Kreisfreie Stadt',
-    Magdeburg: 'Magdeburg, Kreisfreie Stadt',
-    Flensburg: 'Flensburg, Kreisfreie Stadt',
-    Kiel: 'Kiel, Kreisfreie Stadt',
-    Lübeck: 'Lübeck, Kreisfreie Stadt',
-    Neumünster: 'Neumünster, Kreisfreie Stadt',
-    Flensburg2: 'Schleswig-Flensburg',
-    Erfurt: 'Erfurt, Kreisfreie Stadt',
-    Gera: 'Gera, Kreisfreie Stadt',
-    Jena: 'Jena, Kreisfreie Stadt',
-    Suhl: 'Suhl, Kreisfreie Stadt',
-    Weimar: 'Weimar, Kreisfreie Stadt',
-    Eisenach: 'Eisenach, Kreisfreie Stadt',
-    Leipzig: 'Leipzig, Kreisfreie Stadt',
-    Leipzig2: 'Leipzig',
-};
-
-const bulgariaRenamingRegions = {
-    Blagoevgrad: 'Благоевград',
-    Burgas: 'Бургас',
-    Varna: 'Варна',
-    'Veliko Tarnovo': 'Велико Търново',
-    Vidin: 'Видин',
-    Vratsa: 'Враца',
-    Gabrovo: 'Габрово',
-    Dobrich: 'Добрич',
-    Kardzhali: 'Кърджали',
-    Kyustendil: 'Кюстендил',
-    Lovech: 'Ловеч',
-    Montana: 'Монтана',
-    Pazardzhik: 'Пазарджик',
-    Pernik: 'Перник',
-    Pleven: 'Плевен',
-    Plovdiv: 'Пловдив',
-    Razgrad: 'Разград',
-    Ruse: 'Русе',
-    Silistra: 'Силистра',
-    Sliven: 'Сливен',
-    Smolyan: 'Смолян',
-    'Sofia cap.': 'София (столица)',
-    Sofia: 'София',
-    'Stara Zagora': 'Стара Загора',
-    Targovishte: 'Търговище',
-    Haskovo: 'Хасково',
-    Shumen: 'Шумен',
-    Yambol: 'Ямбол',
-};
-
-const spainRenamingRegions = {
-    'ASTURIAS (PRINCIPADO DE)': 'Principado de Asturias',
-    'BALEARS (ILLES)': 'Illes Balears',
-    'CASTILLA - LA MANCHA': 'Castilla-La Mancha',
-    'COMUNITAT VALENCIANA': 'Comunidad Valenciana',
-    'MADRID (COMUNIDAD DE)': 'Comunidad de Madrid',
-    'MURCIA (REGIÓN DE)': 'Región de Murcia',
-    'NAVARRA (COMUNIDAD FORAL DE)': 'Comunidad Foral de Navarra',
-    'RIOJA (LA)': 'La Rioja',
-};
-
-const spainRenamingProvinces = {
-    'Palmas (Las)': 'La Palma',
-    'Santa Cruz de Tenerife': 'Tenerife',
-    'Alicante/Alacant': 'Alicante / Alacant',
-    'Castellón/Castelló': 'Castellón / Castelló',
-    'Valencia/València': 'Valencia / València',
-    'Coruña (A)': 'A Coruña',
-    'Rioja (La)': 'La Rioja',
-};
-
-const italyRenamingRegions = {
-    "Valle d'Aosta / Vallée d'Aoste": "Valle d'Aosta/Vallée d'Aoste",
-};
-
-const italyRenamingProvinces = {
-    "Valle d'Aosta / Vallée d'Aoste": "Valle d'Aosta/Vallée d'Aoste",
-    'Provincia Autonoma Bolzano / Bozen': 'Bolzano-Bozen',
-    'Provincia Autonoma Trento': 'Trento',
-    Barletta: 'Barletta-Andria-Trani',
-};
-
-const denmarkRenamingProvinces = {
-    Copenhagen: 'København',
-};
-
-const polandRenamingProvinces = {
-    'CITY OF KRAKÓW': 'Miasto Kraków',
-    'CITY OF POZNAŃ': 'Miasto Poznań',
-    'CITY OF SZCZECIN': 'Miasto Szczecin',
-    'CITY OF WROCŁAW': 'Miasto Wrocław',
-    'CITY OF ŁÓDŹ': 'Miasto Łódź',
-    'CAPITAL CITY OF WARSZAWA': 'Miasto Warszawa',
-};
-
-const hungaryRenamingRegions = {
-    'Central Transdanubia': 'Közép-Dunántúl',
-    'Western Transdanubia': 'Nyugat-Dunántúl',
-    'Southern Transdanubia': 'Dél-Dunántúl',
-    'Northern Hungary': 'Észak-Magyarország',
-    'Northern Great Plain': 'Észak-Alföld',
-    'Southern Great Plain': 'Dél-Alföld',
-};
-
-const nirelandRenamingRegions = {
-    'Belfast City': 'Belfast',
-    'Lisburn & Castlereagh City': 'Lisburn and Castlereagh',
-    'Ards & North Down': 'Ards and North Down',
-    'Newry, Mourne & Down': 'Newry, Mourne and Down',
-    'Armagh City, Banbridge & Craigavon': 'Armagh City, Banbridge and Craigavon',
-    'Fermanagh & Omagh': 'Fermanagh and Omagh',
-    'Derry City & Strabane': 'Derry City and Strabane',
-    'Causeway Coast & Glens': 'Causeway Coast and Glens',
-    'Mid & East Antrim': 'Mid and East Antrim',
-    'Antrim & Newtownabbey': 'Antrim and Newtownabbey',
-};
-
-const portugalRenamingRegions = {
-    Centro: 'Centro (PT)',
-};
-
-const finlandRenamingCounties = {
-    Pedersöre: 'Pedersören kunta',
-};
-
-const netherlandRenamingRegions = {
-    Friesland: 'Friesland (NL)',
-    Limburg: 'Limburg (NL)',
-};
-
-const netherlandsRenamingProvinces = {
-    'Groningen (gemeente)': 'Groningen',
-    'De Friese Meren': 'De Fryske Marren',
-    'Hengelo (O.)': 'Hengelo',
-    Groesbeek: 'Berg en Dal',
-    'Utrecht (gemeente)': 'Utrecht',
-    'Laren (NH.)': 'Laren',
-    "'s-Gravenhage (gemeente)": 's-Gravenhage',
-    'Rijswijk (ZH.)': 'Rijswijk',
-    'Middelburg (Z.)': 'Middelburg',
-    'Beek (L.)': 'Beek',
-    'Stein (L.)': 'Stein',
-};
 
 ////////// INTERFACES ///////////
 
@@ -1245,7 +756,7 @@ function parseXLSCyprus(filename: string[]): Country {
             firstPass = false;
         }
     }
-    rename(output, 'region', cyprusRenaming);
+    rename(output, 'region', dicts.cyprusRenamingRegions);
     addNUTSCodes(output, 'CY');
     return output;
 }
@@ -1395,7 +906,7 @@ function parseXLSHungary(filename: string[]): Country {
             }
         }
     }
-    rename(output, 'region', hungaryRenamingRegions);
+    rename(output, 'region', dicts.hungaryRenamingRegions);
     addNUTSCodes(output, 'HU');
     return output;
 }
@@ -1448,7 +959,7 @@ function parseXLSBulgaria(filename: string[]): Country {
             }
         }
     }
-    rename(output, 'region', bulgariaRenamingRegions);
+    rename(output, 'region', dicts.bulgariaRenamingRegions);
     addNUTSCodes(output, 'BG');
     return output;
 }
@@ -1537,7 +1048,7 @@ function parseXLSPortugal(filename: string[]): Country {
             }
         }
     }
-    rename(output, 'region', portugalRenamingRegions);
+    rename(output, 'region', dicts.portugalRenamingRegions);
     addNUTSCodes(output, 'PT');
     return output;
 }
@@ -1603,7 +1114,7 @@ function parseCSVDenmark(filename: string[]): Country {
         const years = Array.from({ length: 4 }, (_, id) => y + 'Q' + (id + 1));
         mergeYears(output, years, String(y));
     }
-    rename(output, 'province', denmarkRenamingProvinces);
+    rename(output, 'province', dicts.denmarkRenamingProvinces);
     addNUTSCodes(output, 'DK');
     return output;
 }
@@ -1642,11 +1153,11 @@ async function parseXLSXAustria(filename: string[]): Promise<Country> {
             });
         }
     }
-    //await translateCountryCrimes(output, 'de', 'en');
+    await translateCountryCrimes(output, 'de', 'en');
     mergeLocations(output, ['Wr. Neustadt', 'Korneuburg', 'Krems/Donau', 'St. Pölten'], 'region', 'Niederösterreich');
     mergeLocations(output, ['Linz', 'Ried/Innkreis', 'Steyr', 'Wels'], 'region', 'Oberösterreich');
     mergeLocations(output, ['Graz', 'Leoben'], 'region', 'Steiermark');
-    rename(output, 'region', austriaRenaming);
+    rename(output, 'region', dicts.austriaRenamingRegions);
     addNUTSCodes(output, 'AT');
     return output;
 }
@@ -1821,7 +1332,7 @@ async function getCzechData(filename: string[]): Promise<Country> {
             region.province = region.province.filter((x: Province) => x.county.length > 0);
         }
     }
-    rename(output, 'region', czechRenamingRegions);
+    rename(output, 'region', dicts.czechRenamingRegions);
     addNUTSCodes(output, 'CZ');
     /*fs.writeFile('data/source_files/test3n.txt', JSON.stringify(output), function(err) {
         if (err) {
@@ -1946,9 +1457,9 @@ async function parseCSVSpain(filename: string[]): Promise<Country> {
             }
         }
     }
-    //await translateCountryCrimes(output, 'es', 'en');
-    rename(output, 'region', spainRenamingRegions);
-    rename(output, 'province', spainRenamingProvinces);
+    await translateCountryCrimes(output, 'es', 'en');
+    rename(output, 'region', dicts.spainRenamingRegions);
+    rename(output, 'province', dicts.spainRenamingProvinces);
     addNUTSCodes(output, 'ES');
     return output;
 }
@@ -2116,8 +1627,8 @@ function parseXLSItaly(filename: string[]): Country {
             }
         }
     }
-    rename(output, 'region', italyRenamingRegions);
-    rename(output, 'province', italyRenamingProvinces);
+    rename(output, 'region', dicts.italyRenamingRegions);
+    rename(output, 'province', dicts.italyRenamingProvinces);
     addNUTSCodes(output, 'IT');
     return output;
 }
@@ -2253,9 +1764,9 @@ async function parseCSVNetherlands(filename: string[]): Promise<Country> {
         }
     });
 
-    //await translateCountryCrimes(output, 'nl', 'en');
-    rename(output, 'region', netherlandRenamingRegions);
-    rename(output, 'province', netherlandsRenamingProvinces);
+    await translateCountryCrimes(output, 'nl', 'en');
+    rename(output, 'region', dicts.netherlandRenamingRegions);
+    rename(output, 'province', dicts.netherlandsRenamingProvinces);
     addNUTSCodes(output, 'NL');
     return output;
 }
@@ -2347,7 +1858,7 @@ function parseXLSNorthernIreland(filename: string[]): Country {
             }
         });
     }
-    rename(output, 'region', nirelandRenamingRegions);
+    rename(output, 'region', dicts.nirelandRenamingRegions);
     addNUTSCodes(output, 'UK');
     return output;
 }
@@ -2609,9 +2120,9 @@ async function parseCSVBelgium(filename: string[]): Promise<Country> {
         //console.log('iteration ended');
         firstPass = false;
     }
-    //await translateCountryCrimes(output, 'nl', 'en');
-    rename(output, 'region', belgiumRenamingRegions);
-    rename(output, 'province', belgiumRenamingProvinces);
+    await translateCountryCrimes(output, 'nl', 'en');
+    rename(output, 'region', dicts.belgiumRenamingRegions);
+    rename(output, 'province', dicts.belgiumRenamingProvinces);
     addNUTSCodes(output, 'BE');
     return output;
 }
@@ -2700,8 +2211,8 @@ function parseXLSEngland(filename: string[]): Country {
         'province',
         'Gloucestershire, Wiltshire and Bristol/Bath area',
     );
-    rename(output, 'region', englandRenamingRegions);
-    rename(output, 'province', englandRenamingProvinces);
+    rename(output, 'region', dicts.englandRenamingRegions);
+    rename(output, 'province', dicts.englandRenamingProvinces);
     addNUTSCodes(output, 'UK');
     return output;
 }
@@ -2800,9 +2311,9 @@ async function parseXLSFrance(filename: string[]): Promise<Country> {
             });
         }
     }
+    await translateCountryCrimes(output, 'fr', 'en');
     mergeLocations(output, ['TOULOUSE MIRAIL', 'TOULOUSE ST MICHEL'], 'region', 'Toulouse');
-    rename(output, 'region', franceRenaming);
-    //await translateCountryCrimes(output, 'fr', 'en');
+    rename(output, 'region', dicts.franceRenamingRegions);
     addNUTSCodes(output, 'FR');
     return output;
 }
@@ -2938,8 +2449,8 @@ async function parseXLSGermany(filename: string[]): Promise<Country> {
             }
         }
     }
-    //await translateCountryCrimes(output, 'de', 'en');
-    rename(output, 'province', germanyRenamingProvinces);
+    await translateCountryCrimes(output, 'de', 'en');
+    rename(output, 'province', dicts.germanyRenamingProvinces);
     addNUTSCodes(output, 'DE');
     return output;
 }
@@ -3119,7 +2630,7 @@ function parseXLSFinland(filename: string[]): Country {
         const years = Array.from({ length: 12 }, (_, id) => y + 'M0' + (id + 1));
         mergeYears(output, years, String(y));
     }
-    rename(output, 'county', finlandRenamingCounties);
+    rename(output, 'county', dicts.finlandRenamingCounties);
     addNUTSCodes(output, 'FI');
     return output;
 }
@@ -3210,7 +2721,7 @@ async function getPolishData(filename: string[]): Promise<Country> {
         }
     });*/
     console.log('ended');
-    rename(output, 'province', polandRenamingProvinces);
+    rename(output, 'province', dicts.polandRenamingProvinces);
     addNUTSCodes(output, 'PL');
     //console.log(output);
     return output;
