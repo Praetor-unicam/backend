@@ -9,11 +9,14 @@ const fs = require('fs');
 const read = require('../fileService');
 // create instance of a luxembourg state
 router.post('/create/:country', async (req, res) => {
+
     // const country = req.params.country;
     // const state = new State(loader.getData(country));
     const country = req.body;
     const state = new State(country);
     //console.log(state);
+
+
     await state
         .save()
         .then(result => {
@@ -231,6 +234,7 @@ router.get('/data/:country/:year/:region', async (req, res) => {
             crimes = [];
             //return doc;
             doc.forEach(crime => {
+
                 let new_crime = { name: crime.crime, n_crimes: parseInt(crime.value) };
                 crimes.push(new_crime);
             });
@@ -253,6 +257,9 @@ router.get('/categories/:country', async (req, res) => {
             crimes = [];
             doc.forEach(crime => {
                 let new_crime = { name: crime };
+
+               // const new_crime = { name: crime.crime, n_crimes: parseInt(crime.value) };
+
                 crimes.push(new_crime);
             });
             res.status(200).json(crimes);

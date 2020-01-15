@@ -1,5 +1,9 @@
 const mongoose = require('mongoose');
+
 const StateSchema = new mongoose.Schema({
+
+
+
     country: String,
     NUTS: [],
     year: [

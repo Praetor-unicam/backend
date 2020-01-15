@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-{}
-=======
 {
-    "python.pythonPath": "C:\\Users\\matte\\AppData\\Local\\Programs\\Python\\Python37\\python.exe"
+    "typescript.tsdk": "node_modules\\typescript\\lib"
 }
->>>>>>> b4820b700a75747471425ec2527ec5444c91e05a

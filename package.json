@@ -4,7 +4,7 @@
   "description": "sample desc",
   "main": "src/index.ts",
   "scripts": {
-    "dev": "ts-node-dev src/index.ts",
+    "dev": "npm install && ts-node-dev src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint 'src/**/*.{js,ts,tsx}' --quiet --fix"
   },
@@ -19,18 +19,34 @@
   },
   "homepage": "https://github.com/an4cr0n/backend#readme",
   "dependencies": {
+
     "@types/mongoose": "^5.5.34",
+
+    "axios": "^0.19.0",
+
     "dotenv": "^8.2.0",
+    "download": "^7.1.0",
     "express": "^4.17.1",
+
     "file-management": "^1.1.0",
     "glob": "^7.1.6",
     "increase-memory-limit": "^1.0.7",
+
+    "helmet": "^3.21.2",
+
     "mongoose": "^5.7.12",
-    "selenium-webdriver": "^4.0.0-alpha.5"
+    "selenium-webdriver": "^4.0.0-alpha.5",
+    "swagger-jsdoc": "^3.4.0",
+    "swagger-ui-express": "^4.1.2"
   },
   "devDependencies": {
+    "@types/download": "^6.2.4",
     "@types/express": "^4.17.2",
+    "@types/helmet": "0.0.45",
     "@types/selenium-webdriver": "^4.0.5",
+    "@types/swagger-jsdoc": "^3.0.2",
+    "@types/swagger-ui-express": "^4.1.0",
+    "@types/yamljs": "^0.2.30",
     "@typescript-eslint/eslint-plugin": "^2.8.0",
     "@typescript-eslint/parser": "^2.8.0",
     "convert-excel-to-json": "^1.6.1",
@@ -39,10 +55,14 @@
     "eslint": "^6.6.0",
     "eslint-config-prettier": "^6.7.0",
     "eslint-plugin-prettier": "^3.1.1",
+    "glob": "^7.1.6",
     "prettier": "^1.19.1",
+    "request": "^2.88.0",
+    "translate": "^1.1.0",
     "ts-node": "^8.5.2",
     "ts-node-dev": "^1.0.0-pre.44",
-    "typescript": "^3.7.2",
-    "xls-to-json": "^0.5.4"
+    "typescript": "^3.7.3",
+    "xls-to-json": "^0.5.4",
+    "xmlhttprequest": "^1.8.0"
   }
 }
