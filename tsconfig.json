@@ -63,6 +63,6 @@
         /* Advanced Options */
         "forceConsistentCasingInFileNames": true /* Disallow inconsistently-cased references to the same file. */
     },
-    "include": ["src/**/*.ts", "src/routes/luxembourg.ts"],
+    "include": ["src/**/*.ts", "src/routes/luxembourg.js", "src/model/State.js", "src/model/Maps.js"],
     "exclude": ["node_modules"]
 }

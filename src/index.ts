@@ -16,13 +16,16 @@ import luxembourg from './routes/scraper/luxembourg';
 import { getData } from './loader'; // getData will return luxembourg's data so far
 import { request } from 'http';
 
-
 const app = express();
+var bodyParser = require('body-parser');
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb' }));
+
 app.use(body_parser.json());
 app.use('/api', state);
 
-var path = require('path')
-app.use(express.static(path.join(__dirname, '../frontend')))
+var path = require('path');
+app.use(express.static(path.join(__dirname, '../frontend')));
 
 app.use('/scraper/luxembourg', luxembourg);
 ///////////////////DEBUG ROUTES//////////////////////////
@@ -37,6 +40,6 @@ app.get('/readXLS-cyprus', (request, response) => {
 
 app.get('/', (request, response) => {
     response.sendFile(path.join(__dirname, '../frontend/index.html'));
-})
+});
 
 app.listen(5000);
