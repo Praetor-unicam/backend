@@ -27,20 +27,32 @@ import germany from './routes/scraper/germany';
 
 import * as swaggerUi from 'swagger-ui-express';
 
+
+const app = express();
+var bodyParser = require('body-parser');
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb' }));
+
+app.use(body_parser.json());
+app.use('/api', state);
+
+var path = require('path');
+
 import { swaggerSpec } from './swaggerDef';
 
 import { getData, getCrimeCategories } from './loader'; // getData will return luxembourg's data so far
 import { compare } from './comparator';
 import { request } from 'http';
 
-const app = express();
+
 app.use(helmet()); // Add security headers
-app.use(body_parser.json());
-app.use('/api', state);
+
+
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-const path = require('path');
+
+
 app.use(express.static(path.join(__dirname, '../frontend')));
 
 app.use('/scraper/luxembourg', luxembourg);
