@@ -19,6 +19,82 @@ enum NUTS {
     LAU = 6,
 }
 
+const countryNUTS: Record<string, string> = {
+    luxembourg: 'LU',
+    cyprus: 'CY',
+    hungary: 'HU',
+    bulgaria: 'BG',
+    portugal: 'PT',
+    denmark: 'DK',
+    austria: 'AT',
+    'czech-republic': 'CZ',
+    spain: 'ES',
+    italy: 'IT',
+    netherlands: 'NL',
+    belgium: 'BE',
+    england: 'UK',
+    france: 'FR',
+    germany: 'DE',
+    finland: 'FI',
+    poland: 'PL',
+};
+
+const countrySources: Record<string, Array<string>> = {
+    luxembourg: fs
+        .readdirSync('data/source_files/luxembourg/')
+        .sort((x, y) => Number(x.match(/\d/g)!.join('')) - Number(y.match(/\d/g)!.join(''))),
+    cyprus: fs
+        .readdirSync('data/source_files/cyprus/')
+        .sort((x, y) => Number(x.match(/\d/g)!.join('')) - Number(y.match(/\d/g)!.join(''))),
+    hungary: fs
+        .readdirSync('data/source_files/hungary/')
+        .sort((x, y) => Number(x.match(/\d/g)!.join('')) - Number(y.match(/\d/g)!.join(''))),
+    bulgaria: fs
+        .readdirSync('data/source_files/bulgaria/')
+        .sort((x, y) => Number(x.match(/\d/g)!.join('')) - Number(y.match(/\d/g)!.join(''))),
+    denmark: fs
+        .readdirSync('data/source_files/denmark/')
+        .sort((x, y) => Number(x.match(/\d/g)!.join('')) - Number(y.match(/\d/g)!.join(''))),
+    portugal: fs
+        .readdirSync('data/source_files/portugal/')
+        .sort((x, y) => Number(x.match(/\d/g)!.join('')) - Number(y.match(/\d/g)!.join(''))),
+    austria: fs
+        .readdirSync('data/source_files/austria/')
+        .sort((x, y) => Number(x.match(/\d/g)!.join('')) - Number(y.match(/\d/g)!.join(''))),
+    'czech-republic': [''],
+    spain: fs
+        .readdirSync('data/source_files/spain/')
+        .sort((x, y) => Number(x.match(/\d/g)!.join('')) - Number(y.match(/\d/g)!.join(''))),
+    italy: fs
+        .readdirSync('data/source_files/italy/')
+        .sort((x, y) => Number(x.match(/\d/g)!.join('')) - Number(y.match(/\d/g)!.join(''))),
+    netherlands: fs
+        .readdirSync('data/source_files/netherlands/')
+        .sort((x, y) => Number(x.match(/\d/g)!.join('')) - Number(y.match(/\d/g)!.join(''))),
+    'northern-ireland': fs
+        .readdirSync('data/source_files/northern-ireland/')
+        .sort((x, y) => Number(x.match(/\d/g)!.join('')) - Number(y.match(/\d/g)!.join(''))),
+    belgium: fs
+        .readdirSync('data/source_files/belgium/')
+        .sort((x, y) => Number(x.match(/\d/g)!.join('')) - Number(y.match(/\d/g)!.join(''))),
+    england: fs
+        .readdirSync('data/source_files/england/')
+        .sort((x, y) => Number(x.match(/\d/g)!.join('')) - Number(y.match(/\d/g)!.join(''))),
+    wales: fs
+        .readdirSync('data/source_files/england/')
+        .sort((x, y) => Number(x.match(/\d/g)!.join('')) - Number(y.match(/\d/g)!.join(''))),
+    france: fs
+        .readdirSync('data/source_files/france/')
+        .sort((x, y) => Number(x.match(/\d/g)!.join('')) - Number(y.match(/\d/g)!.join(''))),
+    germany: fs
+        .readdirSync('data/source_files/germany/')
+        .sort((x, y) => Number(x.match(/\d/g)!.join('')) - Number(y.match(/\d/g)!.join(''))),
+    finland: fs
+        .readdirSync('data/source_files/finland/')
+        .sort((x, y) => Number(x.match(/\d/g)!.join('')) - Number(y.match(/\d/g)!.join(''))),
+    poland: [''],
+};
+
 //////////DB INTERFACE //////////////////
 interface Place {
     name: string;
@@ -83,9 +159,13 @@ export interface Country {
 function flatten(source: Country, code: string): CountryDB {
     const output: CountryDB = { CountryNUTS: code, year: [] };
     for (const year of source.year) {
-        output.year.push({ year: year.year, place: [{ name: source.country, NUTS: code, data: year.data }] });
+        output.year.push({ year: year.year, place: [] });
+        const yrindex = output.year.length - 1;
+        if (year.data.length > 0) {
+            output.year[yrindex].place.push({ name: source.country, NUTS: code, data: year.data });
+        }
+
         for (const region of year.region) {
-            const yrindex = output.year.length - 1;
             if (region.NUTS) {
                 output.year[yrindex].place.push({ name: region.region, NUTS: region.NUTS, data: region.data });
             }
@@ -2173,6 +2253,59 @@ async function parseCSVBelgium(filename: string[]): Promise<Country> {
     return output;
 }
 
+//come sopra
+function parseXLSWales(filename: string[]): Country {
+    const output: Country = { country: 'Wales', year: [], NUTS: [] };
+    let i = 0;
+    for (const file of filename) {
+        let records = excelToJson({
+            sourceFile: sourcePath + 'england/' + file,
+            header: {
+                rows: 5,
+            },
+            columnToKey: {
+                C: 'Total',
+                '*': '{{columnHeader}}',
+            },
+            range: 'A57:Z61',
+        });
+
+        records = records['Table P1'];
+
+        let regIndex = 0;
+        output.year.push({ year: String(2015 + i) + '/' + String(2016 + i), region: [], data: [] });
+        for (const row of records) {
+            if (row['Area Name'] === 'WALES') {
+                Object.keys(row).forEach(function(key) {
+                    if (key !== 'Area Name' && key !== 'Area Code') {
+                        output.year[i].data?.push({
+                            crime: key.replace(/\s*[0-9],*[0-9]*/g, ''),
+                            value: Number(row[key]),
+                        });
+                    }
+                });
+            } else {
+                output.year[i].region.push({
+                    region: row['Area Name'],
+                    province: [],
+                    data: [],
+                });
+                regIndex = output.year[i].region.length - 1;
+                Object.keys(row).forEach(function(key) {
+                    if (key !== 'Area Name' && key !== 'Area Code') {
+                        output.year[i].region[regIndex].data?.push({
+                            crime: key.replace(/\s*[0-9],*[0-9]*/g, ''),
+                            value: Number(row[key]),
+                        });
+                    }
+                });
+            }
+        }
+        i++;
+    }
+    return output;
+}
+
 //ordine cronologico
 function parseXLSEngland(filename: string[]): Country {
     const output: Country = { country: 'England', year: [], NUTS: [NUTS.NUTS1, NUTS.NUTS2] };
@@ -2260,59 +2393,39 @@ function parseXLSEngland(filename: string[]): Country {
     rename(output, 'region', dicts.englandRenamingRegions);
     rename(output, 'province', dicts.englandRenamingProvinces);
     addNUTSCodes(output, 'UK');
-    return output;
-}
 
-//come sopra
-function parseXLSWales(filename: string[]): Country {
-    const output: Country = { country: 'Wales', year: [], NUTS: [] };
-    let i = 0;
-    for (const file of filename) {
-        let records = excelToJson({
-            sourceFile: sourcePath + 'england/' + file,
-            header: {
-                rows: 5,
-            },
-            columnToKey: {
-                C: 'Total',
-                '*': '{{columnHeader}}',
-            },
-            range: 'A57:Z61',
-        });
-
-        records = records['Table P1'];
-
-        let regIndex = 0;
-        output.year.push({ year: String(2015 + i) + '/' + String(2016 + i), region: [], data: [] });
-        for (const row of records) {
-            if (row['Area Name'] === 'WALES') {
-                Object.keys(row).forEach(function(key) {
-                    if (key !== 'Area Name' && key !== 'Area Code') {
-                        output.year[i].data?.push({
-                            crime: key.replace(/\s*[0-9],*[0-9]*/g, ''),
-                            value: Number(row[key]),
-                        });
-                    }
-                });
-            } else {
-                output.year[i].region.push({
-                    region: row['Area Name'],
-                    province: [],
-                    data: [],
-                });
-                regIndex = output.year[i].region.length - 1;
-                Object.keys(row).forEach(function(key) {
-                    if (key !== 'Area Name' && key !== 'Area Code') {
-                        output.year[i].region[regIndex].data?.push({
-                            crime: key.replace(/\s*[0-9],*[0-9]*/g, ''),
-                            value: Number(row[key]),
-                        });
-                    }
-                });
-            }
+    const wales = parseXLSWales(countrySources['wales']);
+    for (const year of wales.year) {
+        const yrindex = output.year.map(x => x.year).indexOf(year.year);
+        output.year[yrindex].region.push({ region: 'Wales', province: [], data: year.data, NUTS: 'UKL' });
+        for (const region of year.region) {
+            output.year[yrindex].region.push(region);
         }
-        i++;
     }
+
+    const nireland = parseXLSNorthernIreland(countrySources['northern-ireland']);
+    for (const year of nireland.year) {
+        let y = year.year.substring(5);
+        if (Number(y) <= 50) {
+            y = year.year.substring(0, 5) + '20' + year.year.substring(5);
+        } else {
+            y = year.year.substring(0, 5) + '19' + year.year.substring(5);
+        }
+        let yrindex = output.year.map(x => x.year).indexOf(y);
+        if (yrindex === -1) {
+            output.year.push({ year: y, data: [], region: [] });
+            yrindex = output.year.length - 1;
+        }
+        output.year[yrindex].region.push({ region: 'Northern Ireland', province: [], data: year.data, NUTS: 'UKN' });
+        for (const region of year.region) {
+            output.year[yrindex].region.push(region);
+        }
+    }
+
+    for (const year of output.year) {
+        year.data = [];
+    }
+
     return output;
 }
 
@@ -2773,7 +2886,6 @@ async function getPolishData(filename: string[]): Promise<Country> {
     return output;
 }
 ///////////////////////////////////////////////////////
-
 //////// DICTIONARY OF FUNCTIONS ////////////
 /**
  * Contains all the country specific parsers
@@ -2790,92 +2902,12 @@ const countryFunctions: Record<string, Function> = {
     spain: parseCSVSpain,
     italy: parseXLSItaly,
     netherlands: parseCSVNetherlands,
-    'northern-ireland': parseXLSNorthernIreland,
     belgium: parseCSVBelgium,
     england: parseXLSEngland,
-    wales: parseXLSWales,
     france: parseXLSFrance,
     germany: parseXLSGermany,
     finland: parseXLSFinland,
     poland: getPolishData,
-};
-
-const countryNUTS: Record<string, string> = {
-    luxembourg: 'LU',
-    cyprus: 'CY',
-    hungary: 'HU',
-    bulgaria: 'BG',
-    portugal: 'PT',
-    denmark: 'DK',
-    austria: 'AT',
-    'czech-republic': 'CZ',
-    spain: 'ES',
-    italy: 'IT',
-    netherlands: 'NL',
-    'northern-ireland': 'UKN',
-    belgium: 'BE',
-    england: 'UK',
-    wales: 'UKL',
-    france: 'FR',
-    germany: 'DE',
-    finland: 'FI',
-    poland: 'PL',
-};
-
-const countrySources: Record<string, Array<string>> = {
-    luxembourg: fs
-        .readdirSync('data/source_files/luxembourg/')
-        .sort((x, y) => Number(x.match(/\d/g)!.join('')) - Number(y.match(/\d/g)!.join(''))),
-    cyprus: fs
-        .readdirSync('data/source_files/cyprus/')
-        .sort((x, y) => Number(x.match(/\d/g)!.join('')) - Number(y.match(/\d/g)!.join(''))),
-    hungary: fs
-        .readdirSync('data/source_files/hungary/')
-        .sort((x, y) => Number(x.match(/\d/g)!.join('')) - Number(y.match(/\d/g)!.join(''))),
-    bulgaria: fs
-        .readdirSync('data/source_files/bulgaria/')
-        .sort((x, y) => Number(x.match(/\d/g)!.join('')) - Number(y.match(/\d/g)!.join(''))),
-    denmark: fs
-        .readdirSync('data/source_files/denmark/')
-        .sort((x, y) => Number(x.match(/\d/g)!.join('')) - Number(y.match(/\d/g)!.join(''))),
-    portugal: fs
-        .readdirSync('data/source_files/portugal/')
-        .sort((x, y) => Number(x.match(/\d/g)!.join('')) - Number(y.match(/\d/g)!.join(''))),
-    austria: fs
-        .readdirSync('data/source_files/austria/')
-        .sort((x, y) => Number(x.match(/\d/g)!.join('')) - Number(y.match(/\d/g)!.join(''))),
-    'czech-republic': [''],
-    spain: fs
-        .readdirSync('data/source_files/spain/')
-        .sort((x, y) => Number(x.match(/\d/g)!.join('')) - Number(y.match(/\d/g)!.join(''))),
-    italy: fs
-        .readdirSync('data/source_files/italy/')
-        .sort((x, y) => Number(x.match(/\d/g)!.join('')) - Number(y.match(/\d/g)!.join(''))),
-    netherlands: fs
-        .readdirSync('data/source_files/netherlands/')
-        .sort((x, y) => Number(x.match(/\d/g)!.join('')) - Number(y.match(/\d/g)!.join(''))),
-    'northern-ireland': fs
-        .readdirSync('data/source_files/northern-ireland/')
-        .sort((x, y) => Number(x.match(/\d/g)!.join('')) - Number(y.match(/\d/g)!.join(''))),
-    belgium: fs
-        .readdirSync('data/source_files/belgium/')
-        .sort((x, y) => Number(x.match(/\d/g)!.join('')) - Number(y.match(/\d/g)!.join(''))),
-    england: fs
-        .readdirSync('data/source_files/england/')
-        .sort((x, y) => Number(x.match(/\d/g)!.join('')) - Number(y.match(/\d/g)!.join(''))),
-    wales: fs
-        .readdirSync('data/source_files/england/')
-        .sort((x, y) => Number(x.match(/\d/g)!.join('')) - Number(y.match(/\d/g)!.join(''))),
-    france: fs
-        .readdirSync('data/source_files/france/')
-        .sort((x, y) => Number(x.match(/\d/g)!.join('')) - Number(y.match(/\d/g)!.join(''))),
-    germany: fs
-        .readdirSync('data/source_files/germany/')
-        .sort((x, y) => Number(x.match(/\d/g)!.join('')) - Number(y.match(/\d/g)!.join(''))),
-    finland: fs
-        .readdirSync('data/source_files/finland/')
-        .sort((x, y) => Number(x.match(/\d/g)!.join('')) - Number(y.match(/\d/g)!.join(''))),
-    poland: [''],
 };
 
 ////////////////////////////////////////////
@@ -2892,7 +2924,8 @@ export async function getData(country: string): Promise<Country> {
     return data;
 }
 
-export async function getFlattenedData(source: Country): Promise<CountryDB>{
+export async function getFlattenedData(country: string): Promise<CountryDB> {
+    const source = await getData(country);
     return flatten(source, countryNUTS[source.country.toLowerCase()]);
 }
 
