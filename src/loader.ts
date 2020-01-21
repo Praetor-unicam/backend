@@ -19,6 +19,24 @@ enum NUTS {
     LAU = 6,
 }
 
+//////////DB INTERFACE //////////////////
+interface Place {
+    name: string;
+    data: Array<Crime>;
+    NUTS: string;
+}
+
+interface YearDB {
+    year: string;
+    place: Array<Place>;
+    //data: Array<Crime>;
+}
+
+interface CountryDB {
+    CountryNUTS: string;
+    year: Array<YearDB>;
+}
+
 ////////// INTERFACES ///////////
 
 export interface Crime {
@@ -61,6 +79,34 @@ export interface Country {
 }
 
 //////// GENERAL USE FUNCTIONS /////////////
+
+function flatten(source: Country, code: string): CountryDB {
+    const output: CountryDB = { CountryNUTS: code, year: [] };
+    for (const year of source.year) {
+        output.year.push({ year: year.year, place: [{ name: source.country, NUTS: code, data: year.data }] });
+        for (const region of year.region) {
+            const yrindex = output.year.length - 1;
+            if (region.NUTS) {
+                output.year[yrindex].place.push({ name: region.region, NUTS: region.NUTS, data: region.data });
+            }
+            for (const province of region.province) {
+                if (province.NUTS) {
+                    output.year[yrindex].place.push({
+                        name: province.province,
+                        NUTS: province.NUTS,
+                        data: province.data,
+                    });
+                }
+                for (const county of province.county) {
+                    if (county.NUTS) {
+                        output.year[yrindex].place.push({ name: county.county, NUTS: county.NUTS, data: county.data });
+                    }
+                }
+            }
+        }
+    }
+    return output;
+}
 
 /**
  * merges same fields and removes NaNs
@@ -2754,6 +2800,28 @@ const countryFunctions: Record<string, Function> = {
     poland: getPolishData,
 };
 
+const countryNUTS: Record<string, string> = {
+    luxembourg: 'LU',
+    cyprus: 'CY',
+    hungary: 'HU',
+    bulgaria: 'BG',
+    portugal: 'PT',
+    denmark: 'DK',
+    austria: 'AT',
+    'czech-republic': 'CZ',
+    spain: 'ES',
+    italy: 'IT',
+    netherlands: 'NL',
+    'northern-ireland': 'UKN',
+    belgium: 'BE',
+    england: 'UK',
+    wales: 'UKL',
+    france: 'FR',
+    germany: 'DE',
+    finland: 'FI',
+    poland: 'PL',
+};
+
 const countrySources: Record<string, Array<string>> = {
     luxembourg: fs
         .readdirSync('data/source_files/luxembourg/')
@@ -2822,6 +2890,10 @@ export async function getData(country: string): Promise<Country> {
         mapCategories(data, country, false);
     }
     return data;
+}
+
+export async function getFlattenedData(source: Country): Promise<CountryDB>{
+    return flatten(source, countryNUTS[source.country.toLowerCase()]);
 }
 
 export async function getCrimeCategories(country: string): Promise<string> {
