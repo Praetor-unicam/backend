@@ -2915,7 +2915,7 @@ const countryFunctions: Record<string, Function> = {
 /**
  * Returns the JSON with ICCS categories of the specified country with source of the specified extension (eg. .csv, .xls, .xlsx)
  */
-async function getData(country: string): Promise<Country> {
+export async function getData(country: string): Promise<Country> {
     const data = await countryFunctions[country](countrySources[country]);
     NaNtoZero(data);
     if (fs.existsSync('data/matching/' + country + '/' + country + '-matching.txt')) {
