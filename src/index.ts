@@ -40,7 +40,7 @@ var path = require('path');
 
 import { swaggerSpec } from './swaggerDef';
 
-import { getData, getCrimeCategories } from './loader'; // getData will return luxembourg's data so far
+import { getCrimeCategories, getFlattenedData } from './loader'; // getData will return luxembourg's data so far
 import { compare } from './comparator';
 import { request } from 'http';
 
@@ -66,7 +66,7 @@ app.use('/scraper/france', france);
 app.use('/scraper/germany', germany);
 ///////////////////DEBUG ROUTES//////////////////////////
 app.get('/getdata', async (request, response) => {
-    response.send(await getData('portugal'));
+    response.send(await getFlattenedData('luxembourg'));
 });
 
 app.get('/getcategories', async (request, response) => {

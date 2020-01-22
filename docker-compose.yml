@@ -23,6 +23,8 @@ services:
       MONGO_INITDB_DATABASE: misap_DB
     expose:
       - 27017
+    ports:
+      - 27018:27017
 
 volumes:
   notused:
