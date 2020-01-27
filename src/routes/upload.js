@@ -26,10 +26,12 @@ router.post('/', function(req, res) {
 
   sampleFile.mv(uploadPath, function(err) {
     if (err) {
-      return res.status(500).send(err);
+      const fail = path.join(__dirname + '../../../upload_data/error.html');
+      return res.sendFile(fail);
     }
 
-    res.send('File uploaded');
+    const success = path.join(__dirname + '../../../upload_data/success.html');
+    res.sendFile(success);
   });
 });
 
