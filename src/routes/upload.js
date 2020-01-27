@@ -11,13 +11,17 @@ router.post('/', function(req, res) {
     return;
   }
 
+  console.log(req);
+
   console.log('req.files >>>', req.files); // eslint-disable-line
 
   sampleFile = req.files.sampleFile;
 
-  folderName = 'test'
+  filename = req.body.filename;
+  format = req.body.format;
+  folderName = req.body.country
 
-  uploadPath = path.join(__dirname + '../../../data/source_files/' + folderName + '/' + sampleFile.name);
+  uploadPath = path.join(__dirname + '../../../data/source_files/' + folderName + '/' + filename + '.' + format);
   console.log(uploadPath)
 
   sampleFile.mv(uploadPath, function(err) {
@@ -25,7 +29,7 @@ router.post('/', function(req, res) {
       return res.status(500).send(err);
     }
 
-    res.send('File uploaded to ' + uploadPath);
+    res.send('File uploaded');
   });
 });
 
