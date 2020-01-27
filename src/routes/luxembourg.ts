@@ -84,6 +84,104 @@ router.get('/year_available/:country/:ID', async (req, res) => {
         });
 });
 
+/**
+ * return list of all year available that nuts_id specified
+ */
+router.get('/years/:country/:nuts_id', async (req, res) => {
+    const id = req.params.nuts_id;
+    const country = req.params.country;
+    const query = [
+        {
+            $match: {
+                CountryNUTS: country,
+            },
+        },
+        {
+            $unwind: '$year',
+        },
+        {
+            $unwind: '$year.place',
+        },
+        {
+            $match: {
+                'year.place.NUTS': id,
+            },
+        },
+    ];
+    await Country.aggregate(query)
+        .exec()
+        .then((doc: any[]) => {
+            var years: any[] = [];
+            doc.forEach(element => {
+                //let new_data = { year: element.year.year };
+                years.push(element.year.year);
+            });
+            res.status(201).json(years);
+        })
+        .catch((err: any) => {
+            res.status(500).json(err);
+        });
+});
+/**
+ * return array with true or false if there are data available for
+ * nuts id specified
+ */
+router.get('/data_available/:country', async (req, res) => {
+    const id = JSON.parse(req.query.nuts_id);
+    const country = req.params.country;
+    var result: any[] = [];
+
+    for (const element of id) {
+        await db_call(country, element, result);
+    }
+    res.json(result);
+});
+
+async function db_call(country: String, nuts: any, array: any[]): Promise<any> {
+    const query = [
+        {
+            $match: {
+                CountryNUTS: country,
+            },
+        },
+        {
+            $unwind: '$year',
+        },
+        {
+            $unwind: '$year.place',
+        },
+        {
+            $match: {
+                'year.place.NUTS': nuts,
+            },
+        },
+        {
+            $project: {
+                data: '$year.place.data',
+            },
+        },
+    ];
+
+    await Country.aggregate(query)
+        .exec()
+        .then((doc: any[]) => {
+            console.log(doc.length);
+            if (doc.length != 0) {
+                let res = { NUTS: nuts, available: true };
+                array.push(res);
+                return array;
+            } else {
+                let res = { NUTS: nuts, available: false };
+                array.push(res);
+                return array;
+            }
+        })
+        .catch((err: any) => {
+            console.log(err);
+        });
+    console.log(array);
+}
+
 router.get('/data/:country/:year/:ID', async (req, res) => {
     const country = req.params.country;
     const year = req.params.year;
