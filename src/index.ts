@@ -4,6 +4,7 @@ const body_parser = require('body-parser');
 const fileUpload = require('express-fileupload');
 const state = require('./routes/luxembourg');
 const upload = require('./routes/upload');
+var path = require('path');
 import * as dotenv from 'dotenv';
 import helmet from 'helmet';
 
@@ -42,7 +43,6 @@ app.use(fileUpload({
 }));
 app.use('/api', state);
 
-var path = require('path');
 
 import { swaggerSpec } from './swaggerDef';
 
@@ -60,7 +60,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use('/upload', upload);
 app.use('/form', express.static(path.join(__dirname, '../upload_data')));
 
-//app.use(express.static(path.join(__dirname, '../frontend')));
+app.use(express.static(path.join(__dirname, '../frontend')));
 
 app.use('/scraper/luxembourg', luxembourg);
 app.use('/scraper/bulgary', bulgary);
