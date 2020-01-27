@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-
+const path = require('path');
 
 router.post('/', function(req, res) {
   let sampleFile;
@@ -15,7 +15,10 @@ router.post('/', function(req, res) {
 
   sampleFile = req.files.sampleFile;
 
-  uploadPath = __dirname + '/uploads/' + sampleFile.name;
+  folderName = 'test'
+
+  uploadPath = path.join(__dirname + '../../../data/source_files/' + folderName + '/' + sampleFile.name);
+  console.log(uploadPath)
 
   sampleFile.mv(uploadPath, function(err) {
     if (err) {
