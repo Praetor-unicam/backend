@@ -17,9 +17,17 @@ router.post('/', function(req, res) {
 
   sampleFile = req.files.sampleFile;
 
-  filename = req.body.filename;
-  format = req.body.format;
-  folderName = req.body.country
+
+  console.log(res.body)
+  if (req.body.filename == null || !req.body.format == null || !req.body.country == null) {
+    res.status(400).send('Some info is missing.');
+    return;
+  }
+
+
+  filename = req.body.filename.toLowerCase();
+  format = req.body.format.toLowerCase();
+  folderName = req.body.country.toLowerCase();
 
   uploadPath = path.join(__dirname + '../../../data/source_files/' + folderName + '/' + filename + '.' + format);
   console.log(uploadPath)

@@ -57,7 +57,7 @@ app.use(helmet()); // Add security headers
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-app.use('/upload', upload);
+app.use('/api/upload', upload);
 app.use('/form', express.static(path.join(__dirname, '../upload_data')));
 
 app.use(express.static(path.join(__dirname, '../frontend')));
