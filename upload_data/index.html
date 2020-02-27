@@ -1,0 +1,71 @@
+<html>
+	<head>
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+	</head>
+	<body>
+		<div class="container-fluid h-100">
+			<div class="row justify-content-center align-items-center h-100">
+				<div class="col col-sm-6 col-md-6 col-lg-4 col-xl-3">
+					
+					<h1>PRAETOR Upload</h1>
+
+					<form ref='uploadForm' 
+					id='uploadForm' 
+					action='/upload' 
+					method='post' 
+					encType="multipart/form-data">
+					
+			<div class="form-group">
+				<label for="filename">File name</label>
+				<input type="text" name="filename" class="form-control" id="filename" aria-describedby="filename" placeholder="italy_1">
+			</div>
+			<div class="form-group">
+				<label for="typeselect">Filetype</label>
+				<select class="form-control" name="format" form="uploadForm" id="typeselect">
+					<option value="csv">CSV</option>
+					<option value="xls">XLSX</option>
+					<option value="xlsx">XLS</option>
+				</select>
+			</div>
+
+			<div class="form-group">
+				<label for="country">Country</label>
+				<select class="form-control" name="country" form="uploadForm" id="country">
+					<option value="austria">Austria</option>
+					<option value="belgium">Belgium</option>
+					<option value="cyprus">Cyprus</option>
+					<option value="denmark">Denmark</option>
+					<option value="england">England</option>
+					<option value="finland">Finland</option>
+					<option value="france">France</option>
+					<option value="germany">Germany</option>
+					<option value="hungary">Hungary</option>
+					<option value="italy">Italy</option>
+					<option value="luxembourg">Luxembourg</option>
+					<option value="netherlands">Netherlands</option>
+					<option value="northern-ireland">Northern Ireland</option>
+					<option value="portugal">Portugal</option>
+					<option value="spain">Spain</option>
+				</select>
+			</div>
+			<div class="form-group">
+				<label for="fileform">Data input file</label>
+				<input type="file" class="form-control-file" name="sampleFile" id="fileform" />
+			</div>
+			
+			<div class="form-group">
+				<input type='submit' class="btn btn-primary btn-lg btn-block" value='Upload!' />
+			</div>
+		</form>
+
+		<h3 style="text-align: center;"><b>OR</b></h3>
+
+		<input type="submit" class="btn btn-danger btn-lg btn-block" value="Return home"
+			onclick="window.location='/';" />
+			
+				</div></div></div>
+	</body>
+	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+</html>

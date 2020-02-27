@@ -1,7 +1,10 @@
 import express, { response } from 'express';
 const mongoose = require('mongoose');
 const body_parser = require('body-parser');
+const fileUpload = require('express-fileupload');
 const state = require('./routes/luxembourg');
+const upload = require('./routes/upload');
+var path = require('path');
 import * as dotenv from 'dotenv';
 import helmet from 'helmet';
 
@@ -34,9 +37,12 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb' }));
 
 app.use(body_parser.json());
+// enable files upload
+app.use(fileUpload({
+    createParentPath: true
+}));
 app.use('/api', state);
 
-var path = require('path');
 
 import { swaggerSpec } from './swaggerDef';
 
@@ -51,7 +57,8 @@ app.use(helmet()); // Add security headers
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-
+app.use('/api/upload', upload);
+app.use('/form', express.static(path.join(__dirname, '../upload_data')));
 
 app.use(express.static(path.join(__dirname, '../frontend')));
 
