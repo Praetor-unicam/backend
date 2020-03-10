@@ -1,8 +1,9 @@
 import express, { response } from 'express';
 const mongoose = require('mongoose');
 const body_parser = require('body-parser');
+const state = require('./routes/api_calls');
 const fileUpload = require('express-fileupload');
-const state = require('./routes/luxembourg');
+//const state = require('./routes/luxembourg');
 const upload = require('./routes/upload');
 var path = require('path');
 import * as dotenv from 'dotenv';
@@ -30,7 +31,6 @@ import germany from './routes/scraper/germany';
 
 import * as swaggerUi from 'swagger-ui-express';
 
-
 const app = express();
 var bodyParser = require('body-parser');
 app.use(express.json({ limit: '50mb' }));
@@ -38,11 +38,12 @@ app.use(express.urlencoded({ limit: '50mb' }));
 
 app.use(body_parser.json());
 // enable files upload
-app.use(fileUpload({
-    createParentPath: true
-}));
+app.use(
+    fileUpload({
+        createParentPath: true,
+    }),
+);
 app.use('/api', state);
-
 
 import { swaggerSpec } from './swaggerDef';
 
@@ -50,10 +51,7 @@ import { getCrimeCategories, getFlattenedData } from './loader'; // getData will
 import { compare } from './comparator';
 import { request } from 'http';
 
-
 app.use(helmet()); // Add security headers
-
-
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
@@ -80,9 +78,9 @@ app.get('/getcategories', async (request, response) => {
     response.send(await getCrimeCategories('italy'));
 });
 
-app.get('/compare', async (request, response) => {
-    response.send(await compare(['Cyprus', 'Luxembourg'], ['Cyprus', 'Luxembourg'], 'national', '2017'));
-});
+// app.get('/compare', async (request, response) => {
+//     response.send(await compare(['LU'], ['LU'], '2017',));
+// });
 ///////////////////////////////////////////////////////
 
 app.get('/', (request, response) => {

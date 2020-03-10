@@ -1,0 +1,1 @@
+{"crs": {"type": "name", "properties": {"name": "urn:ogc:def:crs:EPSG::4326"}}, "type": "FeatureCollection", "ID": "ES64", "features": [{"geometry": {"type": "Polygon", "coordinates": [[[-2.95249, 35.31977], [-2.92812, 35.27308], [-2.97009, 35.28943], [-2.95249, 35.31977]]]}, "type": "Feature", "properties": {"NUTS_NAME": "Melilla", "NUTS_ID": "ES640"}, "id": "ES640"}]}
