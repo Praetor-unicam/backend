@@ -21,10 +21,13 @@ services:
     image: mongo
     environment: 
       MONGO_INITDB_DATABASE: misap_DB
+    volumes:
+      - misap-data:/data/db
     expose:
       - 27017
     ports:
       - 27018:27017
 
 volumes:
+  misap-data:
   notused:
